@@ -1,6 +1,6 @@
 Notes:
 - Use Crowdsourcing to train a neural network
-	- create a pool of words in such a way i then can extract for testing the prononciation.
+	- create a pool of words in such a way i then can extract for testing the pronunciation.
 
 - The difference between the pronunciation of the user and the (average?) crowd will yield the score
 - The rest will be the same
@@ -10,5 +10,10 @@ Notes:
 - Send an email to Olle with the day I will start the project
 
 
+
+
+IDEAS:
+- Find a way to teach stressed words using graphs or images
+- Game-based competition for improving the pronunciation of stressed words
 
 
