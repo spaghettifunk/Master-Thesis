@@ -1,0 +1,14 @@
+Notes:
+- Use Crowdsourcing to train a neural network
+	- create a pool of words in such a way i then can extract for testing the prononciation.
+
+- The difference between the pronunciation of the user and the (average?) crowd will yield the score
+- The rest will be the same
+- The writing of Introduction, Background, Future Works must start from day 1
+- Every Friday I have to send an email to Olle to keep him updated
+
+- Send an email to Olle with the day I will start the project
+
+
+
+
