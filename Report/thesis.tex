@@ -1,0 +1,75 @@
+\documentclass{report}
+\usepackage[T1]{fontenc}
+\usepackage[margin=0.75in]{geometry}
+\usepackage[bottom]{footmisc}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{ftnxtra}
+\usepackage{fnpos}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{afterpage}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=blue,
+    filecolor=blue,
+    linkcolor=blue,
+    urlcolor=blue
+}
+
+% ------------------------------------
+% New Environment commands
+% ------------------------------------
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
+
+% ------------------------------------
+% Start Document
+% ------------------------------------
+
+\title{Short-burst Language Learning using Speech Recognition and Crowdsourcing}
+\author{Davide Berdin \\
+  \texttt{ \{davide.berdin.0110\}@student.uu.se} \\
+  \\ Master Thesis
+  \\ Department of Information Technology}
+
+\begin{document}
+
+\maketitle
+
+% Dedication
+\blankpage
+\include{Chapters/dedication}
+\blankpage
+
+\tableofcontents{}
+
+\begin{abstract}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\end{abstract}
+
+%%%%%% Chapters %%%%%%
+
+\include{Chapters/chapter1}
+\include{Chapters/chapter2}
+\include{Chapters/chapter3}
+
+%%%%%% Bibliography %%%%%%
+
+\bibliographystyle{ieeetr}
+\bibliography{bibliography}
+
+\end{document}
