@@ -17,3 +17,10 @@ IDEAS:
 - Game-based competition for improving the pronunciation of stressed words
 
 
+- Based on the position, we create a way to formulate sentences that could be useful in that situation. Example:
+1) GPS says you are in a bar or nearby it
+2) The application gives some sentences based on the place. If it a bar: “I’d like a coffee”, “Where is the restroom?”, etc. in the Target Language!
+3) The user pronounce it and the system will compared it in the ANN trained by the crowd
+|
+ —> The same type of idea can be done as game-competition, where the player has 30 seconds (or more) to formulate sentences in the Target Language 
+
