@@ -2,7 +2,6 @@ Notes:
 - Use Crowdsourcing to train a neural network
 	- create a pool of words in such a way i then can extract for testing the pronunciation.
 
-- The difference between the pronunciation of the user and the (average?) crowd will yield the score
 - The rest will be the same
 - The writing of Introduction, Background, Future Works must start from day 1
 - Every Friday I have to send an email to Olle to keep him updated
@@ -11,12 +10,13 @@ Notes:
 
 
 
-
+————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 IDEAS:
 - Find a way to teach stressed words using graphs or images
 - Game-based competition for improving the pronunciation of stressed words
 
-
+——————————————————————————————————————————————————————
+SIMILAR IDEAS BASED ON THE ORIGINAL ONE:
 - Based on the position, we create a way to formulate sentences that could be useful in that situation. Example:
 1) GPS says you are in a bar or nearby it
 2) The application gives some sentences based on the place. If it a bar: “I’d like a coffee”, “Where is the restroom?”, etc. in the Target Language!
@@ -24,3 +24,28 @@ IDEAS:
 |
  —> The same type of idea can be done as game-competition, where the player has 30 seconds (or more) to formulate sentences in the Target Language 
 
+——————————————————————————————————————————————————————
+GAMES:
+- A Pong-game where the user has to pronounce words in the Target Language in order to move the bar in the right position before to catch the ball. The selection of words can be extracted from the current position and the accuracy being tested by a ANN trained with the crowd.
+- TBA
+
+——————————————————————————————————————————————————————
+MUSIC:
+- Learning a second language through music. The user listen to the song in the original language. The program will extract some words (or sentences) and the user has to pronounce them in the target language. The ANN trained with the crowd will compare the pronunciation and define a score.
+- TBA
+
+——————————————————————————————————————————————————————
+MEDIAS:
+- the system retrieves sentences from Facebook, Twitter, etc (the major social networks) and then it will save it on the phone. The user has to pronounce the translation of the whole sentence or some specific words. The ML system will give the score as usual.
+- TBA
+
+——————————————————————————————————————————————————————
+YOUTUBE:
+- The user is watching a video on Youtube. The system will catch some words (or sentences) and will prompt to the user the either translation or the original word. The user has to translate (or directly) and pronounce the word. The ML system will give the score as usual.
+- TBA 
+——————————————————————————————————————————————————————
+
+Completely different ideas:
+- identification of objects through wifi distance. The user has to map the house with the objects. A pool of people will translate those and an ANN will be trained with that. When the user walks around the house, the app will suggest a list of words that the user has to say based on the position in the house. The user tests the pronunciation.
+- TBA
+———————————————————————————————————————————————————————
