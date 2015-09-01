@@ -10,45 +10,30 @@ Notes:
 
 
 
-——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+====================================================================================================================================================================================
+
 IDEAS:
-- Find a way to teach stressed words using graphs or images
-- Game-based competition for improving the pronunciation of stressed words
 
-——————————————————————————————————————————————————————
-SIMILAR IDEAS BASED ON THE ORIGINAL ONE:
-- Based on the position, we create a way to formulate sentences that could be useful in that situation. Example:
-1) GPS says you are in a bar or nearby it
-2) The application gives some sentences based on the place. If it a bar: “I’d like a coffee”, “Where is the restroom?”, etc. in the Target Language!
-3) The user pronounce it and the system will compared it in the ANN trained by the crowd
-|
- —> The same type of idea can be done as game-competition, where the player has 30 seconds (or more) to formulate sentences in the Target Language 
+HCI Part:
+- English Language (Intermediate/Advance level of english)
+- Accents/stress words  —> VISUAL PART in the application to help the user to understand how to pronounce the word (need to find out some references about it)
+- Slang/Idioms -> collected from Native Speakers (social medias)
+  -> Twitter/Facebook/Instagram/Pinterest/Foursquare -> comments
+- Context/Map -> what people say around you (or your friends in general)
 
-——————————————————————————————————————————————————————
-GAMES:
-- A Pong-game where the user has to pronounce words in the Target Language in order to move the bar in the right position before to catch the ball. The selection of words can be extracted from the current position and the accuracy being tested by a ANN trained with the crowd.
-- TBA
+ML part:
+- ANN trained with the crowd
+- Design a system to be able to compare the user’s pronunciation with the Native Speaker/s one/s
 
-——————————————————————————————————————————————————————
-MUSIC:
-- Learning a second language through music. The system will cut a paragraph of the song in the target language and the user will listen to that piece. After that, the system will provide the lyrics and the user has to pronounce it. The ANN trained with the crowd will compare the pronunciation and define a score.
-- With the same idea above, but the user can listen to any song and the system will traslate the piece of lyrics that has been selected. The user has to pronounce the sentence in the target language. The ANN trained with the crowd will compare the pronunciation and define a score.
-
-——————————————————————————————————————————————————————
-MEDIAS:
-- the system retrieves sentences from Facebook, Twitter, etc (the major social networks) and then it will save it on the phone. The user has to pronounce the translation of the whole sentence or some specific words. The ML system will give the score as usual.
-- TBA
-
-——————————————————————————————————————————————————————
-YOUTUBE:
-- The user is watching a video on Youtube. The system will catch some words (or sentences) and will prompt to the user the either translation or the original word. The user has to translate (or directly) and pronounce the word. The ML system will give the score as usual.
-- TBA 
-——————————————————————————————————————————————————————
-
-Completely different ideas:
-- identification of objects through wifi distance. The user has to map the house with the objects. A pool of people will translate those and an ANN will be trained with that. When the user walks around the house, the app will suggest a list of words that the user has to say based on the position in the house. The user tests the pronunciation.
-- TBA
-———————————————————————————————————————————————————————
+OTHER:
+- Picture aspect
 
 
 
+
+Notes:
+*** Distinction between “day-by-day Slang” and “Social Media Slang”***
+1) ex: I’m pulling your legs
+2) ex: #YOLO #LOL etc.
+
+		
