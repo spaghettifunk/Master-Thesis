@@ -10,7 +10,7 @@ Notes:
 
 
 
-————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 IDEAS:
 - Find a way to teach stressed words using graphs or images
 - Game-based competition for improving the pronunciation of stressed words
@@ -31,8 +31,8 @@ GAMES:
 
 ——————————————————————————————————————————————————————
 MUSIC:
-- Learning a second language through music. The user listen to the song in the original language. The program will extract some words (or sentences) and the user has to pronounce them in the target language. The ANN trained with the crowd will compare the pronunciation and define a score.
-- TBA
+- Learning a second language through music. The system will cut a paragraph of the song in the target language and the user will listen to that piece. After that, the system will provide the lyrics and the user has to pronounce it. The ANN trained with the crowd will compare the pronunciation and define a score.
+- With the same idea above, but the user can listen to any song and the system will traslate the piece of lyrics that has been selected. The user has to pronounce the sentence in the target language. The ANN trained with the crowd will compare the pronunciation and define a score.
 
 ——————————————————————————————————————————————————————
 MEDIAS:
@@ -49,3 +49,6 @@ Completely different ideas:
 - identification of objects through wifi distance. The user has to map the house with the objects. A pool of people will translate those and an ANN will be trained with that. When the user walks around the house, the app will suggest a list of words that the user has to say based on the position in the house. The user tests the pronunciation.
 - TBA
 ———————————————————————————————————————————————————————
+
+
+
