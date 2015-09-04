@@ -36,4 +36,15 @@ Notes:
 1) ex: I’m pulling your legs
 2) ex: #YOLO #LOL etc.
 
+*** Using semantic analysis based on Urban Dictionary, we can extract what most likely people say around the user “in a determined area” (from twitter, Facebook, pinterest, etc.). After that we should discriminate the set to have a list of what the native speakers has to repeat. 
+
+
+
+==========================================================================================Literature and references:
+- Extracting Diverse Sentiment Expressions with Target-Dependent Polarity from Twitter
+  Description: they created a way to extract sentiment sentences from twitter.
+
+*** papers where the Urban Dictionary is involved ***
+*** American National corpus ***
+
 		
