@@ -2,6 +2,7 @@ Papers/*
 Project/scikit-neuralnetwork/*
 env/*
 *idea*
+*.wav
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
