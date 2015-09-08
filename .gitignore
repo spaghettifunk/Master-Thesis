@@ -1,8 +1,10 @@
 Papers/*
 Project/scikit-neuralnetwork/*
+Project/essentia*
 env/*
 *idea*
 *.wav
+
 
 ## Core latex/pdflatex auxiliary files:
 *.aux

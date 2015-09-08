@@ -33,15 +33,13 @@ class AudioHandler:
     # Constants
     audio_files_directory = "audio-data/"
 
-    # structure containing all the audio signals
-    audio_data = {}
-
     # Constructor
     def __init__(self):
+        # structure containing all the audio signals
         self.audio_data = self.read_data_from_folder()
 
     def read_data_from_folder(self):
-        all_signals = []
+        all_signals = {}
 
         for root, dirs, files in os.walk(self.audio_files_directory):
             for audio in files:
@@ -52,7 +50,7 @@ class AudioHandler:
 
                 try:
                     fs, signal_data = wavfile.read(file_name)
-                    self.audio_data[file_name] = signal_data
+                    all_signals[file_name] = signal_data
                 except:
                     print("Unexpected error:", sys.exc_info()[0])
                     raise
