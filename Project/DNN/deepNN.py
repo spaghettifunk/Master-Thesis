@@ -25,9 +25,7 @@ THE SOFTWARE.
 
 import sys
 import numpy as np
-from theano import *
-from sknn.mlp import Classifier, Layer
-
+import librosa
 
 class DeepNN:
     # save locally the signals
@@ -122,28 +120,34 @@ class Test:
     def test(self, audio_signals):
         nn = DeepNN([2, 2, 1])
 
-        X = np.array([[0, 0],
-                      [0, 1],
-                      [1, 0],
-                      [1, 1]])
+        #X = np.array([[0, 0],
+        #              [0, 1],
+        #              [1, 0],
+        #              [1, 1]])
 
-        y = np.array([0, 1, 1, 0])
+        #y = np.array([0, 1, 1, 0])
 
-        print(X)
-        print(y)
-        print('\n')
+        signal, stream_rate = next(iter(audio_signals.values()))  # train set
+        filename = next(iter(audio_signals.keys()))
 
-        X = next(iter(audio_signals.values()))
-        y = np.random.randint(2, size=210652)
+        mfcc = librosa.feature.mfcc(y=signal, sr=stream_rate, n_mfcc=13)
+        np.save('saved-trainset/cached_train_set', mfcc) # cache results so that ML becomes fast
 
-        print(X)
-        print(y)
+        X_train = []
+        #ceps = np.load("saved-trainset/cached_train_set")
+        num_ceps = len(mfcc)
+        X_train.append(np.mean(mfcc[int(num_ceps / 10):int(num_ceps * 9 / 10)], axis=0))
+        Vx = np.array(X_train) # use Vx as input values vector for neural net, k-means, etc
+
+        print(Vx.shape)
+
+        y = np.ndarray(shape=(190,1))   # label set
 
         try:
-            nn.fit(X, y)
+            nn.fit(X_train, y)
         except:
             print("Unexpected error:", sys.exc_info())
             raise
 
-        for e in X:
+        for e in X_train:
             print(e, nn.predict(e))

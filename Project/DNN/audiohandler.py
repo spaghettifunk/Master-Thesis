@@ -25,8 +25,7 @@ THE SOFTWARE.
 
 import sys
 import os
-from scipy.io import wavfile
-
+import librosa
 
 # Class for reading files from a folder and save them in a specific structure
 class AudioHandler:
@@ -49,8 +48,8 @@ class AudioHandler:
                     continue
 
                 try:
-                    fs, signal_data = wavfile.read(file_name)
-                    all_signals[file_name] = signal_data
+                    signal_data, stream_rate = librosa.load(file_name)
+                    all_signals[file_name] = signal_data, stream_rate
                 except:
                     print("Unexpected error:", sys.exc_info()[0])
                     raise
