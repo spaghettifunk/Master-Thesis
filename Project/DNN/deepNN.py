@@ -23,131 +23,99 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 '''
 
-import sys
 import numpy as np
-import librosa
 
-class DeepNN:
-    # save locally the signals
-    audio_data = {}
+from pybrain.datasets import ClassificationDataSet
+from pybrain.utilities import percentError
+from pybrain.tools.shortcuts import buildNetwork
+from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.structure.modules import SoftmaxLayer
 
-    # def __init__(self, audio_signals):
-    #     self.audio_data = audio_signals
-    #
-    #     for key, value in self.audio_data.items():
-    #         print(numpy.asarray(value).shape)
+from features import mfcc
+from features import logfbank
 
-    # ref: http://www.bogotobogo.com/python/python_Neural_Networks_Backpropagation_for_XOR_using_one_hidden_layer.php
-    def __init__(self, layers, activation='tanh'):
-        if activation == 'sigmoid':
-            self.activation = self.sigmoid
-            self.activation_prime = self.sigmoid_prime
-        elif activation == 'tanh':
-            self.activation = self.tanh
-            self.activation_prime = self.tanh_prime
-
-        # Set weights
-        self.weights = []
-        # layers = [2,2,1]
-        # range of weight values (-1,1)
-        # input and hidden layers - random((2+1, 2+1)) : 3 x 3
-        for i in range(1, len(layers) - 1):
-            r = 2 * np.random.random((layers[i - 1] + 1, layers[i] + 1)) - 1
-            self.weights.append(r)
-        # output layer - random((2+1, 1)) : 3 x 1
-        r = 2 * np.random.random((layers[i] + 1, layers[i + 1])) - 1
-        self.weights.append(r)
-
-    def fit(self, X, y, learning_rate=0.2, epochs=100000):
-        # Add column of ones to X
-        # This is to add the bias unit to the input layer
-        ones = np.atleast_2d(np.ones(X.shape[0]))
-        X = np.concatenate((ones.T, X), axis=1)
-
-        for k in range(epochs):
-            if k % 10000 == 0: print
-            'epochs:', k
-
-            i = np.random.randint(X.shape[0])
-            a = [X[i]]
-
-            for l in range(len(self.weights)):
-                dot_value = np.dot(a[l], self.weights[l])
-                activation = self.activation(dot_value)
-                a.append(activation)
-            # output layer
-            error = y[i] - a[-1]
-            deltas = [error * self.activation_prime(a[-1])]
-
-            # we need to begin at the second to last layer
-            # (a layer before the output layer)
-            for l in range(len(a) - 2, 0, -1):
-                deltas.append(deltas[-1].dot(self.weights[l].T) * self.activation_prime(a[l]))
-
-            # reverse
-            # [level3(output)->level2(hidden)]  => [level2(hidden)->level3(output)]
-            deltas.reverse()
-
-            # backpropagation
-            # 1. Multiply its output delta and input activation
-            #    to get the gradient of the weight.
-            # 2. Subtract a ratio (percentage) of the gradient from the weight.
-            for i in range(len(self.weights)):
-                layer = np.atleast_2d(a[i])
-                delta = np.atleast_2d(deltas[i])
-                self.weights[i] += learning_rate * layer.T.dot(delta)
-
-    def predict(self, x):
-        a = np.concatenate((np.ones(1).T, np.array(x)), axis=1)
-        for l in range(0, len(self.weights)):
-            a = self.activation(np.dot(a, self.weights[l]))
-        return a
-
-    def sigmoid(self, x):
-        return 1.0 / (1.0 + np.exp(-x))
-
-    def sigmoid_prime(self, x):
-        return self.sigmoid(x) * (1.0 - self.sigmoid(x))
-
-    def tanh(self, x):
-        return np.tanh(x)
-
-    def tanh_prime(self, x):
-        return 1.0 - x ** 2
+from utility import Utility
 
 
 class Test:
-    def test(self, audio_signals):
-        nn = DeepNN([2, 2, 1])
 
-        #X = np.array([[0, 0],
-        #              [0, 1],
-        #              [1, 0],
-        #              [1, 1]])
+    def generate_dataset(self, audio_signals, isTestset):
+        utility = Utility()
+        set = None
 
-        #y = np.array([0, 1, 1, 0])
+        if set is None:
+            set = []
+            for key, value in audio_signals.items():
+                # extract features
+                signal = value[0]
+                stream_rate = value[1]
 
-        signal, stream_rate = next(iter(audio_signals.values()))  # train set
-        filename = next(iter(audio_signals.keys()))
+                mfcc_feat = mfcc(signal, stream_rate)
+                fbank_feat = logfbank(signal, stream_rate)
 
-        mfcc = librosa.feature.mfcc(y=signal, sr=stream_rate, n_mfcc=13)
-        np.save('saved-trainset/cached_train_set', mfcc) # cache results so that ML becomes fast
+                # create the trainset
+                num_ceps = len(mfcc_feat)
+                set.append(np.mean(mfcc_feat[int(num_ceps / 10):int(num_ceps * 9 / 10)], axis=0))  # need to figure it out what is this
 
-        X_train = []
-        #ceps = np.load("saved-trainset/cached_train_set")
-        num_ceps = len(mfcc)
-        X_train.append(np.mean(mfcc[int(num_ceps / 10):int(num_ceps * 9 / 10)], axis=0))
-        Vx = np.array(X_train) # use Vx as input values vector for neural net, k-means, etc
+            utility.save_set(set, isTestset=isTestset)  # save the set
+        return set
 
-        print(Vx.shape)
+    def test(self, train_audio_signals, test_audio_signals):
+        utility = Utility()
+        trainset = utility.load_set(True)  # it contains the mfcc features of all TRAIN audio files
+        testset = utility.load_set(False)  # it contains the mfcc features of all TEST audio files
 
-        y = np.ndarray(shape=(190,1))   # label set
+        if trainset is None:
+            trainset = self.generate_dataset(train_audio_signals, False)
 
-        try:
-            nn.fit(X_train, y)
-        except:
-            print("Unexpected error:", sys.exc_info())
-            raise
+        if testset is None:
+            testset = self.generate_dataset(test_audio_signals, True)
 
-        for e in X_train:
-            print(e, nn.predict(e))
+        # TRAIN set
+        all_train_data = ClassificationDataSet(13, 1, nb_classes=4)
+        for n in range(400):
+            i = 0
+            for array in trainset:
+                input = array
+                all_train_data.addSample(input, [i])
+                i += 1
+
+        trndata_temp = all_train_data  # TRAIN set
+
+        # TEST SET
+        all_test_data = ClassificationDataSet(13, 1, nb_classes=4)
+        for n in range(400):
+            i = 0
+            for array in testset:
+                input = array
+                all_test_data.addSample(input, [i])
+                i += 1
+
+        tstdata_temp = all_test_data  # TEST set
+
+        # test set
+        tstdata = ClassificationDataSet(13, 1, nb_classes=4)
+        for n in range(0, tstdata_temp.getLength()):
+            tstdata.addSample( tstdata_temp.getSample(n)[0], tstdata_temp.getSample(n)[1] )
+
+        trndata = ClassificationDataSet(13, 1, nb_classes=4)
+        for n in range(0, trndata_temp.getLength()):
+            trndata.addSample( trndata_temp.getSample(n)[0], trndata_temp.getSample(n)[1] )
+
+        print("Number of training patterns: ", len(trndata))
+        print("Input and output dimensions: ", trndata.indim, trndata.outdim)
+        print("First sample (input, target, class):")
+        print(trndata['input'][0], trndata['target'][0]) #, trndata['class'][0])
+
+        fnn = buildNetwork(trndata.indim, 5, trndata.outdim, outclass=SoftmaxLayer)
+        trainer = BackpropTrainer(fnn, dataset=trndata, momentum=0.1, verbose=True, weightdecay=0.01)
+
+        for i in range(20):
+            trainer.trainEpochs(1)
+            trnresult = percentError(trainer.testOnClassData(), trndata['class'])
+            tstresult = percentError(trainer.testOnClassData(dataset=tstdata), tstdata['class'])
+
+        print("epoch: %4d" % trainer.totalepochs, "  train error: %5.2f%%" % trnresult, "  test error: %5.2f%%" % tstresult)
+        print("End!")
+
+

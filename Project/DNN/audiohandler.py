@@ -30,17 +30,24 @@ import librosa
 # Class for reading files from a folder and save them in a specific structure
 class AudioHandler:
     # Constants
-    audio_files_directory = "audio-data/"
+    train_audio_files_directory = "train-audio-data/"
+    test_audio_files_directory = "test-audio-data/"
 
     # Constructor
-    def __init__(self):
+    def __init__(self, isTestSet):
         # structure containing all the audio signals
-        self.audio_data = self.read_data_from_folder()
+        self.audio_data = self.read_data_from_folder(isTestSet)
 
-    def read_data_from_folder(self):
+    def read_data_from_folder(self, isTestSet):
         all_signals = {}
+        dir = ""
 
-        for root, dirs, files in os.walk(self.audio_files_directory):
+        if isTestSet is True:
+            dir = self.train_audio_files_directory
+        else:
+            dir = self.test_audio_files_directory
+
+        for root, dirs, files in os.walk(dir):
             for audio in files:
                 file_name = os.path.join(root, audio)
 

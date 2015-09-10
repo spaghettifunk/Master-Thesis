@@ -27,11 +27,11 @@ from audiohandler import AudioHandler
 from deepNN import Test
 
 def main():
-    audio_data = AudioHandler()
-    #nn = DeepNN(audio_data.audio_data)
+    train_audio_data = AudioHandler(False)
+    test_audio_data = AudioHandler(True)
 
     x = Test()
-    x.test(audio_data.audio_data)
+    x.test(train_audio_data.audio_data, test_audio_data.audio_data)
 
 if __name__ == "__main__":
     main()

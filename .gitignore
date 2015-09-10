@@ -4,7 +4,7 @@ Project/essentia*
 env/*
 *idea*
 *.wav
-
+Project/DNN/python_speech_features/.gitignore
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
