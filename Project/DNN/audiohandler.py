@@ -32,11 +32,13 @@ class AudioHandler:
     # Constants
     train_audio_files_directory = "train-audio-data/"
     test_audio_files_directory = "test-audio-data/"
+    num_files_audio = 0
 
     # Constructor
     def __init__(self, isTestSet):
         # structure containing all the audio signals
         self.audio_data = self.read_data_from_folder(isTestSet)
+        self.num_files_audio = 0
 
     def read_data_from_folder(self, isTestSet):
         all_signals = {}
@@ -60,5 +62,6 @@ class AudioHandler:
                 except:
                     print("Unexpected error:", sys.exc_info()[0])
                     raise
+                self.num_files_audio += 1
 
         return all_signals
