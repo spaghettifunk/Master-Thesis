@@ -31,7 +31,8 @@ from pybrain.datasets import ClassificationDataSet
 from pybrain.utilities import percentError
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised.trainers import RPropMinusTrainer, BackpropTrainer
-from pybrain.tools.validation    import testOnSequenceData
+from sklearn.metrics import mean_squared_error
+from pybrain.tools.validation    import testOnSequenceData, ModuleValidator
 from pybrain.structure.modules import SoftmaxLayer
 
 # For function test2(...)
@@ -43,7 +44,7 @@ from features import logfbank
 from utility import Utility
 
 class Test:
-    num_of_ceps = 20    # number of features extracted from the audio file - NN inputs must be the same number
+    num_of_ceps = 13    # number of features extracted from the audio file - NN inputs must be the same number
 
     def generate_dataset(self, audio_signals, isTestset):
         utility = Utility()
@@ -106,20 +107,25 @@ class Test:
 
         fnn = buildNetwork(trndata.indim, 2, trndata.outdim)
 
-        #trainer = BackpropTrainer(fnn, dataset=trndata, momentum=0.01, verbose=True, weightdecay=0.1)
+        #trainer = BackpropTrainer(fnn, dataset=trndata, momentum=0.1, verbose=True, weightdecay=0.01)
         trainer = RPropMinusTrainer(fnn, dataset=trndata, verbose=True)
 
         # carry out the training
-        for i in range(2):
-            trainer.trainEpochs( 10 )
-            trnresult = percentError(trainer.testOnClassData(), trndata['class'])
-            tstresult = percentError(trainer.testOnClassData(dataset=tstdata), tstdata['class'])
+        test_err = []
+        train_err = []
+        for i in range(20):
+            trainer.trainEpochs( 1 )
+            train_err.append(percentError(trainer.testOnClassData(), trndata['class']))
+            test_err.append(percentError(trainer.testOnClassData(dataset=tstdata), tstdata['class']))
+
+            test_err[i] = ModuleValidator.MSE(fnn, trndata)
 
         # just for reference, plot the first 5 timeseries
-        #plot(trndata['input'][0:250,:],'-o')
+        plot(test_err)
         hold(True)
-        #plot(trndata['target'][0:250,0])
         show()
+
+        print("End!")
 
     def test2(self, train_audio_signals, test_audio_signals):
         utility = Utility()
