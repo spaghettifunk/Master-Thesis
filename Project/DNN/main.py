@@ -31,7 +31,7 @@ def main():
     test_audio_data = AudioHandler(True)
 
     x = Test()
-    x.test(train_audio_data.audio_data, test_audio_data.audio_data, train_audio_data.num_files_audio)
+    x.test2(train_audio_data.audio_data, test_audio_data.audio_data, train_audio_data.num_files_audio)
 
 if __name__ == "__main__":
     main()
