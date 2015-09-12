@@ -43,6 +43,7 @@ from features import logfbank
 from utility import Utility
 
 # For function test2(...)
+import sklearn  .decomposition as deco
 from numpy.fft import fft, fftshift
 
 class Test:
@@ -146,9 +147,12 @@ class Test:
             signal = value[0]
             stream_rate = value[1]
 
+            fft_features = np.fft.fft(signal)
+            x = (fft_features - np.mean(fft_features, 0)) / np.std(fft_features, 0)
+            pca = deco.PCA(256)
+            x_r = pca.fit(x).transform(x)
 
-
-            set.append(3)
+            set.append(x_r)
 
         # TODO Feature Extraction Step - FFT - Vector of initial features
 
