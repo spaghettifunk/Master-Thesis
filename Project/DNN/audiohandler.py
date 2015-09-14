@@ -25,11 +25,15 @@ THE SOFTWARE.
 
 import sys
 import os
+import numpy as np
+import wave
 import librosa
+import struct
 
 # Class for reading files from a folder and save them in a specific structure
 class AudioHandler:
     # Constants
+    train_labels_directory = "train-audio-data/wavToLabel.txt"
     train_audio_files_directory = "train-audio-data/"
     test_audio_files_directory = "test-audio-data/"
     num_files_audio = 0
@@ -44,21 +48,49 @@ class AudioHandler:
         all_signals = {}
         dir = ""
 
-        if isTestSet is True:
+        if isTestSet == False:
             dir = self.train_audio_files_directory
         else:
             dir = self.test_audio_files_directory
 
+        labels = [line.rstrip('\n') for line in open(self.train_labels_directory )]
+
         for root, dirs, files in os.walk(dir):
+            label_counter = 0
             for audio in files:
                 file_name = os.path.join(root, audio)
 
-                if '.DS_Store' in file_name:
+                if '.DS_Store' in file_name or 'wavToLabel.txt' in file_name:
                     continue
 
                 try:
                     signal_data, stream_rate = librosa.load(file_name)
-                    all_signals[file_name] = signal_data, stream_rate
+
+                    stream = wave.open(file_name,"rb")
+                    num_channels = stream.getnchannels()
+                    sample_width = stream.getsampwidth()
+                    num_frames = 1024
+
+                    raw_data = stream.readframes( num_frames ) # Returns byte data
+                    stream.close()
+
+                    total_samples = num_frames * num_channels
+
+                    if sample_width == 1:
+                        fmt = "%iB" % total_samples # read unsigned chars
+                    elif sample_width == 2:
+                        fmt = "%ih" % total_samples # read signed 2 byte shorts
+                    else:
+                        raise ValueError("Only supports 8 and 16 bit audio formats.")
+
+                    chunks = struct.unpack(fmt, raw_data)
+                    del raw_data # Keep memory tidy (who knows how big it might be)
+
+                    if isTestSet == True:
+                        all_signals[file_name] = signal_data, stream_rate, chunks
+                    else:
+                        all_signals[file_name] = signal_data, stream_rate, chunks, labels[label_counter]
+                        label_counter += 1
                 except:
                     print("Unexpected error:", sys.exc_info()[0])
                     raise

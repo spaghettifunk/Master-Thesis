@@ -28,7 +28,7 @@ import pylab as pl
 import matplotlib.pyplot as plt
 
 # For function test(...)
-from pybrain.datasets import ClassificationDataSet
+from pybrain.datasets import ClassificationDataSet, SupervisedDataSet
 from pybrain.utilities import percentError
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised.trainers import RPropMinusTrainer, BackpropTrainer
@@ -43,11 +43,14 @@ from features import logfbank
 from utility import Utility
 
 # For function test2(...)
-import sklearn  .decomposition as deco
+import sys
+import sklearn.decomposition as deco
 from numpy.fft import fft, fftshift
+from MFCC import melScaling
+
 
 class Test:
-    num_of_ceps = 13  # number of features extracted from the audio file - NN inputs must be the same number
+    num_of_ceps = 25  # number of features extracted from the audio file - NN inputs must be the same number
 
     def generate_dataset(self, audio_signals, isTestset):
         utility = Utility()
@@ -65,7 +68,8 @@ class Test:
 
                 # create the trainset
                 num_ceps = len(mfcc_feat)
-                set.append(np.mean(mfcc_feat[int(num_ceps / 10):int(num_ceps * 9 / 10)], axis=0))  # need to figure it out what is this
+                set.append(np.mean(mfcc_feat[int(num_ceps / 10):int(num_ceps * 9 / 10)],
+                                   axis=0))  # need to figure it out what is this
 
             utility.save_set(set, isTestset=isTestset)  # save the set
         return set
@@ -109,7 +113,8 @@ class Test:
         print("Number of training patterns: ", len(trndata))
         print("Input and output dimensions: ", trndata.indim, trndata.outdim)
 
-        fnn = buildNetwork(trndata.indim, 10, trndata.outdim, hiddenclass=SigmoidLayer, bias=True, outclass=SoftmaxLayer)
+        fnn = buildNetwork(trndata.indim, 10, trndata.outdim, hiddenclass=SigmoidLayer, bias=True,
+                           outclass=SoftmaxLayer)
         trainer = BackpropTrainer(fnn, dataset=trndata, momentum=0.01, verbose=True, weightdecay=0.3)
         # trainer = RPropMinusTrainer(fnn, dataset=trndata, verbose=True)
 
@@ -138,25 +143,139 @@ class Test:
         print("End!")
 
     def test2(self, train_audio_signals, test_audio_signals, num_of_classes):
-        # TODO Filtering Step - Highpass Filter (Hamming FIR)
-        hamming_window = np.hamming(100)
 
-        set = []
+        train_classified_features = self.extract_features(train_audio_signals)
+        test_features = self.extract_features(test_audio_signals, isTestSet=True)
+
+        # split data
+        features = [x[0] for x in train_classified_features]
+        labels = [x[1] for x in train_classified_features]
+
+        try:
+            # TODO Classification Step - ANN Classifier - Minimum Error Rate
+            trainingSet = SupervisedDataSet(25, 1)
+            for ri in range(len(features)):
+                tuple = train_classified_features[ri]
+                trainingSet.addSample(tuple[0], tuple[1])
+
+            net = buildNetwork(self.num_of_ceps, 100, len(labels), bias=True)
+            trainer = BackpropTrainer(net, trainingSet, learningrate=0.001, momentum=0.99)
+
+            # carry out the training
+            test_err = []
+            train_err = []
+            for i in range(50):
+                trainer.trainEpochs(1)
+
+                resTrain = 100 - percentError(trainer.testOnClassData(), trainingSet['class'])
+                train_err.append(resTrain)
+
+                resTest = 100 - percentError(trainer.testOnClassData(dataset=test_features), test_features['class'])
+                test_err.append(resTest)
+
+                test_err[i] = ModuleValidator.MSE(net, trainingSet)
+                print("MSE: %5.2f%% " % test_err[i])
+
+            print("1) ", net.active(test_features[0]))
+
+        except:
+            print("Error: ", sys.exc_info())
+            raise
+
+
+    def extract_features(self, train_audio_signals, isTestSet=False):
+        # TODO Filtering Step - (Hamming FIR)
+        framelen = 1024
+
+        features = []
         for key, value in train_audio_signals.items():
             # extract features
             signal = value[0]
             stream_rate = value[1]
+            chunks = value[2]
 
-            fft_features = np.fft.fft(signal)
-            x = (fft_features - np.mean(fft_features, 0)) / np.std(fft_features, 0)
-            pca = deco.PCA(256)
-            x_r = pca.fit(x).transform(x)
+            if isTestSet == False:
+                classification_label = value[3]
 
-            set.append(x_r)
+            try:
+                mfccMaker = melScaling(int(stream_rate), framelen / 2, 40)
+                mfccMaker.update()
 
-        # TODO Feature Extraction Step - FFT - Vector of initial features
+                # TODO Feature Extraction Step - FFT - Vector of initial features
+                framespectrum = np.fft.fft(chunks)
+                magspec = abs(framespectrum[:framelen / 2])
 
-        # TODO Feature Selection Step - PCA - Principal Features
+                # do the frequency warping and MFCC computation
+                melSpectrum = mfccMaker.warpSpectrum(magspec)
+                melCepstrum = mfccMaker.getMFCCs(melSpectrum, cn=True)
+                melCepstrum = melCepstrum[1:]  # exclude zeroth coefficient
+                melCepstrum = melCepstrum[:self.num_of_ceps]  # limit to lower MFCCs
 
-        # TODO Classification Step - ANN Classifier - Minimum Error Rate
+                framefeatures = melCepstrum
 
+                if isTestSet == False:
+                    elem = (framefeatures, classification_label)
+                else:
+                    elem = framefeatures
+                features.append(elem)
+
+                # TODO Feature Selection Step - PCA - Principal Features -> is it necessary ?
+
+            except:
+                print("Error: ", sys.exc_info()[0])
+                raise
+        return features
+
+
+    def DTWDistance(self, s1, s2, w=None):
+        '''
+        Calculates dynamic time warping Euclidean distance between two
+        sequences. Option to enforce locality constraint for window w.
+        '''
+        DTW = {}
+
+        if w:
+            w = max(w, abs(len(s1) - len(s2)))
+
+            for i in range(-1, len(s1)):
+                for j in range(-1, len(s2)):
+                    DTW[(i, j)] = float('inf')
+
+        else:
+            for i in range(len(s1)):
+                DTW[(i, -1)] = float('inf')
+            for i in range(len(s2)):
+                DTW[(-1, i)] = float('inf')
+
+        DTW[(-1, -1)] = 0
+
+        for i in range(len(s1)):
+            if w:
+                for j in range(max(0, i - w), min(len(s2), i + w)):
+                    dist = (s1[i] - s2[j]) ** 2
+                    DTW[(i, j)] = dist + min(DTW[(i - 1, j)], DTW[(i, j - 1)], DTW[(i - 1, j - 1)])
+            else:
+                for j in range(len(s2)):
+                    dist = (s1[i] - s2[j]) ** 2
+                    DTW[(i, j)] = dist + min(DTW[(i - 1, j)], DTW[(i, j - 1)], DTW[(i - 1, j - 1)])
+
+        return np.sqrt(DTW[len(s1) - 1, len(s2) - 1])
+
+
+    def LB_Keogh(self, s1, s2, r):
+        '''
+        Calculates LB_Keough lower bound to dynamic time warping. Linear
+        complexity compared to quadratic complexity of dtw.
+        '''
+        LB_sum = 0
+        for ind, i in enumerate(s1):
+
+            lower_bound = min(s2[(ind - r if ind - r >= 0 else 0):(ind + r)])
+            upper_bound = max(s2[(ind - r if ind - r >= 0 else 0):(ind + r)])
+
+            if i > upper_bound:
+                LB_sum = LB_sum + (i - upper_bound) ** 2
+            elif i < lower_bound:
+                LB_sum = LB_sum + (i - lower_bound) ** 2
+
+        return np.sqrt(LB_sum)
