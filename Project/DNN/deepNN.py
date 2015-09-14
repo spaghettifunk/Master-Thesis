@@ -182,7 +182,6 @@ class Test:
             print("Error: ", sys.exc_info())
             raise
 
-
     def extract_features(self, train_audio_signals, isTestSet=False):
         # TODO Filtering Step - (Hamming FIR)
         framelen = 1024
@@ -226,7 +225,6 @@ class Test:
                 raise
         return features
 
-
     def DTWDistance(self, s1, s2, w=None):
         '''
         Calculates dynamic time warping Euclidean distance between two
@@ -260,7 +258,6 @@ class Test:
                     DTW[(i, j)] = dist + min(DTW[(i - 1, j)], DTW[(i, j - 1)], DTW[(i - 1, j - 1)])
 
         return np.sqrt(DTW[len(s1) - 1, len(s2) - 1])
-
 
     def LB_Keogh(self, s1, s2, r):
         '''
