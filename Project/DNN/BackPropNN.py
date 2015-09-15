@@ -32,9 +32,12 @@ from MFCC import melScaling
 
 class TestingFANN:
     train_audio_files_directory = "train-audio-data/"
+    test_audio_files_directory = "test-audio-data/"
     trainset_filename = "dataset_fann.txt"
+    testset_filename = "testset_fann.txt"
     ann_filename = "set.net"
     dataset_file = os.path.join(train_audio_files_directory, trainset_filename)
+    testset_file = os.path.join(test_audio_files_directory, testset_filename)
     ann_file = os.path.join(train_audio_files_directory, ann_filename)
 
     num_of_ceps = 25  # number of features extracted from the audio file - NN inputs must be the same number
@@ -82,7 +85,7 @@ class TestingFANN:
                 raise
         return features
 
-    def crate_dataset_file(self, set, labels_ref, isTestSet=False):
+    def crate_dataset_file(self, set, labels_ref):
 
         try:
             file = open(self.dataset_file, 'w')  # 'w' -> create a new file, 'a' append to file
@@ -95,14 +98,14 @@ class TestingFANN:
             # second/forth/sixth/etc. line:
             # - values of the sample
             for framefeatures, label in set:
-                conversion = ['{:.5f}'.format(x) for x in framefeatures]
-                content += ' '.join(conversion)
-                content += '\n'
+                conversion = ["{:.5f}".format(x) for x in framefeatures]
+                content += " ".join(conversion)
+                content += "\n"
 
                 # third/fifth/seventh/etc. line:
                 # output value:
                 content += str(labels_ref[label])
-                content += '\n'
+                content += "\n"
 
             file.write(content)
             file.close()
@@ -110,25 +113,91 @@ class TestingFANN:
             print("Error: ", sys.exc_info())
             raise
 
-    def train_ann(self, train_audio_signals, labels_reference):
-        set = self.extract_features(train_audio_signals)
-        self.crate_dataset_file(set, labels_reference)
+    def create_testset_file(self, set):
+        try:
+            file = open(self.testset_file, 'w')  # 'w' -> create a new file, 'a' append to file
+            content = "" +  str(len(set)) + " " + "25 " + "1\n"
+            i = 0
+            for framefeatures in set:
+                conversion = ['{:.5f}'.format(x) for x in framefeatures]
+                content += " ".join(conversion)
 
+                if i != len(set) - 1:
+                    content += "\n"
+                i += 1
+
+            file.write(content)
+            file.close()
+        except:
+            print("Error: ", sys.exc_info())
+            raise
+
+    def print_callback(epochs, error):
+        print "Epochs     %8d. Current MSE-Error: %.10f\n" % (epochs, error)
+        return 0
+
+    def train_ann(self, train_audio_signals, labels_reference):
+        #set = self.extract_features(train_audio_signals)
+        #self.crate_dataset_file(set, labels_reference)
+
+        # initialize network parameters
         connection_rate = 1
         learning_rate = 0.7
-        num_input = 25
-        num_hidden = 10
-        num_output = 1
+        num_neurons_hidden = 32
+        desired_error = 0.000001
+        max_iterations = 300
+        iterations_between_reports = 1
 
-        desired_error = 0.0001
-        max_iterations = 100000
-        iterations_between_reports = 10
+        # create training data, and ann object
+        print "Creating network."
+        train_data = libfann.training_data()
+        train_data.read_train_from_file(self.dataset_file)
 
         ann = libfann.neural_net()
-        ann.create_sparse_array(connection_rate, (num_input, num_hidden, num_output))
+        ann.create_sparse_array(connection_rate, (len(train_data.get_input()[0]), num_neurons_hidden, len(train_data.get_output()[0])))
         ann.set_learning_rate(learning_rate)
-        ann.set_activation_function_output(libfann.SIGMOID_SYMMETRIC_STEPWISE)
 
-        ann.train_on_file(self.dataset_file, max_iterations, iterations_between_reports, desired_error)
 
+        # start training the network
+        print "Training network"
+        ann.set_activation_function_hidden(libfann.SIGMOID_SYMMETRIC_STEPWISE)
+        ann.set_activation_function_output(libfann.SIGMOID_STEPWISE)
+        ann.set_training_algorithm(libfann.TRAIN_INCREMENTAL)
+
+        ann.train_on_data(train_data, max_iterations, iterations_between_reports, desired_error)
+
+        # save network to disk
+        print "Saving network"
         ann.save(self.ann_file)
+
+    def test_ann(self, test_set):
+
+        try:
+            #set = self.extract_features(test_set, isTestSet=True)
+            #self.create_testset_file(set)
+
+            # load ANN
+            ann = libfann.neural_net()
+            ann.create_from_file(self.ann_file)
+
+            # test outcome
+            print "Testing network"
+            test_data = libfann.training_data()
+            test_data.read_train_from_file(self.testset_file)
+
+            ann.reset_MSE()
+            ann.test_data(test_data)
+            print "MSE error on test data: %f" % ann.get_MSE()
+
+            print "Testing network again"
+            ann.reset_MSE()
+            input=test_data.get_input()
+            output=test_data.get_output()
+
+            for i in range(len(input)):
+                ann.test(input[i], output[i])
+
+            print "MSE error on test data: %f" % ann.get_MSE()
+        except:
+            print "Error: ", sys.exc_info()
+            raise

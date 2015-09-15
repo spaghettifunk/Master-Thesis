@@ -69,7 +69,9 @@ class AudioHandler:
             for audio in files:
                 file_name = os.path.join(root, audio)
 
-                if '.DS_Store' in file_name or 'wavToLabel.txt' in file_name or 'dataset_fann.txt' in file_name:
+                if '.DS_Store' in file_name or 'wavToLabel.txt' in file_name or \
+                   'dataset_fann.txt' in file_name or 'testset_fann.txt' in file_name or \
+                    'set.net' in file_name:
                     continue
 
                 try:

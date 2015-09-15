@@ -24,15 +24,15 @@ THE SOFTWARE.
 '''
 
 from audiohandler import AudioHandler
-from deepNN import Test
 from BackPropNN import TestingFANN
 
 def main():
     train_audio_data = AudioHandler(False)
-    #test_audio_data = AudioHandler(True)
+    test_audio_data = AudioHandler(True)
 
     tester = TestingFANN()
     tester.train_ann(train_audio_data.audio_data, train_audio_data.labels_dictionary)
+    tester.test_ann(test_audio_data.audio_data)
 
 if __name__ == "__main__":
     main()
