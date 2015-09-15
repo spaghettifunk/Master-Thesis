@@ -25,7 +25,6 @@ THE SOFTWARE.
 
 import sys
 import os
-import numpy as np
 import wave
 import struct
 import librosa
@@ -41,8 +40,8 @@ class AudioHandler:
     # Constructor
     def __init__(self, isTestSet):
         # structure containing all the audio signals
-        self.audio_data = self.read_data_from_folder(isTestSet)
         self.num_files_audio = 0
+        self.audio_data, self.labels_dictionary = self.read_data_from_folder(isTestSet)
 
     def read_data_from_folder(self, isTestSet):
         all_signals = {}
@@ -55,12 +54,22 @@ class AudioHandler:
 
         labels = [line.rstrip('\n') for line in open(self.train_labels_directory )]
 
+        # create structure to keep reference of every new label that will be inserted.
+        # the counter's value is used by the FANN as output (the net wants an integer value)
+        # TODO to move in a better place when doing online training
+        labels_dictionary = {}
+        labels_dict_cnt = 0
+        for l in labels:
+            if not l in labels_dictionary:
+                labels_dictionary[l] = labels_dict_cnt
+                labels_dict_cnt += 1
+
         for root, dirs, files in os.walk(dir):
             label_counter = 0
             for audio in files:
                 file_name = os.path.join(root, audio)
 
-                if '.DS_Store' in file_name or 'wavToLabel.txt' in file_name:
+                if '.DS_Store' in file_name or 'wavToLabel.txt' in file_name or 'dataset_fann.txt' in file_name:
                     continue
 
                 try:
@@ -96,4 +105,4 @@ class AudioHandler:
                     raise
                 self.num_files_audio += 1
 
-        return all_signals
+        return all_signals, labels_dictionary

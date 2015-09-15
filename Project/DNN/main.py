@@ -25,16 +25,14 @@ THE SOFTWARE.
 
 from audiohandler import AudioHandler
 from deepNN import Test
-from BackPropNN import WillItWork
+from BackPropNN import TestingFANN
 
 def main():
     train_audio_data = AudioHandler(False)
-    test_audio_data = AudioHandler(True)
+    #test_audio_data = AudioHandler(True)
 
-    pippo = WillItWork()
-    pippo.test(train_audio_data.audio_data)
-    #x = Test()
-    #x.test2(train_audio_data.audio_data, test_audio_data.audio_data, train_audio_data.num_files_audio)
+    tester = TestingFANN()
+    tester.train_ann(train_audio_data.audio_data, train_audio_data.labels_dictionary)
 
 if __name__ == "__main__":
     main()
