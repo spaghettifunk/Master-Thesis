@@ -68,8 +68,7 @@ class Test:
 
                 # create the trainset
                 num_ceps = len(mfcc_feat)
-                set.append(np.mean(mfcc_feat[int(num_ceps / 10):int(num_ceps * 9 / 10)],
-                                   axis=0))  # need to figure it out what is this
+                set.append(np.mean(mfcc_feat[int(num_ceps / 10):int(num_ceps * 9 / 10)], axis=0))  # need to figure it out what is this
 
             utility.save_set(set, isTestset=isTestset)  # save the set
         return set
@@ -85,7 +84,7 @@ class Test:
 
     def encode_classes(self, temp_set, dimensions, n_classes):
         encoded_data = ClassificationDataSet(dimensions, 1, nb_classes=n_classes)
-        for n in range(0, temp_set.getLength()):
+        for n in xrange(0, temp_set.getLength()):
             encoded_data.addSample(temp_set.getSample(n)[0], temp_set.getSample(n)[1])
 
         encoded_data._convertToOneOfMany()
@@ -110,8 +109,8 @@ class Test:
         tstdata_temp = self.prepare_set_for_NN(testset, self.num_of_ceps, num_of_classes)
         tstdata = self.encode_classes(tstdata_temp, self.num_of_ceps, num_of_classes)
 
-        print("Number of training patterns: ", len(trndata))
-        print("Input and output dimensions: ", trndata.indim, trndata.outdim)
+        print "Number of training patterns: ", len(trndata)
+        print "Input and output dimensions: ", trndata.indim, trndata.outdim
 
         fnn = buildNetwork(trndata.indim, 10, trndata.outdim, hiddenclass=SigmoidLayer, bias=True,
                            outclass=SoftmaxLayer)
@@ -121,7 +120,7 @@ class Test:
         # carry out the training
         test_err = []
         train_err = []
-        for i in range(50):
+        for i in xrange(50):
             trainer.trainEpochs(1)
 
             resTrain = 100 - percentError(trainer.testOnClassData(), trndata['class'])
@@ -131,16 +130,16 @@ class Test:
             test_err.append(resTest)
 
             test_err[i] = ModuleValidator.MSE(fnn, trndata)
-            print("MSE: %5.2f%% " % test_err[i])
+            print "MSE: %5.2f%% " % test_err[i]
 
-        print("epoch: %4d " % trainer.totalepochs, "\ttrain acc: %5.2f%% " % resTrain, "\ttest acc: %5.2f%%" % resTest)
+        print "epoch: %4d " % trainer.totalepochs, "\ttrain acc: %5.2f%% " % resTrain, "\ttest acc: %5.2f%%" % resTest
 
         # Plot training and test error as a function of the training size
         pl.figure()
         pl.plot(test_err)
         pl.show()
 
-        print("End!")
+        print "End!"
 
     def test2(self, train_audio_signals, test_audio_signals, num_of_classes):
 
@@ -164,7 +163,7 @@ class Test:
             # carry out the training
             test_err = []
             train_err = []
-            for i in range(50):
+            for i in xrange(50):
                 trainer.trainEpochs(1)
 
                 resTrain = 100 - percentError(trainer.testOnClassData(), trainingSet['class'])
@@ -174,12 +173,12 @@ class Test:
                 test_err.append(resTest)
 
                 test_err[i] = ModuleValidator.MSE(net, trainingSet)
-                print("MSE: %5.2f%% " % test_err[i])
+                print "MSE: %5.2f%% " % test_err[i]
 
-            print("1) ", net.active(test_features[0]))
+            print "1) ", net.active(test_features[0])
 
         except:
-            print("Error: ", sys.exc_info())
+            print "Error: ", sys.exc_info()
             raise
 
     def extract_features(self, train_audio_signals, isTestSet=False):
@@ -221,7 +220,7 @@ class Test:
                 # TODO Feature Selection Step - PCA - Principal Features -> is it necessary ?
 
             except:
-                print("Error: ", sys.exc_info()[0])
+                print "Error: ", sys.exc_info()[0]
                 raise
         return features
 

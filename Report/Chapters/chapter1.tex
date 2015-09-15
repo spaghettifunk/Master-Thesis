@@ -51,15 +51,22 @@ While in supervised learning, the system has a desidered output given from the t
 In reinforcement learning, the system takes actions to interact with its own environment. Each action will affect the state of the environment in which will produe a result in a form of either \textit{reward} or \textit{punishment}. The goal of this learning paradigm is to learn which is the best sequence of actions that maximises the rewards or minimises the punishments. There are quite a few approaches to find the best sequence of actions. The most famouse are \textit{Monte Carlo methods}, \textit{Temporal Difference methods} and \textit{Direct Policy search methods}.
 
 \section{Multilayer Perceptron}
-A multilayer perceptron (MLP) is a feedforward artificial neural network model that maps sets of input data onto a set of appropriate outputs. An MLP consists of multiple layers of nodes in a directed graph, with each layer fully connected to the next one. Except for the input nodes, each node is a neuron (or processing element) with a nonlinear activation function. MLP utilizes a supervised learning technique called backpropagation for training the network. MLP is a modification of the standard linear perceptron and can distinguish data that are not linearly separable.
+The model created by the Multilayer perceptron (MLP) serves to map a set of inputs onto a group of ouputs. The main feature of the MLP is that it a \textit{feedforward} artificial neural network. The MLP is formed by a defined number or layers in which every layer is \textit{fully connected} to following one. Every neuron of the network has a nonlinear activation function, with the exception of the input nodes. The techinque used in the MLP is of the kind of supervised and it uses the \textbf{backpropagation} for training the neurons \cite{mlp_wiki}. Backpropagation is discussed more in details in \ref{ssec:backprop}.
 
-\subsection{Activation Function}
+\subsubsection{Activation Function}
+If a multilayer perceptron has a linear activation function in all neurons, that is, a linear function that maps the weighted inputs to the output of each neuron, then it is easily proved with linear algebra that any number of layers can be reduced to the standard two-layer input-output model (see perceptron). What makes a multilayer perceptron different is that some neurons use a nonlinear activation function which was developed to model the frequency of action potentials, or firing, of biological neurons in the brain. This function is modeled in several ways.
 
+The two main activation functions used in current applications are both sigmoids, and are described by
 
-\subsection{Layers}
+% formula here
+% y(v_i) = \tanh(v_i) ~~ \textrm{and} ~~ y(v_i) = (1+e^{-v_i})^{-1},
 
+in which the former function is a hyperbolic tangent which ranges from -1 to 1, and the latter, the logistic function, is similar in shape but ranges from 0 to 1. Here y_i is the output of the ith node (neuron) and v_i is the weighted sum of the input synapses. Alternative activation functions have been proposed, including the rectifier and softplus functions. More specialized activation functions include radial basis functions which are used in another class of supervised neural network models.
 
-\subsection{Learning through Backpropagation}
+\subsubsection{Layers}
+The multilayer perceptron consists of three or more layers (an input and an output layer with one or more hidden layers) of nonlinearly-activating nodes and is thus considered a deep neural network. Since an MLP is a Fully Connected Network, each node in one layer connects with a certain weight w_{ij} to every node in the following layer. Some people do not include the input layer when counting the number of layers and there is disagreement about whether w_{ij} should be interpreted as the weight from i to j or the other way around.
+
+\subsection{Learning through Backpropagation} \label{ssec:backprop}
 
 
 \subsubsection{Gradient Descent}

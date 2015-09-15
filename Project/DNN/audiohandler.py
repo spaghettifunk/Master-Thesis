@@ -27,8 +27,8 @@ import sys
 import os
 import numpy as np
 import wave
-import librosa
 import struct
+import librosa
 
 # Class for reading files from a folder and save them in a specific structure
 class AudioHandler:
@@ -92,7 +92,7 @@ class AudioHandler:
                         all_signals[file_name] = signal_data, stream_rate, chunks, labels[label_counter]
                         label_counter += 1
                 except:
-                    print("Unexpected error:", sys.exc_info()[0])
+                    print "Unexpected error:", sys.exc_info()[0]
                     raise
                 self.num_files_audio += 1
 

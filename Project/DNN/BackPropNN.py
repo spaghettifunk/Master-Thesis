@@ -238,10 +238,10 @@ class NeuralNet:
 
             if epoch%1000==0:
                 # Show the current training status
-                print ("* current network error (MSE):", MSE)
+                print "* current network error (MSE):", MSE
 
-        print ("* Converged to error bound (%.4g) with MSE = %.4g." % ( ERROR_LIMIT, MSE ))
-        print ("* Trained for %d epochs." % epoch)
+        print "* Converged to error bound (%.4g) with MSE = %.4g." % ( ERROR_LIMIT, MSE )
+        print "* Trained for %d epochs." % epoch
     # end backprop
 
     def update(self, input_values, trace=False ):
@@ -353,7 +353,7 @@ class WillItWork:
                 # TODO Feature Selection Step - PCA - Principal Features -> is it necessary ?
 
             except:
-                print("Error: ", sys.exc_info()[0])
+                print "Error: ", sys.exc_info()[0]
                 raise
         return features
 
@@ -362,10 +362,10 @@ class WillItWork:
         training_one =  self.extract_features(train_audio_signals)
         # training_two =  [ Instance( [0,0], [0,0] ), Instance( [0,1], [1,1] ), Instance( [1,0], [1,1] ), Instance( [1,1], [0,0] ) ]
 
-        n_inputs = 2
-        n_outputs = 1
-        n_hiddens = 2
-        n_hidden_layers = 1
+        n_inputs = 25
+        n_outputs = 10
+        n_hiddens = 10
+        n_hidden_layers = 2
 
         # specify activation functions per layer eg: [ hidden_layer_1, hidden_layer_2, output_layer ]
         activation_functions = [ tanh_function ]*n_hidden_layers + [ sigmoid_function ]
@@ -384,4 +384,4 @@ class WillItWork:
 
         # print out the result
         for instance in training_one:
-            print(instance.features, network.update( np.array([instance.features]) ), "\ttarget:", instance.targets)
+            print instance.features, network.update( np.array([instance.features]) ), "\ttarget:", instance.targets
