@@ -29,6 +29,7 @@ import os
 
 from fann2 import libfann
 from MFCC import melScaling
+from features import mfcc, logfbank, mel2hz
 
 class TestingFANN:
     train_audio_files_directory = "train-audio-data/"
@@ -57,6 +58,7 @@ class TestingFANN:
                 classification_label = value[3]
 
             try:
+                # MFCC library
                 mfccMaker = melScaling(int(stream_rate), framelen / 2, 40)
                 mfccMaker.update()
 
@@ -71,6 +73,12 @@ class TestingFANN:
                 melCepstrum = melCepstrum[:self.num_of_ceps]  # limit to lower MFCCs
 
                 framefeatures = melCepstrum
+
+                # Features Library
+                # mfcc_feat = mfcc(signal, stream_rate)
+                # framefeatures = mfcc_feat
+                # fbank_feat = logfbank(signal, stream_rate)
+                # print mfcc_feat.shape
 
                 if isTestSet == False:
                     elem = (framefeatures, classification_label)
@@ -137,7 +145,7 @@ class TestingFANN:
         return 0
 
     def train_ann(self, train_audio_signals, labels_reference):
-        #set = self.extract_features(train_audio_signals)
+        set = self.extract_features(train_audio_signals)
         #self.crate_dataset_file(set, labels_reference)
 
         # initialize network parameters
@@ -173,7 +181,7 @@ class TestingFANN:
     def test_ann(self, test_set):
 
         try:
-            #set = self.extract_features(test_set, isTestSet=True)
+            set = self.extract_features(test_set, isTestSet=True)
             #self.create_testset_file(set)
 
             # load ANN
