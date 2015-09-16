@@ -53,20 +53,29 @@ In reinforcement learning, the system takes actions to interact with its own env
 \section{Multilayer Perceptron}
 The model created by the Multilayer perceptron (MLP) serves to map a set of inputs onto a group of ouputs. The main feature of the MLP is that it a \textit{feedforward} artificial neural network. The MLP is formed by a defined number or layers in which every layer is \textit{fully connected} to following one. Every neuron of the network has a nonlinear activation function, with the exception of the input nodes. The techinque used in the MLP is of the kind of supervised and it uses the \textbf{backpropagation} for training the neurons \cite{mlp_wiki}. Backpropagation is discussed more in details in \ref{ssec:backprop}.
 
-\subsubsection{Activation Function}
-If a multilayer perceptron has a linear activation function in all neurons, that is, a linear function that maps the weighted inputs to the output of each neuron, then it is easily proved with linear algebra that any number of layers can be reduced to the standard two-layer input-output model (see perceptron). What makes a multilayer perceptron different is that some neurons use a nonlinear activation function which was developed to model the frequency of action potentials, or firing, of biological neurons in the brain. This function is modeled in several ways.
+\subsubsection{Learning through Backpropagation} \label{ssec:backprop}
+The learning phase in the neural network occurs in the moment that the connection weigths change based on the error value in the output. The error is calculated comparing the result the network produced with the expected one. This is a typical example of supervised learning because the network compares the result it just obtained with the one that it was expecting. This process is done through \textbf{backproagation}. \\
 
-The two main activation functions used in current applications are both sigmoids, and are described by
+\noindent In backpropagation, the error output of the node $j$ in the $nth$ sample of the training dataset is given by
+\begin{equation}
+    e_{j}(n) = d_{j}(n) - y_{j}(n)
+\end{equation}
+where $d$ is the expected output whereas $y$ is the output value obtained from the neuron. The weights are then adjusted in such a way that the error is minimized. With \ref{eq:output_error} we are able to determine the corrections to apply given an output value produced by a perceptron.
 
-% formula here
-% y(v_i) = \tanh(v_i) ~~ \textrm{and} ~~ y(v_i) = (1+e^{-v_i})^{-1},
+\begin{equation}\label{eq:output_error}
+    \varepsilon (n) = \frac{1}{2}\sum_{j} e^2_{j}(n)
+\end{equation}
 
-in which the former function is a hyperbolic tangent which ranges from -1 to 1, and the latter, the logistic function, is similar in shape but ranges from 0 to 1. Here y_i is the output of the ith node (neuron) and v_i is the weighted sum of the input synapses. Alternative activation functions have been proposed, including the rectifier and softplus functions. More specialized activation functions include radial basis functions which are used in another class of supervised neural network models.
+\noindent At this point using \ref{eq:gradient} we are able to determine the amount of change for each weight. This is done by \textbf{gradient descent} which is a first-order optimization algorithm. Gradient descent is used to find \textit{local minima} of a function, where \textit{"it takes steps proportionally to the negative of the gradient of the function in that point"}\cite{gradient_wiki}. The opposite instead, it means that it is approaching to the \textit{local maxima} of the function. ALthough, in this way, the process would be called \textit{gradient ascent}\cite{gradient_wiki}.
 
-\subsubsection{Layers}
-The multilayer perceptron consists of three or more layers (an input and an output layer with one or more hidden layers) of nonlinearly-activating nodes and is thus considered a deep neural network. Since an MLP is a Fully Connected Network, each node in one layer connects with a certain weight w_{ij} to every node in the following layer. Some people do not include the input layer when counting the number of layers and there is disagreement about whether w_{ij} should be interpreted as the weight from i to j or the other way around.
+\begin{equation}\label{eq:gradient}
+    \Delta w_{ji}(n) = -\eta \frac{\partial \varepsilon (n)}{\partial v_{j} (n)}y_{j}(n)
+\end{equation}
 
-\subsection{Learning through Backpropagation} \label{ssec:backprop}
+\noindent In \ref{eq:gradient}, $\eta$ represents the \textit{learning rate} whereas $y_{i}$ is the output of the previous neuron \cite{mlp_wiki}. The learning rate parameter is one of the most importan parameters when design a neural network. The reason is that, the value used for it ensures that the weights are converging as fast as possible avoiding waivings. \\
 
+\noindent The calculation of the derivates depends on the field $v_{j}$ where this value changes itself. Continuing, \ref{eq:gradient} can be simplified to \ref{eq:simpl_gradient} where $\phi^{\prime}$ represents the \textit{derivate} of the activation function described before. Note that this does not changes itself.
 
-\subsubsection{Gradient Descent}
+\begin{equation}\label{eq:simpl_gradient}
+    \frac{\partial \varepsilon (n)}{\partial v_{j} (n)} = e_{j}(n)\phi^{\prime}(v_{j}(n))
+\end{equation}
