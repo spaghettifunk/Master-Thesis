@@ -79,3 +79,46 @@ where $d$ is the expected output whereas $y$ is the output value obtained from t
 \begin{equation}\label{eq:simpl_gradient}
     \frac{\partial \varepsilon (n)}{\partial v_{j} (n)} = e_{j}(n)\phi^{\prime}(v_{j}(n))
 \end{equation}
+
+\section{Deep Learning}
+\label{sec:deep_learning}
+Deep Learning has several definitions in which those have been changing in last 10 years. Definition number 5 reported in \cite{deng2014deep} says the following: \textit{"Deep Learning is a new area of Machine Learning research, which has been introduced with the objective of moving Machine Learning closer to one of its original goals: Artificial Intelligence. Deep Learning is about learning multiple levels of representation and abstraction that help to make sense of data such as images, sound, and text."}.
+
+\noindent There are two main aspects of the level of representations described above:
+\begin{itemize}
+    \item[1)] a model consists of several layers of nonlinear processing units
+    \item[2)] for supervised and unsupervised approaches the feature representation have more abstract layers
+\end{itemize}
+\noindent It is possible to classify Deep Learning as an intersection between different research areas, such as: neural networks, pattern recognition, signal processing, etc..\cite{deng2014deep}
+
+\subsection{Deep Neural Networs}
+As described in \ref{sec:deep_learning}, a \textit{deep neural network} is composed by several hidden layers of perceptrons between the input(s) and the output(s) \cite{bengio2009learning}. As for the artificial neural networks, DNNs are able to model complex non-linear relationships. \cite{deep_learning_wiki}
+
+\noindent Adding extra layers to a ANN permits to each layer to \textit{specialize} in solving a certain problem. For example, in \textit{visual pattern recognition} the neurons in the first layer can try to learn how to recognize edges in a picture, whereas those in the second layer might focus in learning ho to recognize more complex shapes like a square or a triangle built up from the previous edges. The next layers will try to learn even more complex shapes. In the case of speech recognition, we could split the problem in different parts as well. The first layer could focus in recognizing phonemes, the second layer can learn about the pitch voice, and so on.
+
+\noindent The usage of multiple hidden layers gives to DNNs some advantages in learning how to solve complex problems compared to the shallow networks.\cite{dnn_website} An example of DNN is depicted in \ref{fig:deep_nn}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[scale=0.6]{Figures/deep_nn.png}
+    \caption{Example of Deep Neural Network \cite{dnn_website}}
+    \label{fig:deep_nn}
+\end{figure}
+
+\subsubsection{Architecture}
+Deep Neural Networks are oftenly designed as feedforward networks and trained with the \textit{back propagation} algorithm. Although, to train acoustinc models for Automatic Speech Recognition (ASR) \textit{Convolutional Deep Neural Networks} (CNNs) presented better results than the typical feedforward design. Despite the similarity between the two networks, in CNNs \textit{"the neurons in the inputs of hidden units in layer m are from a subset of units in layer m-1, units that have spatially contiguous receptive fields"}. \cite{lenet}
+
+\noindent To update the weights the \textit{stochastic gradient descent} is used as follow:
+
+\begin{equation}
+    w_{ij}(t+1) = w_{ij}(t) + \eta  \frac{\partial C}{\partial w_{ij}}
+\end{equation}
+
+\noindent where $\eta$ is the \textit{learning rate} whereas  $C$ is the \textit{cost function}. The activation function and the learning type have a direct influence in the choice of the cost function. For instance, a typical choice of the activation function for a supervised learning approach on a problem of multiclass classification are either \textbf{softmax function} or \textbf{cross entropy function}. The mathematical definition of \textit{softmax function} is defined in \ref{eq:softmax} where $p_{j}$ represents the class probability whereas $x_{k}$ and $x_{j}$ are the total input to neuron $x$ and $j$ of that layer. \textit{Cross entropy function} is defined by \ref{eq:cross_entropy} where $d_{j}$ is the target probability of the output neurons $j$ and $p_{j}$ is the probability output for $j$ after applying the activation function. \cite{deep_learning_wiki}
+
+\begin{equation}\label{eq:softmax}
+    p_{j} =  \frac{exp(x_{j})}{ \sum_k exp(x_{k})}
+\end{equation}
+\begin{equation}\label{eq:cross_entropy}
+    C = -\sum_j d_{j}log(p_{j})
+\end{equation}
