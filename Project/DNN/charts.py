@@ -24,9 +24,10 @@ THE SOFTWARE.
 '''
 
 import csv
-import matplotlib.pyplot as plt
 import sys
 import os
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as font_manager
 
 class Features:
     time = []
@@ -75,7 +76,10 @@ class Features:
 class Charts:
 
     def test(self):
-        dir = "train-audio-data/results/"
+        plt.rcParams['lines.linewidth'] = 3
+        plt.rcParams['lines.color'] = 'r'
+        plt.rcParams['font.size'] = 28
+        dir = "results/"
 
         SELECTOR = 5
 
@@ -85,7 +89,7 @@ class Charts:
             filename_tile = ["a_piece_of_cake","blow_a_fuse","catch_some_zs","down_to_the_wire","eager_beaver","fair_and_square","get_cold_feet","mellow_out","pulling_your_legs","thinking_out_loud"]
 
             small_multiples = plt.figure(i)
-            plt.subplots_adjust(hspace=.5)
+            small_multiples.set_size_inches(70, 30)
 
             counter = 1
             for dir_entry in os.listdir(dir):
@@ -96,10 +100,10 @@ class Charts:
 
                 splitFilename = fileName.split("_")
                 splitPersonName = splitFilename[0].split("/")
-                personName = splitPersonName[2]
+                personName = splitPersonName[1]
                 temp_fileName = fileName.replace(personName + "_", "")
                 goofy = temp_fileName.split("/")
-                temp_fileName = goofy[2]
+                temp_fileName = goofy[1]
 
                 with open(fileName, 'rU') as csvfile:
                     spamreader = csv.reader(csvfile, delimiter=',')
@@ -128,6 +132,7 @@ class Charts:
                     mini.set_xlabel(features_title[0])
                     mini.set_ylabel(features_title[SELECTOR])
                     mini.set_title(personName)
+                    mini.autoscale_view()
 
                     #print "Time: ", len(feat.getObject(0))
                     #print "F3: ", len(feat.getObject(SELECTOR))
@@ -135,5 +140,6 @@ class Charts:
                     mini.plot(feat.getObject(0), feat.getObject(SELECTOR), linestyle='-', color='r')
                     counter += 1
 
-            figure_filename = "figures/" + features_title[SELECTOR] + "_" + filename_tile[FILENAME_SELECTOR] + ".png"
-            plt.savefig(os.path.join(dir, figure_filename), dpi=300)
+            plt.tight_layout()
+            figure_filename = "figures/female/" + features_title[SELECTOR] + "_" + filename_tile[FILENAME_SELECTOR] + ".png"
+            plt.savefig(os.path.join(dir, figure_filename), dpi=200)
