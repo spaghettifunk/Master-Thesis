@@ -23,13 +23,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 '''
 
-import numpy as np
 import sys
 import os
 
+import numpy as np
 from fann2 import libfann
-from MFCC import melScaling
-from features import mfcc, logfbank, mel2hz
+
+from libraries.MFCC import melScaling
+
 
 class TestingFANN:
     train_audio_files_directory = "train-audio-data/"
