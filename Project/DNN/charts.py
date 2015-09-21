@@ -27,7 +27,6 @@ import csv
 import sys
 import os
 import matplotlib.pyplot as plt
-import matplotlib.font_manager as font_manager
 
 class Features:
     time = []
@@ -134,12 +133,10 @@ class Charts:
                     mini.set_title(personName)
                     mini.autoscale_view()
 
-                    #print "Time: ", len(feat.getObject(0))
-                    #print "F3: ", len(feat.getObject(SELECTOR))
-
                     mini.plot(feat.getObject(0), feat.getObject(SELECTOR), linestyle='-', color='r')
                     counter += 1
 
+            plt.title(temp_fileName)
             plt.tight_layout()
             figure_filename = "figures/female/" + features_title[SELECTOR] + "_" + filename_tile[FILENAME_SELECTOR] + ".png"
             plt.savefig(os.path.join(dir, figure_filename), dpi=200)
