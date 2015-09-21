@@ -23,81 +23,117 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 '''
 
-
-import numpy as np
 import csv
 import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
+import sys
+import os
+
+class Features:
+    time = []
+    pitch = []
+    intensity = []
+    f1 = []
+    f2 = []
+    f3 = []
+
+    def __init__(self):
+        self.time = []
+        self.pitch = []
+        self.intensity = []
+        self.f1 = []
+        self.f2 = []
+        self.f3 = []
+
+    def getObject(self, n):
+        if n == 0:
+            return self.time
+        if n == 1:
+            return self.pitch
+        if n == 2:
+            return self.intensity
+        if n == 3:
+            return self.f1
+        if n == 4:
+            return self.f2
+        if n == 5:
+            return self.f3
+
+    def setObject(self, n, val):
+        if n == 0:
+            self.time.append(val)
+        if n == 1:
+            self.pitch.append(val)
+        if n == 2:
+            self.intensity.append(val)
+        if n == 3:
+            self.f1.append(val)
+        if n == 4:
+            self.f2.append(val)
+        if n == 5:
+            self.f3.append(val)
 
 class Charts:
 
     def test(self):
-        time = []
-        pitch = []
-        intensity = []
-        f1 = []
-        f2 = []
-        f3 = []
+        dir = "train-audio-data/results/"
 
-        with open('train-audio-data/test/Jeremy_a_piece_of_cacke_1.csv', 'rU') as csvfile:
-            spamreader = csv.reader(csvfile, dialect=csv.excel_tab, delimiter=';', quotechar='^')
+        SELECTOR = 5
 
-            i = 0
-            for row in spamreader:
-                if i == 0:
-                    i += 1
+        for i in range(10):
+            FILENAME_SELECTOR = i
+            features_title = ["Time", "Pitch", "Intensity", "F1", "F2", "F3"]
+            filename_tile = ["a_piece_of_cake","blow_a_fuse","catch_some_zs","down_to_the_wire","eager_beaver","fair_and_square","get_cold_feet","mellow_out","pulling_your_legs","thinking_out_loud"]
+
+            small_multiples = plt.figure(i)
+            plt.subplots_adjust(hspace=.5)
+
+            counter = 1
+            for dir_entry in os.listdir(dir):
+                fileName = os.path.join(dir, dir_entry)
+
+                if filename_tile[FILENAME_SELECTOR] not in fileName:
                     continue
 
-                time.append(float(row[0]))
-                pitch.append(float(row[1]))
-                intensity.append(float(row[2]))
-                f1.append(float(row[2]))
-                f2.append(float(row[2]))
-                f3.append(float(row[2]))
+                splitFilename = fileName.split("_")
+                splitPersonName = splitFilename[0].split("/")
+                personName = splitPersonName[2]
+                temp_fileName = fileName.replace(personName + "_", "")
+                goofy = temp_fileName.split("/")
+                temp_fileName = goofy[2]
 
-        # plot (x_axis, y_axis, type_of_plot)
-        plt.figure(1)
-        plt.title("Jeremy_a_piece_of_cacke_1.csv")
-        plt.subplot(511)
-        plt.xlabel('time')
-        plt.ylabel('pitch')
-        plt.plot(time, pitch, 'bo')
+                with open(fileName, 'rU') as csvfile:
+                    spamreader = csv.reader(csvfile, delimiter=',')
 
-        plt.subplot(512)
-        plt.xlabel('time')
-        plt.ylabel('intensity')
-        plt.plot(time, intensity, 'yo-')
+                    feat = Features()
 
-        plt.subplot(513)
-        plt.xlabel('time')
-        plt.ylabel('f1')
-        plt.plot(time, f1, 'r.-')
+                    i = 0
+                    try:
+                        for row in spamreader:
+                            if i == 0:
+                                i += 1
+                                continue
 
-        #plt.axis([0, 6, 0, 20])
-        plt.subplot(514)
-        plt.xlabel('time')
-        plt.ylabel('f2')
-        plt.plot(time, f2, 'r.-')
+                            feat.setObject(0, float(row[0]))
+                            feat.setObject(1, float(row[1]))
+                            feat.setObject(2, float(row[2]))
+                            feat.setObject(3, float(row[3]))
+                            feat.setObject(4, float(row[4]))
+                            feat.setObject(5, float(row[5]))
 
+                    except:
+                        print "Error: ", sys.exc_info()
+                        raise
 
-        plt.subplot(515)
-        plt.xlabel('time')
-        plt.ylabel('f3')
+                    mini = small_multiples.add_subplot(3, 4, counter)
+                    mini.set_xlabel(features_title[0])
+                    mini.set_ylabel(features_title[SELECTOR])
+                    mini.set_title(personName)
 
-        # the histogram of the data
-        # pos = np.arange(len(time))
-        # width = 1.0     # gives histogram aspect to the bar diagram
-        #
-        # ax = plt.axes()
-        # ax.set_xticks(pos + (width / 2))
-        # ax.set_xticklabels(time)
-        #
-        # plt.bar(pos, f3, width, color='r')
+                    #print "Time: ", len(feat.getObject(0))
+                    #print "F3: ", len(feat.getObject(SELECTOR))
 
-        #y = mlab.normpdf(bins)
-        # add a 'best fit' line
-        plt.plot(time, f3, 'r--')
-        #plt.plot(time, f3, 'r.-')
+                    mini.plot(feat.getObject(0), feat.getObject(SELECTOR), linestyle='-', color='r')
+                    counter += 1
 
-
-        plt.show()
+            figure_filename = "figures/" + features_title[SELECTOR] + "_" + filename_tile[FILENAME_SELECTOR] + ".png"
+            plt.savefig(os.path.join(dir, figure_filename), dpi=300)

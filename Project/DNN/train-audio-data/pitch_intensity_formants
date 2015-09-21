@@ -4,11 +4,11 @@
 # ask a user the directories
 
 form supply_arguments
-	sentence input_directory  /Users/dado/Documents/University/Courses/Master-Thesis/Project/DNN/train-audio-data/
-	sentence output_directory /Users/dado/Documents/University/Courses/Master-Thesis/Project/DNN/train-audio-data/test
+	sentence input_directory  /Users/dado/Documents/University/Courses/Master-Thesis/Project/DNN/train-audio-data/audio-files/male
+	sentence output_directory /Users/dado/Documents/University/Courses/Master-Thesis/Project/DNN/train-audio-data/results
 	sentence type_file wav
 	positive prediction_order 10
-	positive minimum_pitch 75
+	positive minimum_pitch 50
 	positive maximum_pitch 500
 	positive new_sample_rate 11025
 endform
@@ -123,5 +123,10 @@ for i to numSelected
 	select Strings list
 	fileName$ = Get string... i
 	select Table table_word_'i'
-	Write to table file... 'output_directory$'/'fileName$'.xls
+	
+	; Write to text file... 'output_directory$'/'fileName$'.txt
+
+	s$ = replace$ ('fileName$', ".wav.", "", 1)
+	Save as comma-separated file... 'output_directory$'/'s$'.csv
+	; Write to table file... 'output_directory$'/'fileName$'.xls
 endfor
