@@ -1,0 +1,2 @@
+1) In chapter "The sounds of General American English" section "Vowels Production" I need to cite the MIT Opencourseware on the picture. For some reasons, the Author parameter gives a latex error
+but it actually produces the right citation in the pdf. SCHTUPID LATEX!!
