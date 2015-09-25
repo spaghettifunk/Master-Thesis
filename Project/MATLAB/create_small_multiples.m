@@ -1,5 +1,4 @@
 % Author: Davide Berdin
-% Script for smoothing the signals given a csv file as input
 
 clear;
 
@@ -7,18 +6,38 @@ male_names = {'Jeremy', 'Lenny', 'Philip'};
 female_names = {'Joyce','Marty','Niki'};
 filename_tile = {'a_piece_of_cake','blow_a_fuse','catch_some_zs','down_to_the_wire','eager_beaver','fair_and_square', 'get_cold_feet', 'mellow_out','pulling_your_legs','thinking_out_loud'};
 
-directory = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/DNN/CSV_Files/female/';
-results = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/MATLAB/small_multiples/female/';
+directory = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/DNN/CSV_Files/male/';
+results = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/MATLAB/small_multiples/male/';
 Files = dir(strcat(directory,'*.csv'));
 
 SUBPLOT_LINES = 4;
 SUBPLOT_COLUMNS = 3;
 
 image_counter = 1;
-for tit = 10:10
+for tit = 1:10
     small_mult_fig = figure('Visible', 'on', 'units','normalized','Position',[0 0 1 1]);
     
     TITLE_SELECTOR = tit;
+    
+    intensity1 = [];
+    intensity2 = [];
+    intensity3 = [];
+    intensity4 = [];
+
+    f1_1 = [];
+    f1_2 = [];
+    f1_3 = [];
+    f1_4 = [];
+
+    f2_1 = [];
+    f2_2 = [];
+    f2_3 = [];
+    f2_4 = [];
+
+    f3_1 = [];
+    f3_2 = [];
+    f3_3 = [];
+    f3_4 = [];
     for na = 1:3
         NAME_SELECTOR = na;
 
@@ -26,31 +45,11 @@ for tit = 10:10
         for f = 1:length(Files)
 
             filename = Files(f).name;
-            name = female_names(NAME_SELECTOR);
+            name = male_names(NAME_SELECTOR);
             title_filename = filename_tile(TITLE_SELECTOR);
 
             if (not(isempty(strfind(filename, name))) && not(isempty(strfind(filename, title_filename))))
                 display(strcat('Operating on: ', filename))
-
-                intensity1 = [];
-                intensity2 = [];
-                intensity3 = [];
-                intensity4 = [];
-
-                f1_1 = [];
-                f1_2 = [];
-                f1_3 = [];
-                f1_4 = [];
-
-                f2_1 = [];
-                f2_2 = [];
-                f2_3 = [];
-                f2_4 = [];
-
-                f3_1 = [];
-                f3_2 = [];
-                f3_3 = [];
-                f3_4 = [];
 
                temp_filename = strcat(directory, filename);
                [time, pitch, intensity, f1, f2, f3] = extract_features(temp_filename);

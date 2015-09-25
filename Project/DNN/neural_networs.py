@@ -30,7 +30,10 @@ import numpy as np
 from fann2 import libfann
 
 from libraries.MFCC import melScaling
-
+from keras.models import Sequential
+from keras.layers.core import Dense, Dropout, Activation
+from keras.optimizers import SGD
+from keras.datasets import cifar10
 
 class TestingFANN:
     train_audio_files_directory = "train-audio-data/"
@@ -210,3 +213,29 @@ class TestingFANN:
         except:
             print "Error: ", sys.exc_info()
             raise
+
+
+class TestingKeras:
+    def __init__(self):
+        self.x = 0
+
+    def test(self):
+        (X_train, y_train), (X_test, y_test) = cifar10.load_data()
+
+        model = Sequential()
+        model.add(Dense(20, 64, init='uniform'))
+        model.add(Activation('tanh'))
+        model.add(Dropout(0.5))
+        model.add(Dense(64, 64, init='uniform'))
+        model.add(Activation('tanh'))
+        model.add(Dropout(0.5))
+        model.add(Dense(64, 4, init='uniform'))
+        model.add(Activation('softmax'))
+
+        sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
+        model.compile(loss='mean_squared_error', optimizer=sgd)
+
+        model.fit(X_train, y_train, nb_epoch=20, batch_size=16)
+        score = model.evaluate(X_test, y_test, batch_size=16)
+
+        print score
