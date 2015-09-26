@@ -24,22 +24,22 @@ THE SOFTWARE.
 '''
 
 from audiohandler import AudioHandler
-from neural_networs import TestingFANN, TestingKeras
+from neural_networs import TestingFANN #, TestingKeras
 from charts import Charts
 
 def main():
     #train_audio_data = AudioHandler(False)
     #test_audio_data = AudioHandler(True)
 
-    #tester = TestingFANN()
-    #tester.train_ann(train_audio_data.audio_data, train_audio_data.labels_dictionary)
-    #tester.test_ann(test_audio_data.audio_data)
+    tester = TestingFANN()
+    #tester.train_ann() #train_audio_data.audio_data, train_audio_data.labels_dictionary)
+    tester.test_ann() #test_audio_data.audio_data)
 
     #chart = Charts()
     #chart.test()
 
-    caffe = TestingKeras()
-    caffe.test()
+    #caffe = TestingKeras()
+    #caffe.test()
 
 if __name__ == "__main__":
     main()
