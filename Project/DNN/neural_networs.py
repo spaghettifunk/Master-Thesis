@@ -209,21 +209,21 @@ class TestingFANN:
                             if i == 0:
                                 i += 1
                                 continue
-                            elif i == n_samples:   # need to have the same length! I loose information here
+                            elif i == n_inputs:   # need to have the same length! I loose information here
                                 break
 
                             # row[0] = time column
                             feat.setObject(0, float(row[1]))
-                            feat.setObject(1, float(row[2]))
-                            feat.setObject(2, float(row[3]))
-                            feat.setObject(3, float(row[4]))
+                            #feat.setObject(1, float(row[2]))
+                            #feat.setObject(2, float(row[3]))
+                            #feat.setObject(3, float(row[4]))
 
                             i += 1
 
                         content += self.get_values(feat, 0, file_ref)
-                        content += self.get_values(feat, 1, file_ref)
-                        content += self.get_values(feat, 2, file_ref)
-                        content += self.get_values(feat, 3, file_ref)
+                        #content += self.get_values(feat, 1, file_ref)
+                        #content += self.get_values(feat, 2, file_ref)
+                        #content += self.get_values(feat, 3, file_ref)
 
                 file.write(content)
                 file.close()
@@ -253,7 +253,7 @@ class TestingFANN:
 
         conversion = ["{:.5f}".format(x) for x in feat_obj.getObject(feat_ref)]
         string_to_write += " ".join(conversion)
-        string_to_write += "\n"
+        string_to_write += os.linesep
 
         # third/fifth/seventh/etc. line:
         # output value:
@@ -273,7 +273,7 @@ class TestingFANN:
         #set = self.extract_features(train_audio_signals)
         #self.crate_dataset_file(set, labels_reference)
 
-        n_samples = 40 # number of files times number of columns
+        n_samples = 30 # number of files times number of columns
         n_inputs = 90 # number of elements per column
         n_outputs = 1
 
@@ -325,7 +325,22 @@ class TestingFANN:
             # test outcome
             print "Testing network"
             test_data = libfann.training_data()
-            test_data.read_train_from_file(self.testset_file)
+
+            # In this way it works!!
+            inputs = [[27.21150, 42.59070, 51.89526, 57.62139, 61.31414, 63.37890, 64.02627, 63.99757, 63.46879, 62.82471 ,62.47834, 62.25071 ,
+                       62.16152 ,62.60521 ,62.90549 ,63.85814, 66.52073, 69.73790, 72.15535, 73.27007 ,73.12266 ,72.21134, 70.97211, 69.59079,
+                       68.30456 ,67.29226, 66.37099 ,65.70455 ,65.27725 ,65.43149 ,65.76832, 66.71520, 68.87286 ,71.44670 ,73.62056 ,74.70706,
+                       74.45301 ,73.30528 ,72.01365, 70.60801 ,69.02153, 67.24334, 65.79734, 64.89854 ,64.50207 ,64.46401 ,65.30146, 66.78805 ,
+                       68.10518, 69.33247, 70.64424, 71.56820, 71.65901 ,70.88883, 69.85886 ,69.02012 ,68.10769, 67.09511, 66.63268 ,66.70348,
+                       66.76379 ,65.74846, 64.19890 ,64.28827 ,65.13280 ,65.46341 ,65.39550, 64.94865, 64.51163, 64.78427 ,65.35160 ,65.62538 ,
+                       65.20108, 64.26910, 63.69800, 63.37040 ,62.99335 ,62.76909 ,62.51187, 61.83378 ,53.97058 ,49.03269 ,46.34836 ,44.97660 ,
+                       44.45388 ,44.75251 ,45.06413 ,38.88827 ,35.49042, 31.49042]]
+            outputs = [[0]]
+
+            test_data.set_train_data(inputs, outputs)
+
+            # Having FANN Error 10 every time!!!!
+            #test_data.read_train_from_file(self.testset_file)
 
             ann.reset_MSE()
             ann.test_data(test_data)
