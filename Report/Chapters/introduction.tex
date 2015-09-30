@@ -1,7 +1,14 @@
 \chapter{Introduction}
 The pronunciation is one of the hardest part of learning a language among all the other componests, such as grammar rules and vocabulary. To achive a good level of pronunciation, non native speakers have to study and costantly practise the target language for a incredible amount of hours. In most cases, when students are learning a new language, the teacher is not a native speaker in which imply that the pronunciation may be influenced by the country where he or she comes from. The reason is a normal consequence of second learning language \cite{derwing2005second}. In fact, \cite{medgyes2001teacher} states that the advantages of having a Native speaker as a teacher lie in the superior liguistic compentences especially the usage of the language more spontaniously in different communication situations. Pronunciation falls into those competences underlying a base problem in teaching pronunciation at school.  \\
 
-\noindent The basic questions we tried to answer in this work is: why is pronunciation so important? What are the most effective methods for improving the pronunciation? What the research state-of-art and what can we do to make it better? \\
+\noindent The basic questions we tried to answer in this work are:
+\begin{compactitem}
+    \item[1)] why is pronunciation so important?
+    \item[2)] What are the most effective methods for improving the pronunciation?
+    \item[3)] What the research state-of-art and what can we do to make it better?
+\end{compactitem}
+
+\vspace*{1em}
 
 \noindent The first question is fairly easy to answer. There are two reasons to claim why pronunciation is important: \textit{(i)} it helps to acquire the target language faster and \textit{(ii)} being understood.
 Regarding the first point, earlier a learner masters the basics of pronunciation, the faster it will become fluent. The reason is that \textit{critical listening} with a particular focus on hearing the sounds will lead to gain fluency in speaking the language.
@@ -11,5 +18,14 @@ The second point is \textbf{crucial} when working with other people, especially 
 
 \noindent An important factor while learning a second language is to have a feedback about improvements. Teachers are usually responsible to judge the way the learners' progress. In fact, when teaching pronunciation, often it is used a draw the intonation and the stress of the words in such a way that the learner is able to see how the utterances should be pronounced. The \textit{British Council} shows this practice \cite{bbc_stress}. The usage of visual feedbacks is the key of learning pronunciation and it is the main feature of this research. \\
 
-\noindent In the computer science field, some works have been previously done regarding pronunciation. For instance, \cite{edge2012tip} helps lerners to acquire the tonal sound system of Mandarin Chinese through a mobile game. Another example is \cite{head2014tonewars} in which the application provides a platform where learners of Chinese language can interact with native speakers and challenging them to a competition of pronunciations of chinese tones.
-\noindent The idea behind this project is based on the fact that people need to keep practising their pronunciation to improve as well as they need immediate feedbacks
+\noindent In the computer science field, some works have been previously done regarding pronunciation. For instance, \cite{edge2012tip} helps lerners to acquire the tonal sound system of Mandarin Chinese through a mobile game. Another example is \cite{head2014tonewars} in which the application provides a platform where learners of Chinese language can interact with native speakers and challenging them to a competition of pronunciations of chinese tones. \\
+
+\noindent The idea behind this project is based on the fact that people need to keep practising their pronunciation to have a significant improvement as well as they need immediate feedbacks to understand if they are going in the right direction or not. The approach we used is bades on these two factors and we designed the system to be as useful and portable as possible. The mobile application is where the user will test the pronunciation, a server through a machine learning technique will compute the similarity between the user's pronunciation and the native speaker's one and the results will be displayed on the phone. \\
+
+\noindent We started collecting data from \textit{American Native Speakers} in which we asked to pronounced a set of most used idioms and slangs. Each candidate had to repeat the same sentence four times trying to be as much consistent as possible. After we gathered the data, a preprocessing step is due since we are seeking for specific features such as voice-stress, accent, intonation and formants. This part is actually divided in two parts as well where we used \textbf{PRAAT}\cite{boersma2010p} to extract the features from each audio file and then we used \textbf{MATLAB}\footnote{http://www.mathworks.com} to average the fours audio signals that each candidate said. After the avering there is a smoothing process where we applied the \textit{Exponential Filter} to each signal. A \textit{resempling} was necessery since not all the signals have the same legth in time. At this point the data are ready to be fed into a comparison system. \\
+
+\noindent The machine learning part is composed by a deep neural network capable of doing \textit{cross-correlation} between audio signals. This gave us the difference between the audio signal provided by the user and the ones obtained from the native speakers. Before to feed the ML system, the user's pronunciation gets the same kind of preprocessing as the native speakers ones since we are going to evaluate those features. \\
+
+\noindent When the server has computed the similarity, a score with the evaluation of voice-stress, accent, intonation and formants is given to the user. Those features are not the only one available. In fact, the application is capable to show the graph for each feature of the user's pronunciation and the one of the native speaker. In this way the user has a clear understanding of how he or she should \textbf{adjust} the way the utterance should be pronounced accordingly. \\
+
+% more things can actually be added...not sure yet
