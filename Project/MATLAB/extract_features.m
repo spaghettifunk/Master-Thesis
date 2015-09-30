@@ -1,8 +1,15 @@
-function [time, pitch, intensity, f1, f2, f3] = extract_features(filename)
+function [time, pitch, intensity, f1, f2, f3] = extract_features(filename, isExport)
     % read from csv
     fid = fopen(filename);
-    headers = textscan(fid,'%s %s %s %s %s %s',1, 'delimiter',',');
-    data = textscan(fid,'%s %s %s %s %s %s','delimiter',',');
+    
+    if(isExport == false)
+        headers = textscan(fid,'%s %s %s %s %s',1, 'delimiter',',');    % intensity, f1, f2, f3 -> add one moore for pitch
+        data = textscan(fid,'%s %s %s %s %s','delimiter',',');          % intensity, f1, f2, f3 -> add one moore for pitch
+    else
+        headers = textscan(fid,'%s %s %s %s %s %s',1, 'delimiter',',');    % intensity, f1, f2, f3 -> add one moore for pitch
+        data = textscan(fid,'%s %s %s %s %s %s','delimiter',',');          % intensity, f1, f2, f3 -> add one moore for pitch
+    end
+    
     fclose(fid);
     outCell = cell(size(data{1},1), length(headers));
     for i = 1:length(headers)

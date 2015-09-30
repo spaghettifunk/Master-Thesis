@@ -80,7 +80,7 @@ for na = 1:1
                 continue
             end
         end
-
+       
         max_length = 0;
         [intensity1, intensity2, intensity3, intensity4, max_length] = set_equal_length(intensity1, intensity2, intensity3, intensity4);
         [f1_1, f1_2, f1_3, f1_4, max_length] = set_equal_length(f1_1, f1_2, f1_3, f1_4);
@@ -107,9 +107,9 @@ for na = 1:1
         averaged_intensity = averaged_intensity(find(averaged_intensity,1,'first'):find(averaged_intensity,1,'last'));
         averaged_f1 = averaged_f1(find(averaged_f1,1,'first'):find(averaged_f1,1,'last'));
         averaged_f2 = averaged_f2(find(averaged_f2,1,'first'):find(averaged_f2,1,'last'));
-        averaged_f3 = averaged_f3(find(averaged_f3,1,'first'):find(averaged_f3,1,'last'));
+        averaged_f3 = averaged_f3(find(averaged_f3,1,'first'):find(averaged_f3,1,'last'));       
 
-        fig = figure('Visible','off');
+        fig = figure('Visible','on');
         a = subplot(4,1,1);
         plot(averaged_intensity);
         %title(a, 'Intensity');

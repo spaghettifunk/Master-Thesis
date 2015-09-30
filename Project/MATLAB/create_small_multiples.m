@@ -6,7 +6,7 @@ male_names = {'Jeremy', 'Lenny', 'Philip'};
 female_names = {'Joyce','Marty','Niki'};
 filename_tile = {'a_piece_of_cake','blow_a_fuse','catch_some_zs','down_to_the_wire','eager_beaver','fair_and_square', 'get_cold_feet', 'mellow_out','pulling_your_legs','thinking_out_loud'};
 
-directory = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/DNN/CSV_Files/male/';
+directory = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/MATLAB/Smoothed_CSV_files/male/';
 results = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/MATLAB/small_multiples/male/';
 Files = dir(strcat(directory,'*.csv'));
 
@@ -19,29 +19,14 @@ for tit = 1:10
     
     TITLE_SELECTOR = tit;
     
-    intensity1 = [];
-    intensity2 = [];
-    intensity3 = [];
-    intensity4 = [];
+    intensity = [];
+    f1 = [];
+    f2 = [];
+    f3 = [];
 
-    f1_1 = [];
-    f1_2 = [];
-    f1_3 = [];
-    f1_4 = [];
-
-    f2_1 = [];
-    f2_2 = [];
-    f2_3 = [];
-    f2_4 = [];
-
-    f3_1 = [];
-    f3_2 = [];
-    f3_3 = [];
-    f3_4 = [];
     for na = 1:3
         NAME_SELECTOR = na;
 
-        k = 1;
         for f = 1:length(Files)
 
             filename = Files(f).name;
@@ -52,72 +37,17 @@ for tit = 1:10
                 display(strcat('Operating on: ', filename))
 
                temp_filename = strcat(directory, filename);
-               [time, pitch, intensity, f1, f2, f3] = extract_features(temp_filename);
+               [time_, intensity_, f1_, f2_, f3_] = extract_features(temp_filename, false);
 
-               if k == 1
-                   %time1 = time;
-                   intensity1 = intensity;
-                   f1_1 = f1;
-                   f2_1 = f2;
-                   f3_1 = f3;
-               elseif k == 2
-                   %time2 = time;
-                   intensity2 = intensity;
-                   f1_2 = f1;
-                   f2_2 = f2;
-                   f3_2 = f3;
-               elseif k == 3
-                   %time3 = time;
-                   intensity3 = intensity;
-                   f1_3 = f1;
-                   f2_3 = f2;
-                   f3_3 = f3;
-               elseif k == 4
-                   %time4 = time;
-                   intensity4 = intensity;
-                   f1_4 = f1;
-                   f2_4 = f2;
-                   f3_4 = f3;       
-               end
-
-               k = k+1;
+               time = time_;
+               intensity = intensity_;
+               f1 = f1_;
+               f2 = f2_;
+               f3 = f3_;
             else
                 continue
             end
         end
-
-        max_length = 0;
-        [intensity1, intensity2, intensity3, intensity4, max_length] = set_equal_length(intensity1, intensity2, intensity3, intensity4);
-        [f1_1, f1_2, f1_3, f1_4, max_length] = set_equal_length(f1_1, f1_2, f1_3, f1_4);
-        [f2_1, f2_2, f2_3, f2_4, max_length] = set_equal_length(f2_1, f2_2, f2_3, f2_4);
-        [f3_1, f3_2, f3_3, f3_4, max_length] = set_equal_length(f3_1, f3_2, f3_3, f3_4);
-
-        averaged_intensity = [];
-        averaged_f1 = [];
-        averaged_f2 = [];
-        averaged_f3 = [];
-        for i=max_length
-            avg_int = (intensity1(1:i) + intensity2(1:i) + intensity3(1:i) + intensity4(1:i)) / 4;
-            avg_f1 = (f1_1(1:i) + f1_2(1:i) + f1_3(1:i) + f1_4(1:i)) / 4;
-            avg_f2 = (f2_1(1:i) + f2_2(1:i) + f2_3(1:i) + f2_4(1:i)) / 4;
-            avg_f3 = (f3_1(1:i) + f3_2(1:i) + f3_3(1:i) + f3_4(1:i)) / 4;
-
-            averaged_intensity = [averaged_intensity avg_int];
-            averaged_f1 = [averaged_f1 avg_f1];
-            averaged_f2 = [averaged_f2 avg_f2];
-            averaged_f3 = [averaged_f3 avg_f3];
-        end
-
-        % remove 0s on the beginning and on the end
-        averaged_intensity = averaged_intensity(find(averaged_intensity,1,'first'):find(averaged_intensity,1,'last'));
-        averaged_f1 = averaged_f1(find(averaged_f1,1,'first'):find(averaged_f1,1,'last'));
-        averaged_f2 = averaged_f2(find(averaged_f2,1,'first'):find(averaged_f2,1,'last'));
-        averaged_f3 = averaged_f3(find(averaged_f3,1,'first'):find(averaged_f3,1,'last'));
-
-        smoothed_intensity = apply_filter(averaged_intensity, 'exponential');
-        smoothed_f1 = apply_filter(averaged_f1, 'exponential');
-        smoothed_f2 = apply_filter(averaged_f2, 'exponential');
-        smoothed_f3 = apply_filter(averaged_f3, 'exponential');
 
         clear title xlabel ylabel;
         title_name = name{1};
@@ -125,7 +55,8 @@ for tit = 1:10
         % INTENSITY
         a = subplot_tight(SUBPLOT_COLUMNS, SUBPLOT_LINES, image_counter, [0.05 0.05]);    
         image_counter = image_counter + 1;            
-        plot([averaged_intensity smoothed_intensity]);
+        %plot([averaged_intensity smoothed_intensity]);
+        plot(intensity, 'r');
         set( get(a,'YLabel'), 'String', 'Intensity' );
         title(title_name);
         hold on;
@@ -134,7 +65,8 @@ for tit = 1:10
         % F1
         b = subplot_tight(SUBPLOT_COLUMNS, SUBPLOT_LINES, image_counter, [0.05 0.05]);
         image_counter = image_counter + 1;
-        plot([averaged_f1, smoothed_f1]);
+        %plot([averaged_f1, smoothed_f1]);
+        plot(f1, 'b');
         set( get(b,'YLabel'), 'String', 'F1' );
         title(title_name);
         hold on;
@@ -143,7 +75,8 @@ for tit = 1:10
         % F2
         c = subplot_tight(SUBPLOT_COLUMNS, SUBPLOT_LINES, image_counter, [0.05 0.05]);
         image_counter = image_counter + 1;
-        plot([averaged_f2, smoothed_f2]);
+%         plot([averaged_f2, smoothed_f2]);
+        plot(f2, 'b');
         set( get(c,'YLabel'), 'String', 'F2' );
         title(title_name);
         hold on;
@@ -152,7 +85,8 @@ for tit = 1:10
         % F3
         d = subplot_tight(SUBPLOT_COLUMNS, SUBPLOT_LINES, image_counter, [0.05 0.05]);
         image_counter = image_counter + 1;
-        plot([averaged_f3, smoothed_f3]);
+%         plot([averaged_f3, smoothed_f3]);
+        plot(f3, 'b');
         set(get(d,'YLabel'), 'String', 'F3' );
         title(title_name);
         hold on;

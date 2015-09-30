@@ -56,7 +56,7 @@ for tit = 1:10
                 display(strcat('Operating on: ', filename))                            
 
                temp_filename = strcat(directory, filename);
-               [time, pitch, intensity, f1, f2, f3] = extract_features(temp_filename);
+               [time, pitch, intensity, f1, f2, f3] = extract_features(temp_filename, true);
 
                if k == 1
                    time1 = time;
@@ -91,13 +91,11 @@ for tit = 1:10
         end
 
         max_length = 0;
-        %[time1, time2, time3, time4, max_length] = set_equal_length(time1, time2, time3, time4);
         [intensity1, intensity2, intensity3, intensity4, max_length] = set_equal_length(intensity1, intensity2, intensity3, intensity4);
         [f1_1, f1_2, f1_3, f1_4, max_length] = set_equal_length(f1_1, f1_2, f1_3, f1_4);
         [f2_1, f2_2, f2_3, f2_4, max_length] = set_equal_length(f2_1, f2_2, f2_3, f2_4);
         [f3_1, f3_2, f3_3, f3_4, max_length] = set_equal_length(f3_1, f3_2, f3_3, f3_4);
 
-        averaged_time = [];
         averaged_intensity = [];
         averaged_f1 = [];
         averaged_f2 = [];
@@ -120,36 +118,20 @@ for tit = 1:10
         averaged_f2 = averaged_f2(find(averaged_f2,1,'first'):find(averaged_f2,1,'last'));
         averaged_f3 = averaged_f3(find(averaged_f3,1,'first'):find(averaged_f3,1,'last'));
 
-        % time arrays
-        time1 = time1(find(time1,1,'first'):find(time1,1,'last'));
-        time2 = time2(find(time2,1,'first'):find(time2,1,'last'));
-        time3 = time3(find(time3,1,'first'):find(time3,1,'last'));
-        time4 = time4(find(time4,1,'first'):find(time4,1,'last'));
-        
-        longest_time = [];
-        [t1,x] = size(time1);
-        [t2,x] =size(time2);
-        [t3,x] =size(time3);
-        [t4,x] =size(time4);
-           
-        if t1 > t2 && t1 > t3 && t1 > t4
-            longest_time = time1;
-        elseif t2 > t3 && t2 > t4
-            longest_time = time2;
-        elseif t3 > t4
-            longest_time = time3;
-        else
-            longest_time = time4;
-        end
-        
         smoothed_intensity = apply_filter(averaged_intensity, 'exponential');
         smoothed_f1 = apply_filter(averaged_f1, 'exponential');
         smoothed_f2 = apply_filter(averaged_f2, 'exponential');
         smoothed_f3 = apply_filter(averaged_f3, 'exponential');
+               
+        % resampling
+        time = [.0:.01:1.6]; % is your starting vector of time
+        time = time(:);
+        smoothed_intensity = resamplig_features(time, smoothed_intensity);
+        smoothed_f1 = resamplig_features(time, smoothed_f1);
+        smoothed_f2 = resamplig_features(time, smoothed_f2);
+        smoothed_f3 = resamplig_features(time, smoothed_f3);
         
-        [longest_time, smoothed_intensity, smoothed_f1, smoothed_f2, smoothed_f3, max_length] = set_equal_length2(longest_time, smoothed_intensity, smoothed_f1, smoothed_f2, smoothed_f3);
-        
-        smoothedTable = table(longest_time, smoothed_intensity, smoothed_f1, smoothed_f2, smoothed_f3);
+        smoothedTable = table(time, smoothed_intensity, smoothed_f1, smoothed_f2, smoothed_f3);
         
         composed_filename = strcat(strcat(name, '_'), title_filename);
         filename = composed_filename;
