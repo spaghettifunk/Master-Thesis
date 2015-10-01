@@ -6,8 +6,8 @@ male_names = {'Jeremy', 'Lenny', 'Philip'};
 female_names = {'Joyce','Marty','Niki'};
 filename_tile = {'a_piece_of_cake','blow_a_fuse','catch_some_zs','down_to_the_wire','eager_beaver','fair_and_square', 'get_cold_feet', 'mellow_out','pulling_your_legs','thinking_out_loud'};
 
-directory = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/MATLAB/Smoothed_CSV_files/male/';
-results = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/MATLAB/small_multiples/male/';
+directory = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/src/output-data/smoothed-csv-files/male/';
+results = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/src/output-data/small-multiples/male/';
 Files = dir(strcat(directory,'*.csv'));
 
 SUBPLOT_LINES = 4;

@@ -6,8 +6,8 @@ male_names = {'Jeremy', 'Lenny', 'Philip'};
 female_names = {'Joyce','Marty','Niki'};
 filename_tile = {'a_piece_of_cake','blow_a_fuse','catch_some_zs','down_to_the_wire','eager_beaver','fair_and_square', 'get_cold_feet', 'mellow_out','pulling_your_legs','thinking_out_loud'};
 
-directory = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/DNN/CSV_Files/female/';
-results = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/MATLAB/Smoothed_CSV_files/female/';
+directory = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/src/input-data/initial-csv-files/male/';
+results = '/Users/dado/Documents/University/Courses/Master-Thesis/Project/src/output-data/smoothed-csv-files/male/';
 Files = dir(strcat(directory,'*.csv'));
 
 SUBPLOT_LINES = 4;
@@ -49,7 +49,7 @@ for tit = 1:10
         for f = 1:length(Files)
 
             filename = Files(f).name;
-            name = female_names(NAME_SELECTOR);
+            name = male_names(NAME_SELECTOR);
             title_filename = filename_tile(TITLE_SELECTOR);
 
             if (not(isempty(strfind(filename, name))) && not(isempty(strfind(filename, title_filename))))
