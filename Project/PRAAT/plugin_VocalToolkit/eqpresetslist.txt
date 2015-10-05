@@ -1,0 +1,10 @@
+option Car Radio
+option Cellular
+option Film Vocal
+option Glass
+option Megaphone
+option Phone
+option Radio
+option Small Radio
+option Vintage Phone
+option Walkie Talkie
