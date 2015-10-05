@@ -75,5 +75,5 @@ for root, dirs, files in os.walk(audio_files_directory):
         output_filename = os.path.join(results_directory, audio_file.replace('.wav', '.TextGrid'))
 
         # call the file
-        command = "python align.py " + filename + " " + get_sentences_directory + " " + output_filename;
+        command = "python align.py " + filename + " " + get_sentences_directory + " " + output_filename
         os.system(command)
