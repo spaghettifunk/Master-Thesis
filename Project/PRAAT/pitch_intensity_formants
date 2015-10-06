@@ -4,9 +4,14 @@
 # ask a user the directories
 
 form supply_arguments
-	sentence input_directory  /Users/dado/Documents/University/Courses/Master-Thesis/Project/src/train-audio-data/male
-	sentence output_directory /Users/dado/Documents/University/Courses/Master-Thesis/Project/src/input-data/initial-csv-files/male/
-	sentence type_file wav
+	
+    ; sentence input_directory  /Users/dado/Documents/University/Courses/Master-Thesis/Project/src/train-audio-data/male
+	sentence input_directory  /Users/dado/Documents/University/Courses/Master-Thesis/Project/src/test-audio-data/
+
+    ; sentence output_directory /Users/dado/Documents/University/Courses/Master-Thesis/Project/src/input-data/train-csv-files/male/
+	sentence output_directory /Users/dado/Documents/University/Courses/Master-Thesis/Project/src/input-data/test-csv-files/
+    
+    sentence type_file wav
 	positive prediction_order 10
 	positive minimum_pitch 75
 	positive maximum_pitch 500
