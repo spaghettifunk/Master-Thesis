@@ -8,7 +8,7 @@
 form Change sample rate in sound files
    sentence Sound_file_extension .wav
    comment Directory path of input files:
-   text input_directory  /Users/dado/Documents/University/Courses/Master-Thesis/Project/DNN/train-audio-data/audio-files/female/
+   text input_directory  /Users/dado/Documents/University/Courses/Master-Thesis/Project/src/test-audio-data/
    comment Directory path of resampled files (old files will be overwritten!):
    text output_directory  /Users/dado/Desktop/test/
    optionmenu Output_format: 2

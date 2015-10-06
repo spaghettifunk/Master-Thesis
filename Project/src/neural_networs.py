@@ -26,15 +26,10 @@ THE SOFTWARE.
 import sys
 import os
 import csv
-
 import numpy as np
-from fann2 import libfann
 
 from libraries.MFCC import melScaling
-# from keras.models import Sequential
-# from keras.layers.core import Dense, Dropout, Activation
-# from keras.optimizers import SGD
-# from keras.datasets import cifar10
+from libraries.utility import clean_filename
 
 
 class Features:
@@ -68,6 +63,7 @@ class Features:
             self.f2.append(val)
         if n == 3:
             self.f3.append(val)
+
 
 class TestingFANN:
     train_audio_files_directory = "train-audio-data/smoothed_CSV_files/male/"
@@ -140,7 +136,7 @@ class TestingFANN:
             # 1) number of samples -> number of files (40)
             # 2) how many input values per sample -> number of features (25)
             # 3) the output value -> either a value or the filename (1)
-            content = "" +  str(len(set)) + " " + "25 " + "1\n"
+            content = "" + str(len(set)) + " " + "25 " + "1\n"
 
             # second/forth/sixth/etc. line:
             # - values of the sample
@@ -200,7 +196,7 @@ class TestingFANN:
                     with open(file_name, 'rU') as csvfile:
                         reader = csv.reader(csvfile, delimiter=',')
 
-                        file_ref = self.clean_filename(csv_file)
+                        file_ref = clean_filename(csv_file)
                         assert file_ref != ""
 
                         feat = Features()
@@ -231,23 +227,6 @@ class TestingFANN:
             print("Error: ", sys.exc_info())
             raise
 
-    def clean_filename(self, filename):
-        cleaned_name = filename.replace(".csv", "")
-        if "Jeremy_" in cleaned_name:
-            return cleaned_name.replace("Jeremy_", "")
-        elif "Lenny_" in cleaned_name:
-            return cleaned_name.replace("Lenny_", "")
-        elif "Philip_" in cleaned_name:
-            return cleaned_name.replace("Philip_", "")
-        elif "Marty_" in cleaned_name:
-            return cleaned_name.replace("Marty_", "")
-        elif "Joyce_" in cleaned_name:
-            return cleaned_name.replace("Joyce_", "")
-        elif "Niki_" in cleaned_name:
-            return cleaned_name.replace("Niki_", "")
-        else:
-            return ""
-
     def get_values(self, feat_obj, feat_ref, file_ref):
         string_to_write = ""
 
@@ -264,8 +243,7 @@ class TestingFANN:
         string_to_write += "\n"
         return string_to_write
 
-
-    def print_callback(epochs, error):
+    def print_callback(self, epochs, error):
         print "Epochs     %8d. Current MSE-Error: %.10f\n" % (epochs, error)
         return 0
 
@@ -289,22 +267,22 @@ class TestingFANN:
 
         # create training data, and ann object
         print "Creating network."
-        train_data = libfann.training_data()
-        train_data.read_train_from_file(self.dataset_file)
+        #train_data = libfann.training_data()
+        #train_data.read_train_from_file(self.dataset_file)
 
         try:
-            ann = libfann.neural_net()
-
-            ann.create_sparse_array(connection_rate, (n_inputs, 20, 20, 20, 20, 20, 20, 20, n_outputs))
-            ann.set_learning_rate(learning_rate)
-
-            # start training the network
-            print "Training network"
-            ann.set_activation_function_hidden(libfann.SIGMOID_STEPWISE)
-            ann.set_activation_function_output(libfann.SIGMOID_STEPWISE)
-            ann.set_training_algorithm(libfann.TRAIN_BATCH)
-
-            ann.train_on_data(train_data, max_iterations, iterations_between_reports, desired_error)
+            # ann = libfann.neural_net()
+            #
+            # ann.create_sparse_array(connection_rate, (n_inputs, 20, 20, 20, 20, 20, 20, 20, n_outputs))
+            # ann.set_learning_rate(learning_rate)
+            #
+            # # start training the network
+            # print "Training network"
+            # ann.set_activation_function_hidden(libfann.SIGMOID_STEPWISE)
+            # ann.set_activation_function_output(libfann.SIGMOID_STEPWISE)
+            # ann.set_training_algorithm(libfann.TRAIN_BATCH)
+            #
+            # ann.train_on_data(train_data, max_iterations, iterations_between_reports, desired_error)
 
             # save network to disk
             print "Saving network"
@@ -319,12 +297,12 @@ class TestingFANN:
             #self.create_testset_file(set)
 
             # load ANN
-            ann = libfann.neural_net()
-            ann.create_from_file(self.ann_file)
-
-            # test outcome
-            print "Testing network"
-            test_data = libfann.training_data()
+            # ann = libfann.neural_net()
+            # ann.create_from_file(self.ann_file)
+            #
+            # # test outcome
+            # print "Testing network"
+            # test_data = libfann.training_data()
 
             # In this way it works!!
             inputs = [[27.21150, 42.59070, 51.89526, 57.62139, 61.31414, 63.37890, 64.02627, 63.99757, 63.46879, 62.82471 ,62.47834, 62.25071 ,
@@ -337,24 +315,24 @@ class TestingFANN:
                        44.45388 ,44.75251 ,45.06413 ,38.88827 ,35.49042, 31.49042]]
             outputs = [[0]]
 
-            test_data.set_train_data(inputs, outputs)
-
-            # Having FANN Error 10 every time!!!!
-            #test_data.read_train_from_file(self.testset_file)
-
-            ann.reset_MSE()
-            ann.test_data(test_data)
-            print "MSE error on test data: %f" % ann.get_MSE()
-
-            print "Testing network again"
-            ann.reset_MSE()
-            input=test_data.get_input()
-            output=test_data.get_output()
-
-            for i in range(len(input)):
-                ann.test(input[i], output[i])
-
-            print "MSE error on test data: %f" % ann.get_MSE()
+            # test_data.set_train_data(inputs, outputs)
+            #
+            # # Having FANN Error 10 every time!!!!
+            # #test_data.read_train_from_file(self.testset_file)
+            #
+            # ann.reset_MSE()
+            # ann.test_data(test_data)
+            # print "MSE error on test data: %f" % ann.get_MSE()
+            #
+            # print "Testing network again"
+            # ann.reset_MSE()
+            # input=test_data.get_input()
+            # output=test_data.get_output()
+            #
+            # for i in range(len(input)):
+            #     ann.test(input[i], output[i])
+            #
+            # print "MSE error on test data: %f" % ann.get_MSE()
         except:
             print "Error: ", sys.exc_info()
             raise

@@ -55,3 +55,36 @@ class Utility:
             if not os.path.exists(os.path.join(self.saved_sets_dir, self.save_testset_filename)):
                 return None
             return np.load(os.path.join(self.saved_sets_dir, self.save_testset_filename))
+
+
+def clean_filename(filename):
+    cleaned_name = filename.replace(".wav", "")
+    if "Jeremy_" in cleaned_name:
+        return cleaned_name.replace("Jeremy_", "")
+    elif "Lenny_" in cleaned_name:
+        return cleaned_name.replace("Lenny_", "")
+    elif "Philip_" in cleaned_name:
+        return cleaned_name.replace("Philip_", "")
+    elif "Marty_" in cleaned_name:
+        return cleaned_name.replace("Marty_", "")
+    elif "Joyce_" in cleaned_name:
+        return cleaned_name.replace("Joyce_", "")
+    elif "Niki_" in cleaned_name:
+        return cleaned_name.replace("Niki_", "")
+    elif "Davide_" in cleaned_name:
+        return cleaned_name.replace("Davide_", "")
+    else:
+        return ""
+
+
+def clean_filename_numbers(filename):
+    if "_1" in filename:
+        return filename.replace("_1", "")
+    elif "_2" in filename:
+        return filename.replace("_2", "")
+    elif "_3" in filename:
+        return filename.replace("_3", "")
+    elif "_4" in filename:
+        return filename.replace("_4", "")
+    else:
+        return ""

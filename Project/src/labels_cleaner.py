@@ -26,39 +26,68 @@ THE SOFTWARE.
 import os
 import json
 
-labels_directory = "output-data/labels_p2fa/"
-phonemes_dict = "../p2fa-force_alignment/model/monophones"
-dict_phonemes_directory = "output-data/audio_phonemes_labels.txt"
+class Labels_Cleaner:
+    test_labels_directory = "p2fa-force_alignment/labels/test/"
+    train_labels_directory = "p2fa-force_alignment/labels/train/"
+    phonemes_dict = "p2fa-force_alignment/model/monophones"
+    train_dict_phonemes_directory = "output-data/train_audio_phonemes_labels.txt"
+    test_dict_phonemes_directory = "output-data/test_audio_phonemes_labels.txt"
 
-phonemes_arr = []
-with open(phonemes_dict) as dict_file:
-    data = dict_file.readlines()
-    for line in data:
-        cleaned = line.replace('\n', '')
-        phonemes_arr.append(cleaned)
-
-phonemes = {}
-for root, dirs, files in os.walk(labels_directory):
-    for file in files:
-        filename = os.path.join(root, file)
-
-        if ".DS_Store" in filename:
-            continue
-
-        temp_phonemes = []
-        with open(filename) as label_file:
-            data = label_file.readlines()
-
+    def create_phonemes_dictionary(self, isTestSet=False):
+        phonemes_arr = {}
+        phonemes_int_label = 0  # assign an integer value to  each phoneme (used for training the model)
+        with open(self.phonemes_dict) as dict_file:
+            data = dict_file.readlines()
             for line in data:
                 cleaned = line.replace('\n', '')
-                cleaned = cleaned.replace('"', '')
+                phonemes_arr[cleaned] = phonemes_int_label
+                phonemes_int_label += 1
 
-                if cleaned == 'sp':
+        phonemes = {}
+
+        if isTestSet:
+            labels_directory = self.test_labels_directory
+        else:
+            labels_directory = self.train_labels_directory
+
+        for root, dirs, files in os.walk(labels_directory):
+            for file in files:
+                filename = os.path.join(root, file)
+
+                if ".DS_Store" in filename:
                     continue
 
-                if cleaned in phonemes_arr:
-                    temp_phonemes.append(cleaned)
+                temp_phonemes = []
+                with open(filename) as label_file:
+                    data = label_file.readlines()
 
-        phonemes[file] = temp_phonemes
+                    for line in data:
+                        cleaned = line.replace('\n', '')
+                        cleaned = cleaned.replace('"', '')
 
-json.dump(phonemes, open(dict_phonemes_directory, 'w'))
+                        if cleaned == 'sp':
+                            continue
+
+                        if cleaned in phonemes_arr:
+                            temp_phonemes.append(cleaned)
+
+                # create the mapping between the retrieved phonems and the
+                # actual value as number
+                phonemes_int_labels = []
+                for tp in temp_phonemes:
+                    int_val = phonemes_arr[tp]
+                    phonemes_int_labels.append(int_val)
+
+                # save it in the dictionary
+                phonemes[file] = phonemes_int_labels
+
+        if isTestSet:
+            json.dump(phonemes, open(self.test_dict_phonemes_directory, 'w'))
+        else:
+            json.dump(phonemes, open(self.train_dict_phonemes_directory, 'w'))
+
+
+if __name__ == "__main__":
+    goofy = Labels_Cleaner()
+    goofy.create_phonemes_dictionary()
+    goofy.create_phonemes_dictionary(True)
