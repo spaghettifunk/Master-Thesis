@@ -28,6 +28,7 @@ import yaml
 import csv
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 from time import time
 from copy import deepcopy
 
@@ -89,10 +90,10 @@ class CRF_HMM:
     train_csv_directory = "output-data/train-smoothed-csv-files/"
     test_csv_directory = "output-data/test-smoothed-csv-files/"
 
-    X_train = []    # sample for training
-    y_train = []    # training labels
-    X_test = []     # samples for testing
-    y_test = []     # testing labels
+    X_train = []  # sample for training
+    y_train = []  # training labels
+    X_test = []  # samples for testing
+    y_test = []  # testing labels
 
     dictionary_trainset = {}
     dictionary_testset = {}
@@ -180,7 +181,7 @@ class CRF_HMM:
         try:
 
             # this model works!
-            svm = LinearSVC(dual=True, C=1.0, verbose=0, max_iter=1000, random_state=3)
+            svm = LinearSVC(dual=True, C=1.0, verbose=0, max_iter=1000)
 
             start = time()
             svm.fit(np.vstack(self.X_train), np.hstack(self.y_train))
@@ -189,12 +190,81 @@ class CRF_HMM:
             prediction = svm.predict(np.vstack(self.X_test[1]))
 
             print "Time: %f seconds", time_svm
-            print "Score: %f" % svm.score(np.vstack(self.X_test), np.hstack(self.y_test))
-            print "Prediction: ", prediction
+            print "Score: %f \n" % svm.score(np.vstack(self.X_test), np.hstack(self.y_test))
+            # print "Prediction: ", prediction
 
         except:
             print "Error: ", sys.exc_info()
             raise
+
+    def distance_cost_plot(self, distances):
+        im = plt.imshow(distances, interpolation='nearest', cmap='Reds')
+        plt.gca().invert_yaxis()
+        plt.xlabel("X")
+        plt.ylabel("Y")
+        plt.grid()
+        plt.colorbar()
+
+    def dynamicTimeWarp(self, train, test):
+
+        for t in xrange(4):
+            # get sequences for each feature
+            x = train[:, t]
+            y = test[:, t]
+
+            # plt.plot(x, 'r', label='x')
+            # plt.plot(y, 'g', label='y')
+            # plt.legend()
+            # plt.show()
+
+            # matrix to compute the distances
+            distances = np.zeros((len(y), len(x)))
+
+            # euclidean distance
+            for i in range(len(y)):
+                for j in range(len(x)):
+                    distances[i, j] = (x[j] - y[i]) ** 2
+
+            accumulated_cost = np.zeros((len(y), len(x)))
+            for i in range(1, len(y)):
+                for j in range(1, len(x)):
+                    accumulated_cost[i, j] = min(accumulated_cost[i - 1, j - 1], accumulated_cost[i - 1, j],
+                                                 accumulated_cost[i, j - 1]) + distances[i, j]
+
+            path = [[len(x) - 1, len(y) - 1]]
+            i = len(y) - 1
+            j = len(x) - 1
+            while i > 0 and j > 0:
+                if i == 0:
+                    j -= 1
+                elif j == 0:
+                    i -= 1
+                else:
+                    if accumulated_cost[i - 1, j] == min(accumulated_cost[i - 1, j - 1], accumulated_cost[i - 1, j],
+                                                         accumulated_cost[i, j - 1]):
+                        i -= 1
+                    elif accumulated_cost[i, j - 1] == min(accumulated_cost[i - 1, j - 1], accumulated_cost[i - 1, j],
+                                                           accumulated_cost[i, j - 1]):
+                        j -= j - 1
+                    else:
+                        i -= 1
+                        j -= 1
+                path.append([j, i])
+            path.append([0, 0])
+
+            path_x = [point[0] for point in path]
+            path_y = [point[1] for point in path]
+
+            self.distance_cost_plot(accumulated_cost)
+            plt.plot(path_x, path_y)
+            # plt.show()
+
+    def DTW(self):
+        # compare each feature
+        a_piece_of_cake_train = self.X_train[0]
+        a_piece_of_cake_test = self.X_test[7]
+
+        self.dynamicTimeWarp(a_piece_of_cake_train, a_piece_of_cake_test)
 
     def test(self):
         self.load_train_phonemes_dictionary()
@@ -202,6 +272,9 @@ class CRF_HMM:
         self.load_trainig_set()
         self.load_trainig_set(True)
         self.train_model()
+
+        print "DTW: \n"
+        self.DTW()
 
 
 if __name__ == "__main__":
