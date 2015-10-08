@@ -325,6 +325,7 @@ class CRF_HMM:
     def train_model(self):
         try:
             #Make a linear-chain CRF:
+            print "*** Creating Linear Chain CRF ***\n"
             mycrf = ChainCrfLinear(30, 11)  # 30 - number of dimensions (phonemes + -1s), 11 (number of labels 1 to 10 + 1)
 
             #Alternatively, we could have used one of these, for example:
@@ -338,15 +339,163 @@ class CRF_HMM:
 
             #Train the model. Since we have registered our model with this trainer,
             #calling the trainers step-method trains our model (for a number of steps):
+            print "*** Training model ***"
             for i in range(20):
                 mytrainer.step((inputs, outputs), 0.001)
-                print mycrf.cost((inputs, outputs), 0.001)
+                print "Cost: ", mycrf.cost((inputs, outputs), 0.001)
 
             #Apply to some stupid test data:
             testinputs = np.array(self.PHONEMES_X_test)
             predictions = mycrf.viterbi(testinputs)
-            print predictions   # each element corrisponds to a sentences in the sentences.txt file - Index starts from 1!!
+            print "\nLabels predicted: ", predictions   # each element corrisponds to a sentences in the sentences.txt file - Index starts from 1!!
+
+            # JUST FOR TESTING!!!!
+            reference = [[5, 10, 36, 3, 5, 20, 2, 7, 2],                    # a piece of cake
+                         [18, 4, 13, 5, 34, 60, 43, 14],                    # blow a fuse
+                         [2, 26, 42, 3, 17, 6, 14, 39, 14],                 # catch some zs
+                         [16, 53, 9, 12, 5, 35, 5, 15, 24, 25],             # down to the wire
+                         [36, 30, 25, 18, 36, 20, 25],                      # eager beaver
+                         [34, 19, 23, 5, 9, 16, 3, 2, 15, 19, 23],          # fair and square
+                         [30, 19, 12, 2, 13, 4, 16, 34, 36, 12],            # get cold feet
+                         [6, 19, 4, 49, 53, 12],                            # mellow out
+                         [10, 38, 4, 31, 29, 60, 38, 23, 4, 19, 30, 14],    # pulling your legs
+                         [32, 21, 29, 2, 5, 29, 53, 12, 4, 53, 16]]         # thinking out loud
+
+            print "*** Applying WER ***"
+            counter = 0
+            for val in self.PHONEMES_X_test:
+                test_phonemes = val     # hyphothesis
+                wer_result, numCor, numSub, numIns, numDel = self.wer(reference[counter], test_phonemes)
+                print "WER: {}, OK: {}, SUB: {}, INS: {}, DEL: {}".format(wer_result, numCor, numSub, numIns, numDel)
+                #print "WER distance: ", self.wer(reference[counter], test_phonemes)
 
         except:
             print "Error: ", sys.exc_info()
             raise
+
+
+    def wer(self, ref, hyp ,debug=False):
+        DEL_PENALTY = 2
+        SUB_PENALTY = 1
+        INS_PENALTY = 3
+
+        r = ref #.split()
+        h = hyp #.split()
+        #costs will holds the costs, like in the Levenshtein distance algorithm
+        costs = [[0 for inner in range(len(h)+1)] for outer in range(len(r)+1)]
+        # backtrace will hold the operations we've done.
+        # so we could later backtrace, like the WER algorithm requires us to.
+        backtrace = [[0 for inner in range(len(h)+1)] for outer in range(len(r)+1)]
+
+        OP_OK = 0
+        OP_SUB = 1
+        OP_INS = 2
+        OP_DEL = 3
+
+        # First column represents the case where we achieve zero
+        # hypothesis words by deleting all reference words.
+        for i in range(1, len(r)+1):
+            costs[i][0] = DEL_PENALTY*i
+            backtrace[i][0] = OP_DEL
+
+        # First row represents the case where we achieve the hypothesis
+        # by inserting all hypothesis words into a zero-length reference.
+        for j in range(1, len(h) + 1):
+            costs[0][j] = INS_PENALTY * j
+            backtrace[0][j] = OP_INS
+
+        # computation
+        for i in range(1, len(r)+1):
+            for j in range(1, len(h)+1):
+                if r[i-1] == h[j-1]:
+                    costs[i][j] = costs[i-1][j-1]
+                    backtrace[i][j] = OP_OK
+                else:
+                    substitutionCost = costs[i-1][j-1] + SUB_PENALTY # penalty is always 1
+                    insertionCost    = costs[i][j-1] + INS_PENALTY   # penalty is always 1
+                    deletionCost     = costs[i-1][j] + DEL_PENALTY   # penalty is always 1
+
+                    costs[i][j] = min(substitutionCost, insertionCost, deletionCost)
+                    if costs[i][j] == substitutionCost:
+                        backtrace[i][j] = OP_SUB
+                    elif costs[i][j] == insertionCost:
+                        backtrace[i][j] = OP_INS
+                    else:
+                        backtrace[i][j] = OP_DEL
+
+        # back trace though the best route:
+        i = len(r)
+        j = len(h)
+        numSub = 0
+        numDel = 0
+        numIns = 0
+        numCor = 0
+        if debug:
+            print("OP\tREF\tHYP")
+            lines = []
+        while i > 0 or j > 0:
+            if backtrace[i][j] == OP_OK:
+                numCor += 1
+                i-=1
+                j-=1
+                if debug:
+                    lines.append("OK\t" + r[i]+"\t"+h[j])
+            elif backtrace[i][j] == OP_SUB:
+                numSub +=1
+                i-=1
+                j-=1
+                if debug:
+                    lines.append("SUB\t" + r[i]+"\t"+h[j])
+            elif backtrace[i][j] == OP_INS:
+                numIns += 1
+                j-=1
+                if debug:
+                    lines.append("INS\t" + "****" + "\t" + h[j])
+            elif backtrace[i][j] == OP_DEL:
+                numDel += 1
+                i-=1
+                if debug:
+                    lines.append("DEL\t" + r[i]+"\t"+"****")
+        if debug:
+            lines = reversed(lines)
+            for line in lines:
+                print(line)
+            print("#cor " + str(numCor))
+            print("#sub " + str(numSub))
+            print("#del " + str(numDel))
+            print("#ins " + str(numIns))
+            return (numSub + numDel + numIns) / (float) (len(r))
+
+        wer_result = round( (numSub + numDel + numIns) / (float) (len(r)), 3)
+        return wer_result, numCor, numSub, numIns, numDel
+
+    # r = Reference, h = hypothesis
+    # def wer(self, r, h):
+    #     """
+    #         Calculation of WER with Levenshtein distance.
+    #         Works only for iterables up to 254 elements (uint8).
+    #         O(nm) time ans space complexity.
+    #     """
+    #     # initialisation
+    #     import numpy
+    #     d = numpy.zeros((len(r)+1)*(len(h)+1), dtype=numpy.uint8)
+    #     d = d.reshape((len(r)+1, len(h)+1))
+    #     for i in range(len(r)+1):
+    #         for j in range(len(h)+1):
+    #             if i == 0:
+    #                 d[0][j] = j
+    #             elif j == 0:
+    #                 d[i][0] = i
+    #
+    #     # computation
+    #     for i in range(1, len(r)+1):
+    #         for j in range(1, len(h)+1):
+    #             if r[i-1] == h[j-1]:
+    #                 d[i][j] = d[i-1][j-1]
+    #             else:
+    #                 substitution = d[i-1][j-1] + 1
+    #                 insertion    = d[i][j-1] + 1
+    #                 deletion     = d[i-1][j] + 1
+    #                 d[i][j] = min(substitution, insertion, deletion)
+    #
+    #     return d[len(r)][len(h)]
