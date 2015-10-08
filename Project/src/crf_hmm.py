@@ -27,15 +27,21 @@ import sys
 import yaml
 import csv
 import os
+from pylab import randn
 import numpy as np
 import matplotlib.pyplot as plt
 from time import time
 from copy import deepcopy
 
-# models and trainers
+# pystruct
+from pystruct.datasets import load_scene
 from sklearn.svm import LinearSVC
-from pystruct.models import GraphCRF, ChainCRF
-from pystruct.learners import FrankWolfeSSVM, NSlackSSVM
+from pystruct.learners import NSlackSSVM
+from pystruct.models import MultiLabelClf
+
+# monte
+from monte.models.crf import ChainCrfLinear
+from monte import train
 
 
 class Features:
@@ -83,20 +89,33 @@ class Features:
 
         return self.features_matrix
 
+    def get_samples(self):
+        return np.concatenate([self.intensity, self.f1, self.f2, self.f3])
+
 
 class CRF_HMM:
+    sentences_directory = "output-data/sentences.txt"
     train_dictionary_phonemes_directory = "output-data/train_audio_phonemes_labels.txt"
     test_dictionary_phonemes_directory = "output-data/test_audio_phonemes_labels.txt"
     train_csv_directory = "output-data/train-smoothed-csv-files/"
     test_csv_directory = "output-data/test-smoothed-csv-files/"
 
-    X_train = []  # sample for training
-    y_train = []  # training labels
-    X_test = []  # samples for testing
-    y_test = []  # testing labels
-
     dictionary_trainset = {}
     dictionary_testset = {}
+
+    # DTW stuff related
+    DTW_X_train = []  # sample for training
+    DTW_Y_train = []  # training labels
+    DTW_X_test = []   # samples for testing
+    DTW_Y_test = []   # testing labels
+
+    # Phonemes prediciton
+    PHONEMES_X_train = []  # sample for training
+    PHONEMES_Y_train = []  # training labels
+    PHONEMES_X_test = []   # samples for testing
+    PHONEMES_Y_test = []   # testing labels
+    train_labels_to_int = {}     # dictionary for mapping the sentence with an integer -> the integer will be used as label for the classifier
+    test_labels_to_int = {}     # dictionary for mapping the sentence with an integer -> the integer will be used as label for the classifier
 
     def load_test_phonemes_dictionary(self):
         with open(self.test_dictionary_phonemes_directory) as data_file:
@@ -106,7 +125,8 @@ class CRF_HMM:
         with open(self.train_dictionary_phonemes_directory) as data_file:
             self.dictionary_trainset = yaml.load(data_file)
 
-    def load_trainig_set(self, isTest=False):
+    # DTW methods
+    def load_DTW_set(self, isTest=False):
         if isTest:
             csv_directory = self.test_csv_directory
         else:
@@ -143,17 +163,17 @@ class CRF_HMM:
                 if isTest:
                     phonemes_key = filename.replace('.csv', '.TextGrid')
                     phonemes_values = self.dictionary_testset[phonemes_key]
-                    self.X_test.append(deepcopy(feat.get_matrix()))
+                    self.DTW_X_test.append(deepcopy(feat.get_matrix()))
 
                     # need to fill the array with 0s in order to have
-                    # 161 "labels"
+                    # n "labels"
                     initial_arr_length = len(phonemes_values)
                     for i in range(161):
                         if i < initial_arr_length:
                             continue
                         phonemes_values.append(0)
 
-                    self.y_test.append(deepcopy(np.array(phonemes_values)))
+                    self.DTW_Y_test.append(deepcopy(np.array(phonemes_values)))
                     continue
                 else:
                     for i in range(5):
@@ -171,31 +191,11 @@ class CRF_HMM:
                                 continue
                             phonemes_values.append(0)
 
-                        self.X_train.append(deepcopy(feat.get_matrix()))
-                        self.y_train.append(deepcopy(np.array(phonemes_values)))
+                        self.DTW_X_train.append(deepcopy(feat.get_matrix()))
+                        self.DTW_Y_train.append(deepcopy(np.array(phonemes_values)))
 
                         counter += 1
                         filename = temp
-
-    def train_model(self):
-        try:
-
-            # this model works!
-            svm = LinearSVC(dual=True, C=1.0, verbose=0, max_iter=1000)
-
-            start = time()
-            svm.fit(np.vstack(self.X_train), np.hstack(self.y_train))
-            time_svm = time() - start
-
-            prediction = svm.predict(np.vstack(self.X_test[1]))
-
-            print "Time: %f seconds", time_svm
-            print "Score: %f \n" % svm.score(np.vstack(self.X_test), np.hstack(self.y_test))
-            # print "Prediction: ", prediction
-
-        except:
-            print "Error: ", sys.exc_info()
-            raise
 
     def distance_cost_plot(self, distances):
         im = plt.imshow(distances, interpolation='nearest', cmap='Reds')
@@ -255,28 +255,98 @@ class CRF_HMM:
             path_x = [point[0] for point in path]
             path_y = [point[1] for point in path]
 
-            self.distance_cost_plot(accumulated_cost)
-            plt.plot(path_x, path_y)
+            # now we need to estimate the percentage of difference based on the distance
+            # self.distance_cost_plot(accumulated_cost)
+            # plt.plot(path_x, path_y)
             # plt.show()
 
     def DTW(self):
         # compare each feature
-        a_piece_of_cake_train = self.X_train[0]
-        a_piece_of_cake_test = self.X_test[7]
+        a_piece_of_cake_train = self.DTW_X_train[0]
+        a_piece_of_cake_test = self.DTW_X_test[7]
 
         self.dynamicTimeWarp(a_piece_of_cake_train, a_piece_of_cake_test)
 
-    def test(self):
-        self.load_train_phonemes_dictionary()
-        self.load_test_phonemes_dictionary()
-        self.load_trainig_set()
-        self.load_trainig_set(True)
-        self.train_model()
+    # model and trainer for phonemes prediction
+    def load_PHONEMES_set(self, isTest=False):
+        if isTest:
+            for key, value in self.dictionary_testset.items():
+                label = key.replace('.TextGrid', '')    # TODO check if necessary
 
-        print "DTW: \n"
-        self.DTW()
+                phonemes_values = value
 
+                # set same length to each array - 30 should be enough
+                initial_arr_length = len(phonemes_values)
+                for i in range(30):
+                    if i < initial_arr_length:
+                        continue
+                    phonemes_values.append(-1)
 
-if __name__ == "__main__":
-    goofy = CRF_HMM()
-    goofy.test()
+                self.PHONEMES_X_test.append(phonemes_values)
+                self.PHONEMES_Y_test.append(self.test_labels_to_int[label])
+        else:
+            for key, value in self.dictionary_trainset.items():
+                label = key.replace('.TextGrid', '')    # TODO check if necessary
+
+                phonemes_values = value
+
+                # set same length to each array - 30 should be enough
+                initial_arr_length = len(phonemes_values)
+                for i in range(30):
+                    if i < initial_arr_length:
+                        continue
+                    phonemes_values.append(-1)
+
+                self.PHONEMES_X_train.append(phonemes_values)
+                self.PHONEMES_Y_train.append(self.train_labels_to_int[label])
+
+    def labels_mapping(self):
+        sentences = {}
+        with open(self.sentences_directory) as sentences_file:
+            lines = sentences_file.readlines()
+            label_val = 1   # don't like 0 as label :)
+            for s in lines:
+                s = s.replace('\n', '')
+                sentences[s] = label_val
+                label_val += 1
+
+        for label in self.dictionary_trainset.keys():
+            label = label.replace('.TextGrid', '')  # TODO check if necessary
+            for s in sentences:
+                if s in label:
+                    self.train_labels_to_int[label] = sentences[s]
+
+        for label in self.dictionary_testset.keys():
+            label = label.replace('.TextGrid', '')  # TODO check if necessary
+            for s in sentences:
+                if s in label:
+                    self.test_labels_to_int[label] = sentences[s]
+
+    def train_model(self):
+        try:
+            #Make a linear-chain CRF:
+            mycrf = ChainCrfLinear(30, 11)  # 30 - number of dimensions (phonemes + -1s), 11 (number of labels 1 to 10 + 1)
+
+            #Alternatively, we could have used one of these, for example:
+            #mytrainer = trainers.OnlinegradientNocost(mycrf,0.95,0.01)
+            #mytrainer = trainers.Bolddriver(mycrf,0.01)
+            mytrainer = train.GradientdescentMomentum(mycrf, 0.95, 0.01)
+
+            #Produce some stupid toy data for training:
+            inputs = np.array(self.PHONEMES_X_train)
+            outputs = np.array(self.PHONEMES_Y_train)
+
+            #Train the model. Since we have registered our model with this trainer,
+            #calling the trainers step-method trains our model (for a number of steps):
+            for i in range(20):
+                mytrainer.step((inputs, outputs), 0.001)
+                print mycrf.cost((inputs, outputs), 0.001)
+
+            #Apply to some stupid test data:
+            testinputs = np.array(self.PHONEMES_X_test)
+            predictions = mycrf.viterbi(testinputs)
+            print predictions   # each element corrisponds to a sentences in the sentences.txt file - Index starts from 1!!
+
+        except:
+            print "Error: ", sys.exc_info()
+            raise

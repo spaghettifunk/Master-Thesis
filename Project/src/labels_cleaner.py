@@ -35,7 +35,7 @@ class Labels_Cleaner:
 
     def create_phonemes_dictionary(self, isTestSet=False):
         phonemes_arr = {}
-        phonemes_int_label = 0  # assign an integer value to  each phoneme (used for training the model)
+        phonemes_int_label = 1  # assign an integer value to  each phoneme (used for training the model)
         with open(self.phonemes_dict) as dict_file:
             data = dict_file.readlines()
             for line in data:

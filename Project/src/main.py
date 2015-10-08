@@ -23,8 +23,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 '''
 
-def main():
-    print "hello"
+from crf_hmm import CRF_HMM
 
 if __name__ == "__main__":
-    main()
+    goofy = CRF_HMM()
+
+    # modeling
+    print "*** Loading dictionaries ***\n"
+    goofy.load_train_phonemes_dictionary()
+    goofy.load_test_phonemes_dictionary()
+
+    print "*** Phonemes ***\n"
+    goofy.labels_mapping()
+    goofy.load_PHONEMES_set()
+    goofy.load_PHONEMES_set(True)
+    goofy.train_model()
+
+    print "*** DTW ***\n"
+    goofy.load_DTW_set()
+    goofy.load_DTW_set(True)
+    goofy.DTW()
