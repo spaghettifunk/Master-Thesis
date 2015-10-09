@@ -30,7 +30,10 @@ if __name__ == "__main__":
     goofy = CRF_HMM()
 
     try:
-        goofy.run()
+        train_model_on = False
+        dtw_on = True
+
+        goofy.run(train_model_on, dtw_on)
     except:
         print "Error: ", sys.exc_info()
         raise

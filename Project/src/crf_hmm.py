@@ -270,7 +270,7 @@ class CRF_HMM:
                 z = float(distance[i] - min_distance) / float(max_distance - min_distance)
                 norm.append(z)
 
-            similarity = 100 * statistics.mean(norm)
+            similarity = 100 - (100 * statistics.mean(norm))
             print "Similarity of {0}: {1:.2f}%".format(features_names[feat], similarity)
 
             # now we need to estimate the percentage of difference based on the distance
@@ -282,7 +282,7 @@ class CRF_HMM:
 
     def DTW(self):
         # compare each feature
-        a_piece_of_cake_train = self.DTW_X_train[0]
+        a_piece_of_cake_train = self.DTW_X_train[7]
         a_piece_of_cake_test = self.DTW_X_test[7]
 
         self.dynamicTimeWarp(a_piece_of_cake_train, a_piece_of_cake_test)
@@ -491,21 +491,23 @@ class CRF_HMM:
         return wer_result, numCor, numSub, numIns, numDel
     #endregion
 
-    def run(self):
+    def run(self, train_model_on=True, dtw_on=True):
         # modeling
         print "*** Loading dictionaries ***"
         self.load_train_phonemes_dictionary()
         self.load_test_phonemes_dictionary()
 
-        print "*** Phonemes ***"
-        self.labels_mapping()
-        self.load_PHONEMES_set()
-        self.load_PHONEMES_set(True)
-        self.train_model()
+        if train_model_on:
+            print "*** Phonemes ***"
+            self.labels_mapping()
+            self.load_PHONEMES_set()
+            self.load_PHONEMES_set(True)
+            self.train_model()
 
-        print "\n*** DTW ***"
-        self.load_DTW_set()
-        self.load_DTW_set(True)
-        self.DTW()
+        if dtw_on:
+            print "\n*** DTW ***"
+            self.load_DTW_set()
+            self.load_DTW_set(True)
+            self.DTW()
 
         print "\n*** END ***"
