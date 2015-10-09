@@ -27,22 +27,17 @@ import sys
 import yaml
 import csv
 import os
-from pylab import randn
+import thread
+import Queue
+import threading
+import time
 import numpy as np
 import matplotlib.pyplot as plt
-from time import time
 from copy import deepcopy
-
-# pystruct
-from pystruct.datasets import load_scene
-from sklearn.svm import LinearSVC
-from pystruct.learners import NSlackSSVM
-from pystruct.models import MultiLabelClf
 
 # monte
 from monte.models.crf import ChainCrfLinear
 from monte import train
-
 
 class Features:
     features_matrix = np.zeros((161, 4))
@@ -63,7 +58,7 @@ class Features:
         if n == 0:
             return self.time
         if n == 1:
-            return self.intensity
+            return self.intesity
         if n == 2:
             return self.f1
         if n == 3:
@@ -94,6 +89,8 @@ class Features:
 
 
 class CRF_HMM:
+
+    #region Global variables
     sentences_directory = "output-data/sentences.txt"
     train_dictionary_phonemes_directory = "output-data/train_audio_phonemes_labels.txt"
     test_dictionary_phonemes_directory = "output-data/test_audio_phonemes_labels.txt"
@@ -106,16 +103,17 @@ class CRF_HMM:
     # DTW stuff related
     DTW_X_train = []  # sample for training
     DTW_Y_train = []  # training labels
-    DTW_X_test = []   # samples for testing
-    DTW_Y_test = []   # testing labels
+    DTW_X_test = []  # samples for testing
+    DTW_Y_test = []  # testing labels
 
     # Phonemes prediciton
     PHONEMES_X_train = []  # sample for training
     PHONEMES_Y_train = []  # training labels
-    PHONEMES_X_test = []   # samples for testing
-    PHONEMES_Y_test = []   # testing labels
-    train_labels_to_int = {}     # dictionary for mapping the sentence with an integer -> the integer will be used as label for the classifier
-    test_labels_to_int = {}     # dictionary for mapping the sentence with an integer -> the integer will be used as label for the classifier
+    PHONEMES_X_test = []  # samples for testing
+    PHONEMES_Y_test = []  # testing labels
+    train_labels_to_int = {}  # dictionary for mapping the sentence with an integer -> the integer will be used as label for the classifier
+    test_labels_to_int = {}  # dictionary for mapping the sentence with an integer -> the integer will be used as label for the classifier
+    #endregion
 
     def load_test_phonemes_dictionary(self):
         with open(self.test_dictionary_phonemes_directory) as data_file:
@@ -221,44 +219,45 @@ class CRF_HMM:
             distances = np.zeros((len(y), len(x)))
 
             # euclidean distance
+            print "*** Calculate Euclidean Distance ***"
             for i in range(len(y)):
                 for j in range(len(x)):
                     distances[i, j] = (x[j] - y[i]) ** 2
 
+            print "*** Calculate accumulation cost ***"
             accumulated_cost = np.zeros((len(y), len(x)))
             for i in range(1, len(y)):
                 for j in range(1, len(x)):
                     accumulated_cost[i, j] = min(accumulated_cost[i - 1, j - 1], accumulated_cost[i - 1, j],
                                                  accumulated_cost[i, j - 1]) + distances[i, j]
 
-            path = [[len(x) - 1, len(y) - 1]]
+            path = [[len(x)-1, len(y)-1]]
             i = len(y) - 1
             j = len(x) - 1
             while i > 0 and j > 0:
                 if i == 0:
                     j -= 1
-                elif j == 0:
+                elif j==0:
                     i -= 1
                 else:
-                    if accumulated_cost[i - 1, j] == min(accumulated_cost[i - 1, j - 1], accumulated_cost[i - 1, j],
-                                                         accumulated_cost[i, j - 1]):
+                    if accumulated_cost[i-1, j] == min(accumulated_cost[i-1, j-1], accumulated_cost[i-1, j], accumulated_cost[i, j-1]):
                         i -= 1
-                    elif accumulated_cost[i, j - 1] == min(accumulated_cost[i - 1, j - 1], accumulated_cost[i - 1, j],
-                                                           accumulated_cost[i, j - 1]):
-                        j -= j - 1
+                    elif accumulated_cost[i, j-1] == min(accumulated_cost[i-1, j-1], accumulated_cost[i-1, j], accumulated_cost[i, j-1]):
+                        j -= 1
                     else:
                         i -= 1
                         j -= 1
                 path.append([j, i])
-            path.append([0, 0])
+            path.append([0,0])
 
             path_x = [point[0] for point in path]
             path_y = [point[1] for point in path]
 
             # now we need to estimate the percentage of difference based on the distance
-            # self.distance_cost_plot(accumulated_cost)
-            # plt.plot(path_x, path_y)
-            # plt.show()
+            print "*** Plot distance cost ***"
+            self.distance_cost_plot(accumulated_cost)
+            plt.plot(path_x, path_y)
+        plt.show()
 
     def DTW(self):
         # compare each feature
@@ -271,7 +270,7 @@ class CRF_HMM:
     def load_PHONEMES_set(self, isTest=False):
         if isTest:
             for key, value in self.dictionary_testset.items():
-                label = key.replace('.TextGrid', '')    # TODO check if necessary
+                label = key.replace('.TextGrid', '')  # TODO check if necessary
 
                 phonemes_values = value
 
@@ -286,7 +285,7 @@ class CRF_HMM:
                 self.PHONEMES_Y_test.append(self.test_labels_to_int[label])
         else:
             for key, value in self.dictionary_trainset.items():
-                label = key.replace('.TextGrid', '')    # TODO check if necessary
+                label = key.replace('.TextGrid', '')  # TODO check if necessary
 
                 phonemes_values = value
 
@@ -304,7 +303,7 @@ class CRF_HMM:
         sentences = {}
         with open(self.sentences_directory) as sentences_file:
             lines = sentences_file.readlines()
-            label_val = 1   # don't like 0 as label :)
+            label_val = 1  # don't like 0 as label :)
             for s in lines:
                 s = s.replace('\n', '')
                 sentences[s] = label_val
@@ -324,68 +323,68 @@ class CRF_HMM:
 
     def train_model(self):
         try:
-            #Make a linear-chain CRF:
+            # Make a linear-chain CRF:
             print "*** Creating Linear Chain CRF ***\n"
-            mycrf = ChainCrfLinear(30, 11)  # 30 - number of dimensions (phonemes + -1s), 11 (number of labels 1 to 10 + 1)
+            mycrf = ChainCrfLinear(30,
+                                   11)  # 30 - number of dimensions (phonemes + -1s), 11 (number of labels 1 to 10 + 1)
 
-            #Alternatively, we could have used one of these, for example:
-            #mytrainer = trainers.OnlinegradientNocost(mycrf,0.95,0.01)
-            #mytrainer = trainers.Bolddriver(mycrf,0.01)
+            # Alternatively, we could have used one of these, for example:
+            # mytrainer = trainers.OnlinegradientNocost(mycrf,0.95,0.01)
+            # mytrainer = trainers.Bolddriver(mycrf,0.01)
             mytrainer = train.GradientdescentMomentum(mycrf, 0.95, 0.01)
 
-            #Produce some stupid toy data for training:
+            # Produce some stupid toy data for training:
             inputs = np.array(self.PHONEMES_X_train)
             outputs = np.array(self.PHONEMES_Y_train)
 
-            #Train the model. Since we have registered our model with this trainer,
-            #calling the trainers step-method trains our model (for a number of steps):
+            # Train the model. Since we have registered our model with this trainer,
+            # calling the trainers step-method trains our model (for a number of steps):
             print "*** Training model ***"
             for i in range(20):
                 mytrainer.step((inputs, outputs), 0.001)
                 print "Cost: ", mycrf.cost((inputs, outputs), 0.001)
 
-            #Apply to some stupid test data:
+            # Apply to some stupid test data:
             testinputs = np.array(self.PHONEMES_X_test)
             predictions = mycrf.viterbi(testinputs)
-            print "\nLabels predicted: ", predictions   # each element corrisponds to a sentences in the sentences.txt file - Index starts from 1!!
+            print "\nLabels predicted: ", predictions  # each element corrisponds to a sentences in the sentences.txt file - Index starts from 1!!
 
             # JUST FOR TESTING!!!!
-            reference = [[5, 10, 36, 3, 5, 20, 2, 7, 2],                    # a piece of cake
-                         [18, 4, 13, 5, 34, 60, 43, 14],                    # blow a fuse
-                         [2, 26, 42, 3, 17, 6, 14, 39, 14],                 # catch some zs
-                         [16, 53, 9, 12, 5, 35, 5, 15, 24, 25],             # down to the wire
-                         [36, 30, 25, 18, 36, 20, 25],                      # eager beaver
-                         [34, 19, 23, 5, 9, 16, 3, 2, 15, 19, 23],          # fair and square
-                         [30, 19, 12, 2, 13, 4, 16, 34, 36, 12],            # get cold feet
-                         [6, 19, 4, 49, 53, 12],                            # mellow out
-                         [10, 38, 4, 31, 29, 60, 38, 23, 4, 19, 30, 14],    # pulling your legs
-                         [32, 21, 29, 2, 5, 29, 53, 12, 4, 53, 16]]         # thinking out loud
+            reference = [[5, 10, 36, 3, 5, 20, 2, 7, 2],  # a piece of cake
+                         [18, 4, 13, 5, 34, 60, 43, 14],  # blow a fuse
+                         [2, 26, 42, 3, 17, 6, 14, 39, 14],  # catch some zs
+                         [16, 53, 9, 12, 5, 35, 5, 15, 24, 25],  # down to the wire
+                         [36, 30, 25, 18, 36, 20, 25],  # eager beaver
+                         [34, 19, 23, 5, 9, 16, 3, 2, 15, 19, 23],  # fair and square
+                         [30, 19, 12, 2, 13, 4, 16, 34, 36, 12],  # get cold feet
+                         [6, 19, 4, 49, 53, 12],  # mellow out
+                         [10, 38, 4, 31, 29, 60, 38, 23, 4, 19, 30, 14],  # pulling your legs
+                         [32, 21, 29, 2, 5, 29, 53, 12, 4, 53, 16]]  # thinking out loud
 
             print "*** Applying WER ***"
             counter = 0
             for val in self.PHONEMES_X_test:
-                test_phonemes = val     # hyphothesis
+                test_phonemes = val  # hyphothesis
                 wer_result, numCor, numSub, numIns, numDel = self.wer(reference[counter], test_phonemes)
                 print "WER: {}, OK: {}, SUB: {}, INS: {}, DEL: {}".format(wer_result, numCor, numSub, numIns, numDel)
-                #print "WER distance: ", self.wer(reference[counter], test_phonemes)
+                # print "WER distance: ", self.wer(reference[counter], test_phonemes)
 
         except:
             print "Error: ", sys.exc_info()
             raise
 
-
-    def wer(self, ref, hyp ,debug=False):
+    def wer(self, ref, hyp, debug=False):
         DEL_PENALTY = 2
         SUB_PENALTY = 1
         INS_PENALTY = 3
 
-        r = ref #.split()
-        h = hyp #.split()
-        #costs will holds the costs, like in the Levenshtein distance algorithm
-        costs = [[0 for inner in range(len(h)+1)] for outer in range(len(r)+1)]
+        r = ref  # .split()
+        h = hyp  # .split()
+        # costs will holds the costs, like in the Levenshtein distance algorithm
+        costs = [[0 for inner in range(len(h) + 1)] for outer in range(len(r) + 1)]
         # backtrace will hold the operations we've done.
         # so we could later backtrace, like the WER algorithm requires us to.
-        backtrace = [[0 for inner in range(len(h)+1)] for outer in range(len(r)+1)]
+        backtrace = [[0 for inner in range(len(h) + 1)] for outer in range(len(r) + 1)]
 
         OP_OK = 0
         OP_SUB = 1
@@ -394,8 +393,8 @@ class CRF_HMM:
 
         # First column represents the case where we achieve zero
         # hypothesis words by deleting all reference words.
-        for i in range(1, len(r)+1):
-            costs[i][0] = DEL_PENALTY*i
+        for i in range(1, len(r) + 1):
+            costs[i][0] = DEL_PENALTY * i
             backtrace[i][0] = OP_DEL
 
         # First row represents the case where we achieve the hypothesis
@@ -405,15 +404,15 @@ class CRF_HMM:
             backtrace[0][j] = OP_INS
 
         # computation
-        for i in range(1, len(r)+1):
-            for j in range(1, len(h)+1):
-                if r[i-1] == h[j-1]:
-                    costs[i][j] = costs[i-1][j-1]
+        for i in range(1, len(r) + 1):
+            for j in range(1, len(h) + 1):
+                if r[i - 1] == h[j - 1]:
+                    costs[i][j] = costs[i - 1][j - 1]
                     backtrace[i][j] = OP_OK
                 else:
-                    substitutionCost = costs[i-1][j-1] + SUB_PENALTY # penalty is always 1
-                    insertionCost    = costs[i][j-1] + INS_PENALTY   # penalty is always 1
-                    deletionCost     = costs[i-1][j] + DEL_PENALTY   # penalty is always 1
+                    substitutionCost = costs[i - 1][j - 1] + SUB_PENALTY  # penalty is always 1
+                    insertionCost = costs[i][j - 1] + INS_PENALTY  # penalty is always 1
+                    deletionCost = costs[i - 1][j] + DEL_PENALTY  # penalty is always 1
 
                     costs[i][j] = min(substitutionCost, insertionCost, deletionCost)
                     if costs[i][j] == substitutionCost:
@@ -436,26 +435,26 @@ class CRF_HMM:
         while i > 0 or j > 0:
             if backtrace[i][j] == OP_OK:
                 numCor += 1
-                i-=1
-                j-=1
+                i -= 1
+                j -= 1
                 if debug:
-                    lines.append("OK\t" + r[i]+"\t"+h[j])
+                    lines.append("OK\t" + r[i] + "\t" + h[j])
             elif backtrace[i][j] == OP_SUB:
-                numSub +=1
-                i-=1
-                j-=1
+                numSub += 1
+                i -= 1
+                j -= 1
                 if debug:
-                    lines.append("SUB\t" + r[i]+"\t"+h[j])
+                    lines.append("SUB\t" + r[i] + "\t" + h[j])
             elif backtrace[i][j] == OP_INS:
                 numIns += 1
-                j-=1
+                j -= 1
                 if debug:
                     lines.append("INS\t" + "****" + "\t" + h[j])
             elif backtrace[i][j] == OP_DEL:
                 numDel += 1
-                i-=1
+                i -= 1
                 if debug:
-                    lines.append("DEL\t" + r[i]+"\t"+"****")
+                    lines.append("DEL\t" + r[i] + "\t" + "****")
         if debug:
             lines = reversed(lines)
             for line in lines:
@@ -464,38 +463,26 @@ class CRF_HMM:
             print("#sub " + str(numSub))
             print("#del " + str(numDel))
             print("#ins " + str(numIns))
-            return (numSub + numDel + numIns) / (float) (len(r))
+            return (numSub + numDel + numIns) / (float)(len(r))
 
-        wer_result = round( (numSub + numDel + numIns) / (float) (len(r)), 3)
+        wer_result = round((numSub + numDel + numIns) / (float)(len(r)), 3)
         return wer_result, numCor, numSub, numIns, numDel
 
-    # r = Reference, h = hypothesis
-    # def wer(self, r, h):
-    #     """
-    #         Calculation of WER with Levenshtein distance.
-    #         Works only for iterables up to 254 elements (uint8).
-    #         O(nm) time ans space complexity.
-    #     """
-    #     # initialisation
-    #     import numpy
-    #     d = numpy.zeros((len(r)+1)*(len(h)+1), dtype=numpy.uint8)
-    #     d = d.reshape((len(r)+1, len(h)+1))
-    #     for i in range(len(r)+1):
-    #         for j in range(len(h)+1):
-    #             if i == 0:
-    #                 d[0][j] = j
-    #             elif j == 0:
-    #                 d[i][0] = i
-    #
-    #     # computation
-    #     for i in range(1, len(r)+1):
-    #         for j in range(1, len(h)+1):
-    #             if r[i-1] == h[j-1]:
-    #                 d[i][j] = d[i-1][j-1]
-    #             else:
-    #                 substitution = d[i-1][j-1] + 1
-    #                 insertion    = d[i][j-1] + 1
-    #                 deletion     = d[i-1][j] + 1
-    #                 d[i][j] = min(substitution, insertion, deletion)
-    #
-    #     return d[len(r)][len(h)]
+    def run(self):
+        # modeling
+        print "*** Loading dictionaries ***\n"
+        self.load_train_phonemes_dictionary()
+        self.load_test_phonemes_dictionary()
+
+        print "*** Phonemes ***\n"
+        self.labels_mapping()
+        self.load_PHONEMES_set()
+        self.load_PHONEMES_set(True)
+        self.train_model()
+
+        print "\n*** DTW ***"
+        self.load_DTW_set()
+        self.load_DTW_set(True)
+        self.DTW()
+
+        print "\n*** END ***"
