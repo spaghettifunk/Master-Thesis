@@ -113,6 +113,7 @@ class CRF_HMM:
     test_labels_to_int = {}  # dictionary for mapping the sentence with an integer -> the integer will be used as label for the classifier
     #endregion
 
+    #region Load dictionaries from file
     def load_test_phonemes_dictionary(self):
         with open(self.test_dictionary_phonemes_directory) as data_file:
             self.dictionary_testset = yaml.load(data_file)
@@ -120,8 +121,9 @@ class CRF_HMM:
     def load_train_phonemes_dictionary(self):
         with open(self.train_dictionary_phonemes_directory) as data_file:
             self.dictionary_trainset = yaml.load(data_file)
+    #endregion
 
-    # DTW methods
+    #region DTW methods
     def load_DTW_set(self, isTest=False):
         if isTest:
             csv_directory = self.test_csv_directory
@@ -203,7 +205,7 @@ class CRF_HMM:
 
     def dynamicTimeWarp(self, train, test):
 
-        features_names = ['Intensity', 'F1', 'F2', 'F3']
+        features_names = ['In', 'F1', 'F2', 'F3']
         for feat in xrange(4):
             # get sequences for each feature
             x = train[:, feat]
@@ -269,7 +271,7 @@ class CRF_HMM:
                 norm.append(z)
 
             similarity = 100 * statistics.mean(norm)
-            print "Similarity of {}: {}".format(features_names[feat], similarity)
+            print "Similarity of {0}: {1:.2f}%".format(features_names[feat], similarity)
 
             # now we need to estimate the percentage of difference based on the distance
             # print "*** Plot distance cost ***"
@@ -284,8 +286,9 @@ class CRF_HMM:
         a_piece_of_cake_test = self.DTW_X_test[7]
 
         self.dynamicTimeWarp(a_piece_of_cake_train, a_piece_of_cake_test)
+    #endregion
 
-    # model and trainer for phonemes prediction
+    #region Model and trainer for phonemes prediction
     def load_PHONEMES_set(self, isTest=False):
         if isTest:
             for key, value in self.dictionary_testset.items():
@@ -343,14 +346,14 @@ class CRF_HMM:
     def train_model(self):
         try:
             # Make a linear-chain CRF:
-            print "*** Creating Linear Chain CRF ***\n"
+            print "*** Creating Linear Chain CRF ***"
             mycrf = ChainCrfLinear(30,
                                    11)  # 30 - number of dimensions (phonemes + -1s), 11 (number of labels 1 to 10 + 1)
 
             # Alternatively, we could have used one of these, for example:
-            # mytrainer = trainers.OnlinegradientNocost(mycrf,0.95,0.01)
-            # mytrainer = trainers.Bolddriver(mycrf,0.01)
-            mytrainer = train.GradientdescentMomentum(mycrf, 0.95, 0.01)
+            # mytrainer = train.OnlinegradientNocost(mycrf, 0.95, 0.01)
+            mytrainer = train.Bolddriver(mycrf, 0.01)
+            # mytrainer = train.GradientdescentMomentum(mycrf, 0.95, 0.01)
 
             # Produce some stupid toy data for training:
             inputs = np.array(self.PHONEMES_X_train)
@@ -380,7 +383,7 @@ class CRF_HMM:
                          [10, 38, 4, 31, 29, 60, 38, 23, 4, 19, 30, 14],  # pulling your legs
                          [32, 21, 29, 2, 5, 29, 53, 12, 4, 53, 16]]  # thinking out loud
 
-            print "*** Applying WER ***"
+            print "\n*** Applying WER ***"
             counter = 0
             for val in self.PHONEMES_X_test:
                 test_phonemes = val  # hyphothesis
@@ -486,6 +489,7 @@ class CRF_HMM:
 
         wer_result = round((numSub + numDel + numIns) / (float)(len(r)), 3)
         return wer_result, numCor, numSub, numIns, numDel
+    #endregion
 
     def run(self):
         # modeling
