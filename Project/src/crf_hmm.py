@@ -27,9 +27,7 @@ import sys
 import yaml
 import csv
 import os
-import thread
-import Queue
-import threading
+import statistics
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -205,10 +203,11 @@ class CRF_HMM:
 
     def dynamicTimeWarp(self, train, test):
 
-        for t in xrange(4):
+        features_names = ['Intensity', 'F1', 'F2', 'F3']
+        for feat in xrange(4):
             # get sequences for each feature
-            x = train[:, t]
-            y = test[:, t]
+            x = train[:, feat]
+            y = test[:, feat]
 
             # plt.plot(x, 'r', label='x')
             # plt.plot(y, 'g', label='y')
@@ -219,12 +218,10 @@ class CRF_HMM:
             distances = np.zeros((len(y), len(x)))
 
             # euclidean distance
-            print "*** Calculate Euclidean Distance ***"
             for i in range(len(y)):
                 for j in range(len(x)):
                     distances[i, j] = (x[j] - y[i]) ** 2
 
-            print "*** Calculate accumulation cost ***"
             accumulated_cost = np.zeros((len(y), len(x)))
             for i in range(1, len(y)):
                 for j in range(1, len(x)):
@@ -253,11 +250,33 @@ class CRF_HMM:
             path_x = [point[0] for point in path]
             path_y = [point[1] for point in path]
 
+            length_x = len(path_x)
+            length_y = len(path_y)
+
+            assert length_x == length_y # just to be sure :)
+
+            distance = []
+            for i in range(length_x):
+                distance.append(abs(path_x[i] - path_y[i]))
+
+            # calculate a value for similarity
+            min_distance = min(distance)
+            max_distance = max(distance)
+
+            norm = []
+            for i in range(len(distance)):
+                z = float(distance[i] - min_distance) / float(max_distance - min_distance)
+                norm.append(z)
+
+            similarity = 100 * statistics.mean(norm)
+            print "Similarity of {}: {}".format(features_names[feat], similarity)
+
             # now we need to estimate the percentage of difference based on the distance
-            print "*** Plot distance cost ***"
-            self.distance_cost_plot(accumulated_cost)
-            plt.plot(path_x, path_y)
-        plt.show()
+            # print "*** Plot distance cost ***"
+            # self.distance_cost_plot(accumulated_cost)
+            # plt.plot(path_x, path_y)
+
+        #plt.show()
 
     def DTW(self):
         # compare each feature
@@ -470,11 +489,11 @@ class CRF_HMM:
 
     def run(self):
         # modeling
-        print "*** Loading dictionaries ***\n"
+        print "*** Loading dictionaries ***"
         self.load_train_phonemes_dictionary()
         self.load_test_phonemes_dictionary()
 
-        print "*** Phonemes ***\n"
+        print "*** Phonemes ***"
         self.labels_mapping()
         self.load_PHONEMES_set()
         self.load_PHONEMES_set(True)
