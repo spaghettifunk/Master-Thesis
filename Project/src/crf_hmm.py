@@ -28,7 +28,6 @@ import yaml
 import csv
 import os
 import statistics
-import time
 import numpy as np
 import matplotlib.pyplot as plt
 from copy import deepcopy
@@ -94,6 +93,7 @@ class CRF_HMM:
     test_dictionary_phonemes_directory = "output-data/test_audio_phonemes_labels.txt"
     train_csv_directory = "output-data/train-smoothed-csv-files/"
     test_csv_directory = "output-data/test-smoothed-csv-files/"
+    dtw_comparison_directory = "output-data/dtw_comparison.txt"
 
     dictionary_trainset = {}
     dictionary_testset = {}
@@ -161,18 +161,9 @@ class CRF_HMM:
                 if isTest:
                     phonemes_key = filename.replace('.csv', '.TextGrid')
                     phonemes_values = self.dictionary_testset[phonemes_key]
+
                     self.DTW_X_test.append(deepcopy(feat.get_matrix()))
-
-                    # need to fill the array with 0s in order to have
-                    # n "labels"
-                    initial_arr_length = len(phonemes_values)
-                    for i in range(161):
-                        if i < initial_arr_length:
-                            continue
-                        phonemes_values.append(0)
-
                     self.DTW_Y_test.append(deepcopy(np.array(phonemes_values)))
-                    continue
                 else:
                     for i in range(5):
                         if i == 0:
@@ -183,16 +174,9 @@ class CRF_HMM:
                         phonemes_key = phonemes_key + '_' + str(i) + '.TextGrid'
                         phonemes_values = self.dictionary_trainset[phonemes_key]
 
-                        initial_arr_length = len(phonemes_values)
-                        for i in range(161):
-                            if i < initial_arr_length:
-                                continue
-                            phonemes_values.append(0)
-
                         self.DTW_X_train.append(deepcopy(feat.get_matrix()))
                         self.DTW_Y_train.append(deepcopy(np.array(phonemes_values)))
 
-                        counter += 1
                         filename = temp
 
     def distance_cost_plot(self, distances):
@@ -271,7 +255,11 @@ class CRF_HMM:
                 norm.append(z)
 
             similarity = 100 - (100 * statistics.mean(norm))
-            print "Similarity of {0}: {1:.2f}%".format(features_names[feat], similarity)
+
+            with open(self.dtw_comparison_directory, 'a') as the_file:
+                 the_file.write("Similarity of {0}: {1:.2f}%\n".format(features_names[feat], similarity))
+
+            #print "Similarity of {0}: {1:.2f}%".format(features_names[feat], similarity)
 
             # now we need to estimate the percentage of difference based on the distance
             # print "*** Plot distance cost ***"
@@ -281,11 +269,48 @@ class CRF_HMM:
         #plt.show()
 
     def DTW(self):
-        # compare each feature
-        a_piece_of_cake_train = self.DTW_X_train[7]
-        a_piece_of_cake_test = self.DTW_X_test[7]
+        try:
+            already_used = []
+            sentences = []
+            with open(self.sentences_directory) as sentences_file:
+                lines = sentences_file.readlines()
+                for s in lines:
+                    s = s.replace('\n', '')
+                    sentences.append(s)
 
-        self.dynamicTimeWarp(a_piece_of_cake_train, a_piece_of_cake_test)
+            for i in range(len(self.DTW_X_test)):
+                non_native = self.DTW_X_test[i]
+                non_native_phonemes = self.DTW_Y_test[i]
+                non_native_sentence = ""
+                for key, val in self.dictionary_testset.items():
+                    arr = np.array(val)
+                    if np.array_equal(arr, non_native_phonemes):
+                        non_native_sentence = key
+                        break
+
+                for sen in sentences:
+                    if sen in non_native_sentence:
+
+                        for j in range(len(self.DTW_X_train)):
+                            native = self.DTW_X_train[j]
+                            native_phonemes = self.DTW_Y_train[j]
+                            native_sentence = ""
+                            for key, val in self.dictionary_trainset.items():
+
+                                if sen in key:
+
+                                    if np.array_equal(val, native_phonemes):
+                                        if val in already_used:
+                                            continue
+                                        native_sentence = key
+                                        already_used.append(key)
+
+                                        with open(self.dtw_comparison_directory, 'a') as the_file:
+                                            the_file.write("Non native: {} - Native: {}\n".format(non_native_sentence, native_sentence))
+                                        self.dynamicTimeWarp(non_native, native)
+        except:
+            print "Error: ", sys.exc_info()
+            raise
     #endregion
 
     #region Model and trainer for phonemes prediction
