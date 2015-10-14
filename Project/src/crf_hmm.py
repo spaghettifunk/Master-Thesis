@@ -30,11 +30,16 @@ import os
 import statistics
 import numpy as np
 import matplotlib.pyplot as plt
+
+from libraries.utility import *
+
 from copy import deepcopy
+from fastdtw import fastdtw
 
 # monte
 from monte.models.crf import ChainCrfLinear
 from monte import train
+
 
 class Features:
     features_matrix = np.zeros((161, 4))
@@ -86,34 +91,35 @@ class Features:
 
 
 class CRF_HMM:
-
-    #region Global variables
+    # region Global variables
     sentences_directory = "output-data/sentences.txt"
     train_dictionary_phonemes_directory = "output-data/train_audio_phonemes_labels.txt"
     test_dictionary_phonemes_directory = "output-data/test_audio_phonemes_labels.txt"
     train_csv_directory = "output-data/train-smoothed-csv-files/"
     test_csv_directory = "output-data/test-smoothed-csv-files/"
     dtw_comparison_directory = "output-data/dtw_comparison.txt"
+    dtw_comparison_native_directory = "output-data/dtw_comparison_native.txt"
 
     dictionary_trainset = {}
     dictionary_testset = {}
 
     # DTW stuff related
-    DTW_X_train = []  # sample for training
-    DTW_Y_train = []  # training labels
-    DTW_X_test = []  # samples for testing
-    DTW_Y_test = []  # testing labels
+    DTW_X_train = {}  # sample for training
+    DTW_Y_train = {}  # training labels
+    DTW_X_test = {}  # samples for testing
+    DTW_Y_test = {}  # testing labels
 
     # Phonemes prediciton
     PHONEMES_X_train = []  # sample for training
     PHONEMES_Y_train = []  # training labels
     PHONEMES_X_test = []  # samples for testing
     PHONEMES_Y_test = []  # testing labels
+
     train_labels_to_int = {}  # dictionary for mapping the sentence with an integer -> the integer will be used as label for the classifier
     test_labels_to_int = {}  # dictionary for mapping the sentence with an integer -> the integer will be used as label for the classifier
-    #endregion
+    # endregion
 
-    #region Load dictionaries from file
+    # region Load dictionaries from file
     def load_test_phonemes_dictionary(self):
         with open(self.test_dictionary_phonemes_directory) as data_file:
             self.dictionary_testset = yaml.load(data_file)
@@ -121,9 +127,10 @@ class CRF_HMM:
     def load_train_phonemes_dictionary(self):
         with open(self.train_dictionary_phonemes_directory) as data_file:
             self.dictionary_trainset = yaml.load(data_file)
-    #endregion
 
-    #region DTW methods
+    # endregion
+
+    # region DTW methods
     def load_DTW_set(self, isTest=False):
         if isTest:
             csv_directory = self.test_csv_directory
@@ -162,22 +169,18 @@ class CRF_HMM:
                     phonemes_key = filename.replace('.csv', '.TextGrid')
                     phonemes_values = self.dictionary_testset[phonemes_key]
 
-                    self.DTW_X_test.append(deepcopy(feat.get_matrix()))
-                    self.DTW_Y_test.append(deepcopy(np.array(phonemes_values)))
+                    self.DTW_X_test[phonemes_key] = deepcopy(feat.get_matrix())
+                    self.DTW_Y_test[phonemes_key] = deepcopy(np.array(phonemes_values))
                 else:
-                    for i in range(5):
-                        if i == 0:
-                            continue
+                    temp = filename
+                    phonemes_key = filename.replace('.csv', '')
+                    phonemes_key = phonemes_key + '_' + str(1) + '.TextGrid'
+                    phonemes_values = self.dictionary_trainset[phonemes_key]
 
-                        temp = filename
-                        phonemes_key = filename.replace('.csv', '')
-                        phonemes_key = phonemes_key + '_' + str(i) + '.TextGrid'
-                        phonemes_values = self.dictionary_trainset[phonemes_key]
+                    self.DTW_X_train[phonemes_key] = deepcopy(feat.get_matrix())
+                    self.DTW_Y_train[phonemes_key] = deepcopy(np.array(phonemes_values))
 
-                        self.DTW_X_train.append(deepcopy(feat.get_matrix()))
-                        self.DTW_Y_train.append(deepcopy(np.array(phonemes_values)))
-
-                        filename = temp
+                    filename = temp
 
     def distance_cost_plot(self, distances):
         im = plt.imshow(distances, interpolation='nearest', cmap='Reds')
@@ -214,24 +217,26 @@ class CRF_HMM:
                     accumulated_cost[i, j] = min(accumulated_cost[i - 1, j - 1], accumulated_cost[i - 1, j],
                                                  accumulated_cost[i, j - 1]) + distances[i, j]
 
-            path = [[len(x)-1, len(y)-1]]
+            path = [[len(x) - 1, len(y) - 1]]
             i = len(y) - 1
             j = len(x) - 1
             while i > 0 and j > 0:
                 if i == 0:
                     j -= 1
-                elif j==0:
+                elif j == 0:
                     i -= 1
                 else:
-                    if accumulated_cost[i-1, j] == min(accumulated_cost[i-1, j-1], accumulated_cost[i-1, j], accumulated_cost[i, j-1]):
+                    if accumulated_cost[i - 1, j] == min(accumulated_cost[i - 1, j - 1], accumulated_cost[i - 1, j],
+                                                         accumulated_cost[i, j - 1]):
                         i -= 1
-                    elif accumulated_cost[i, j-1] == min(accumulated_cost[i-1, j-1], accumulated_cost[i-1, j], accumulated_cost[i, j-1]):
+                    elif accumulated_cost[i, j - 1] == min(accumulated_cost[i - 1, j - 1], accumulated_cost[i - 1, j],
+                                                           accumulated_cost[i, j - 1]):
                         j -= 1
                     else:
                         i -= 1
                         j -= 1
                 path.append([j, i])
-            path.append([0,0])
+            path.append([0, 0])
 
             path_x = [point[0] for point in path]
             path_y = [point[1] for point in path]
@@ -239,7 +244,7 @@ class CRF_HMM:
             length_x = len(path_x)
             length_y = len(path_y)
 
-            assert length_x == length_y # just to be sure :)
+            assert length_x == length_y  # just to be sure :)
 
             distance = []
             for i in range(length_x):
@@ -256,20 +261,21 @@ class CRF_HMM:
 
             similarity = 100 - (100 * statistics.mean(norm))
 
-            with open(self.dtw_comparison_directory, 'a') as the_file:
-                 the_file.write("Similarity of {0}: {1:.2f}%\n".format(features_names[feat], similarity))
+            with open(self.dtw_comparison_native_directory, 'a') as the_file:
+                the_file.write("Similarity of {0}: {1:.2f}%\n".format(features_names[feat], similarity))
 
-            #print "Similarity of {0}: {1:.2f}%".format(features_names[feat], similarity)
+                # print "Similarity of {0}: {1:.2f}%".format(features_names[feat], similarity)
 
-            # now we need to estimate the percentage of difference based on the distance
-            # print "*** Plot distance cost ***"
-            # self.distance_cost_plot(accumulated_cost)
-            # plt.plot(path_x, path_y)
+                # now we need to estimate the percentage of difference based on the distance
+                # print "*** Plot distance cost ***"
+                # self.distance_cost_plot(accumulated_cost)
+                # plt.plot(path_x, path_y)
 
-        #plt.show()
+                # plt.show()
 
-    def DTW(self):
+    def DTW_test(self):
         try:
+            features_names = ['In', 'F1', 'F2', 'F3']
             already_used = []
             sentences = []
             with open(self.sentences_directory) as sentences_file:
@@ -279,6 +285,8 @@ class CRF_HMM:
                     sentences.append(s)
 
             for i in range(len(self.DTW_X_test)):
+
+                # retrieve the sentence from the test set
                 non_native = self.DTW_X_test[i]
                 non_native_phonemes = self.DTW_Y_test[i]
                 non_native_sentence = ""
@@ -289,31 +297,158 @@ class CRF_HMM:
                         break
 
                 for sen in sentences:
+                    # compare the non-native sentence with the classification set
                     if sen in non_native_sentence:
 
+                        # retrieve the "same" sentence from the training set
                         for j in range(len(self.DTW_X_train)):
                             native = self.DTW_X_train[j]
                             native_phonemes = self.DTW_Y_train[j]
                             native_sentence = ""
                             for key, val in self.dictionary_trainset.items():
 
+                                # if the sentence is the same
                                 if sen in key:
-
                                     if np.array_equal(val, native_phonemes):
-                                        if val in already_used:
+
+                                        # check if I already used this sentence
+                                        if key in already_used:
                                             continue
+
+                                        # save it and apply DTW
                                         native_sentence = key
                                         already_used.append(key)
 
+                                        # debug
+                                        print "Comparing: {} and {}".format(non_native_sentence, native_sentence)
+
                                         with open(self.dtw_comparison_directory, 'a') as the_file:
-                                            the_file.write("Non native: {} - Native: {}\n".format(non_native_sentence, native_sentence))
-                                        self.dynamicTimeWarp(non_native, native)
+                                            the_file.write("Non native: {} - Native: {}\n".format(non_native_sentence,
+                                                                                                  native_sentence))
+
+                                            for feat in range(4):
+                                                dist, path = fastdtw(non_native[:, feat], native[:, feat])
+
+                                                path_x = [point[0] for point in path]
+                                                path_y = [point[1] for point in path]
+
+                                                length_x = len(path_x)
+                                                length_y = len(path_y)
+
+                                                assert length_x == length_y  # just to be sure :)
+
+                                                distance = []
+                                                for i in range(length_x):
+                                                    distance.append(abs(path_x[i] - path_y[i]))
+
+                                                # calculate a value for similarity
+                                                min_distance = min(distance)
+                                                max_distance = max(distance)
+
+                                                norm = []
+                                                for i in range(len(distance)):
+                                                    z = float(distance[i] - min_distance) / float(
+                                                        max_distance - min_distance)
+                                                    norm.append(z)
+
+                                                similarity = 100 - (100 * statistics.mean(norm))
+                                                the_file.write(
+                                                    "Similarity of {0}: {1:.2f}%\n".format(features_names[feat],
+                                                                                           similarity))
+
+                                                # self.distance_cost_plot(path)
+                                                # plt.plot([int(i[0]) for i in path], [int(i[1]) for i in path])
+                                                # plt.show()
         except:
             print "Error: ", sys.exc_info()
             raise
-    #endregion
 
-    #region Model and trainer for phonemes prediction
+    def DTW_train(self):
+        try:
+            features_names = ['In', 'F1', 'F2', 'F3']
+
+            non_native_sentence = []
+            native_sentence = []
+
+            for key, val in self.DTW_Y_train.items():
+                non_native_sentence.append(key)
+                native_sentence.append(key)
+
+            already_used = []
+            for j in range(len(non_native_sentence)):
+                val = non_native_sentence[j]
+                val = clean_filename_TextGrid(val)
+                val = clean_filename_numbers(val)
+
+                for k in range(len(native_sentence)):
+                    if native_sentence[k] == non_native_sentence[j]:
+                        continue
+
+                    sec_val = native_sentence[k]
+                    sec_val = clean_filename_TextGrid(sec_val)
+                    sec_val = clean_filename_numbers(sec_val)
+
+                    if sec_val != val:
+                        continue
+
+                    if native_sentence[k] in already_used:
+                        continue
+
+                    already_used.append(native_sentence[k])
+
+                    non_native = self.DTW_X_train[non_native_sentence[j]]
+                    native = self.DTW_X_train[native_sentence[k]]
+
+                    # DTW operation
+                    print "Comparing: {} and {}".format(non_native_sentence[j], native_sentence[k])
+
+                    # not DTW between the same person
+                    if np.array_equal(non_native, native):
+                        continue
+
+                    with open(self.dtw_comparison_native_directory, 'a') as the_file:
+                        the_file.write(
+                            "Non native: {} - Native: {}\n".format(non_native_sentence[j], native_sentence[k]))
+
+                        for feat in range(4):
+                            dist, path = fastdtw(non_native[:, feat], native[:, feat])
+
+                            path_x = [point[0] for point in path]
+                            path_y = [point[1] for point in path]
+
+                            length_x = len(path_x)
+                            length_y = len(path_y)
+
+                            assert length_x == length_y  # just to be sure :)
+
+                            distance = []
+                            for i in range(length_x):
+                                distance.append(abs(path_x[i] - path_y[i]))
+
+                            # calculate a value for similarity
+                            min_distance = min(distance)
+                            max_distance = max(distance)
+
+                            norm = []
+                            for i in range(len(distance)):
+                                z = float(distance[i] - min_distance) / float(max_distance - min_distance)
+                                norm.append(z)
+
+                            similarity = 100 - (100 * statistics.mean(norm))
+                            the_file.write("Similarity of {0}: {1:.2f}%\n".format(features_names[feat], similarity))
+
+                            self.distance_cost_plot(path)
+                            plt.plot(path_x, path_y)
+                    plt.show()
+                    x = 0
+
+        except:
+            print "Error: ", sys.exc_info()
+            raise
+
+    # endregion
+
+    # region Model and trainer for phonemes prediction
     def load_PHONEMES_set(self, isTest=False):
         if isTest:
             for key, value in self.dictionary_testset.items():
@@ -514,7 +649,8 @@ class CRF_HMM:
 
         wer_result = round((numSub + numDel + numIns) / (float)(len(r)), 3)
         return wer_result, numCor, numSub, numIns, numDel
-    #endregion
+
+    # endregion
 
     def run(self, train_model_on=True, dtw_on=True):
         # modeling
@@ -533,6 +669,8 @@ class CRF_HMM:
             print "\n*** DTW ***"
             self.load_DTW_set()
             self.load_DTW_set(True)
-            self.DTW()
+
+            # self.DTW_test()
+            self.DTW_train()
 
         print "\n*** END ***"

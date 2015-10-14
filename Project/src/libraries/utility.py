@@ -76,7 +76,6 @@ def clean_filename(filename):
     else:
         return ""
 
-
 def clean_filename_numbers(filename):
     if "_1" in filename:
         return filename.replace("_1", "")
@@ -86,5 +85,24 @@ def clean_filename_numbers(filename):
         return filename.replace("_3", "")
     elif "_4" in filename:
         return filename.replace("_4", "")
+    else:
+        return ""
+
+def clean_filename_TextGrid(filename):
+    cleaned_name = filename.replace(".TextGrid", "")
+    if "Jeremy_" in cleaned_name:
+        return cleaned_name.replace("Jeremy_", "")
+    elif "Lenny_" in cleaned_name:
+        return cleaned_name.replace("Lenny_", "")
+    elif "Philip_" in cleaned_name:
+        return cleaned_name.replace("Philip_", "")
+    elif "Marty_" in cleaned_name:
+        return cleaned_name.replace("Marty_", "")
+    elif "Joyce_" in cleaned_name:
+        return cleaned_name.replace("Joyce_", "")
+    elif "Niki_" in cleaned_name:
+        return cleaned_name.replace("Niki_", "")
+    elif "Davide_" in cleaned_name:
+        return cleaned_name.replace("Davide_", "")
     else:
         return ""

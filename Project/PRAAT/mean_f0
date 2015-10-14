@@ -1,0 +1,112 @@
+# This Praat script is intended to help acoustic analyses of a voicing contrast.
+# Specifically, it will get F0 and F1 at the boundaries of all intervals and duration of all intervals. 
+# Version: 4 Feb 2010
+# Author: Shigeto Kawahara
+# Input: TextGrid and wav in the same directly. They must have the same name.
+
+
+
+form Get F0, F1 and duration
+	sentence Directory  /Users/dado/Desktop/test/
+	comment If you want to analyze all the files, leave this blank
+	word Base_file_name 
+	comment The name of result file 
+	text textfile /Users/dado/Desktop/test/Demo.txt
+endform
+
+# Write-out the header (copy if necessary)
+
+fileappend "'textfile$'" soundname'tab$'intervalname'tab$'F0_Onset'tab$'F0_Offset'tab$'F1_Onset'tab$'F1_Offset'tab$'Duration'tab$'Closure voicing (percent)
+fileappend "'textfile$'" 'newline$'
+
+#Read all files in a folder
+Create Strings as file list... wavlist 'directory$'/'base_file_name$'*.wav
+Create Strings as file list... gridlist 'directory$'/'base_file_name$'*.TextGrid
+n = Get number of strings
+
+for i to n
+clearinfo
+
+#We first extract a pitch tier and a formant tier, and a PointProcess for the pulses
+	select Strings wavlist
+	filename$ = Get string... i
+	Read from file... 'directory$'/'filename$'
+	soundname$ = selected$ ("Sound")
+	To Formant (burg)... 0 5 5500 0.025 50
+	select Sound 'soundname$'
+	To Pitch... 0 75 600
+	select Sound 'soundname$'
+	plus Pitch 'soundname$'
+	To PointProcess (cc)
+
+# We now read grid files and extract all intervals in them
+	select Strings gridlist
+	gridname$ = Get string... i
+	Read from file... 'directory$'/'gridname$'
+	int=Get number of intervals... 1
+
+# We then calculate the acoustic properties
+
+for k from 1 to 'int'
+	select TextGrid 'soundname$'
+	label$ = Get label of interval... 1 'k'
+	if label$ <> ""
+
+		# calculates the onset and offset
+ 		onset = Get starting point... 1 'k'
+  		offset = Get end point... 1 'k'
+        
+		# calculates F0      
+		select Pitch 'soundname$'
+		fzero_onset = Get value at time... 'onset' Hertz Linear
+		fzero_onset$ = fixed$ (fzero_onset, 2)
+		if fzero_onset$ = "--undefined--"
+			fzero_onset$ = "0"
+		endif
+
+		fzero_offset = Get value at time... 'offset' Hertz Linear
+		fzero_offset$ = fixed$ (fzero_offset, 2)
+		if fzero_offset$ = "--undefined--"
+			fzero_offset$ = "0"
+		endif
+
+		# calculates F1
+		select Formant 'soundname$'
+		fone_onset = Get value at time... 1 'onset' Hertz Linear
+		fone_onset$ = fixed$ (fone_onset, 2)
+		if fone_onset$ = "--undefined--"
+			fone_onset$ = "0"
+		endif
+
+		fone_offset = Get value at time... 1 'offset' Hertz Linear
+		fone_offset$ = fixed$ (fone_offset, 2)
+		if fone_offset$ = "--undefined--"
+			fone_offset$ = "0"
+		endif
+
+		# calculates duration		
+		dur = offset-onset
+	
+		# calculate percent voicing during closure
+		select Sound 'soundname$'
+		plus Pitch 'soundname$'
+		plus PointProcess 'soundname$'_'soundname$'
+		voiceReport$ = Voice report... onset offset 75 500 1.3 1.6 0.03 0.45
+		percentvoiceless = extractNumber (voiceReport$, " Fraction of locally unvoiced frames: ")
+		percentvoiceless = 100*percentvoiceless
+		percentvoiced = 100-percentvoiceless
+
+		resultline$ = "'soundname$''tab$''label$''tab$''fzero_onset''tab$''fzero_offset''tab$''fone_onset''tab$''fone_offset''tab$''dur''tab$''percentvoiced''tab$'"
+		fileappend "'textfile$'" 'resultline$''newline$'
+	endif
+endfor
+
+fileappend "'textfile$'" 'newline$'
+
+	
+endfor
+
+# clean up
+
+select all
+Remove

@@ -1,0 +1,270 @@
+Non native: Davide_blow_a_fuse.TextGrid - Native: Marty_blow_a_fuse_1.TextGrid
+Similarity of In: 38.74%
+Similarity of F1: 54.77%
+Similarity of F2: 48.08%
+Similarity of F3: 44.15%
+Non native: Davide_blow_a_fuse.TextGrid - Native: Joyce_blow_a_fuse_1.TextGrid
+Similarity of In: 38.74%
+Similarity of F1: 54.77%
+Similarity of F2: 48.08%
+Similarity of F3: 44.15%
+Non native: Davide_blow_a_fuse.TextGrid - Native: Niki_blow_a_fuse_1.TextGrid
+Similarity of In: 38.74%
+Similarity of F1: 54.77%
+Similarity of F2: 48.08%
+Similarity of F3: 44.15%
+Non native: Davide_blow_a_fuse.TextGrid - Native: Jeremy_blow_a_fuse_1.TextGrid
+Similarity of In: 38.74%
+Similarity of F1: 54.77%
+Similarity of F2: 48.08%
+Similarity of F3: 44.15%
+Non native: Davide_blow_a_fuse.TextGrid - Native: Philip_blow_a_fuse_1.TextGrid
+Similarity of In: 38.74%
+Similarity of F1: 54.77%
+Similarity of F2: 48.08%
+Similarity of F3: 44.15%
+Non native: Davide_blow_a_fuse.TextGrid - Native: Lenny_blow_a_fuse_1.TextGrid
+Similarity of In: 38.74%
+Similarity of F1: 54.77%
+Similarity of F2: 48.08%
+Similarity of F3: 44.15%
+Non native: Davide_catch_some_zs.TextGrid - Native: Jeremy_catch_some_zs_1.TextGrid
+Similarity of In: 49.75%
+Similarity of F1: 59.88%
+Similarity of F2: 33.24%
+Similarity of F3: 48.31%
+Non native: Davide_catch_some_zs.TextGrid - Native: Niki_catch_some_zs_1.TextGrid
+Similarity of In: 49.75%
+Similarity of F1: 59.88%
+Similarity of F2: 33.24%
+Similarity of F3: 48.31%
+Non native: Davide_catch_some_zs.TextGrid - Native: Joyce_catch_some_zs_1.TextGrid
+Similarity of In: 49.75%
+Similarity of F1: 59.88%
+Similarity of F2: 33.24%
+Similarity of F3: 48.31%
+Non native: Davide_catch_some_zs.TextGrid - Native: Marty_catch_some_zs_1.TextGrid
+Similarity of In: 49.75%
+Similarity of F1: 59.88%
+Similarity of F2: 33.24%
+Similarity of F3: 48.31%
+Non native: Davide_catch_some_zs.TextGrid - Native: Lenny_catch_some_zs_1.TextGrid
+Similarity of In: 49.75%
+Similarity of F1: 59.88%
+Similarity of F2: 33.24%
+Similarity of F3: 48.31%
+Non native: Davide_catch_some_zs.TextGrid - Native: Philip_catch_some_zs_1.TextGrid
+Similarity of In: 49.75%
+Similarity of F1: 59.88%
+Similarity of F2: 33.24%
+Similarity of F3: 48.31%
+Non native: Davide_down_to_the_wire.TextGrid - Native: Lenny_down_to_the_wire_1.TextGrid
+Similarity of In: 46.62%
+Similarity of F1: 58.38%
+Similarity of F2: 45.13%
+Similarity of F3: 68.48%
+Non native: Davide_down_to_the_wire.TextGrid - Native: Philip_down_to_the_wire_1.TextGrid
+Similarity of In: 46.62%
+Similarity of F1: 58.38%
+Similarity of F2: 45.13%
+Similarity of F3: 68.48%
+Non native: Davide_down_to_the_wire.TextGrid - Native: Marty_down_to_the_wire_1.TextGrid
+Similarity of In: 46.62%
+Similarity of F1: 58.38%
+Similarity of F2: 45.13%
+Similarity of F3: 68.48%
+Non native: Davide_down_to_the_wire.TextGrid - Native: Niki_down_to_the_wire_1.TextGrid
+Similarity of In: 46.62%
+Similarity of F1: 58.38%
+Similarity of F2: 45.13%
+Similarity of F3: 68.48%
+Non native: Davide_down_to_the_wire.TextGrid - Native: Jeremy_down_to_the_wire_1.TextGrid
+Similarity of In: 46.62%
+Similarity of F1: 58.38%
+Similarity of F2: 45.13%
+Similarity of F3: 68.48%
+Non native: Davide_down_to_the_wire.TextGrid - Native: Joyce_down_to_the_wire_1.TextGrid
+Similarity of In: 36.81%
+Similarity of F1: 59.88%
+Similarity of F2: 63.79%
+Similarity of F3: 48.83%
+Non native: Davide_eager_beaver.TextGrid - Native: Jeremy_eager_beaver_1.TextGrid
+Similarity of In: 51.64%
+Similarity of F1: 55.81%
+Similarity of F2: 50.79%
+Similarity of F3: 66.83%
+Non native: Davide_eager_beaver.TextGrid - Native: Marty_eager_beaver_1.TextGrid
+Similarity of In: 51.64%
+Similarity of F1: 55.81%
+Similarity of F2: 50.79%
+Similarity of F3: 66.83%
+Non native: Davide_eager_beaver.TextGrid - Native: Niki_eager_beaver_1.TextGrid
+Similarity of In: 51.64%
+Similarity of F1: 55.81%
+Similarity of F2: 50.79%
+Similarity of F3: 66.83%
+Non native: Davide_eager_beaver.TextGrid - Native: Joyce_eager_beaver_1.TextGrid
+Similarity of In: 51.64%
+Similarity of F1: 55.81%
+Similarity of F2: 50.79%
+Similarity of F3: 66.83%
+Non native: Davide_eager_beaver.TextGrid - Native: Lenny_eager_beaver_1.TextGrid
+Similarity of In: 51.64%
+Similarity of F1: 55.81%
+Similarity of F2: 50.79%
+Similarity of F3: 66.83%
+Non native: Davide_eager_beaver.TextGrid - Native: Philip_eager_beaver_1.TextGrid
+Similarity of In: 51.64%
+Similarity of F1: 55.81%
+Similarity of F2: 50.79%
+Similarity of F3: 66.83%
+Non native: Davide_fair_and_square.TextGrid - Native: Niki_fair_and_square_1.TextGrid
+Similarity of In: 45.69%
+Similarity of F1: 49.18%
+Similarity of F2: 44.90%
+Similarity of F3: 46.82%
+Non native: Davide_fair_and_square.TextGrid - Native: Jeremy_fair_and_square_1.TextGrid
+Similarity of In: 45.69%
+Similarity of F1: 49.18%
+Similarity of F2: 44.90%
+Similarity of F3: 46.82%
+Non native: Davide_fair_and_square.TextGrid - Native: Philip_fair_and_square_1.TextGrid
+Similarity of In: 45.69%
+Similarity of F1: 49.18%
+Similarity of F2: 44.90%
+Similarity of F3: 46.82%
+Non native: Davide_fair_and_square.TextGrid - Native: Marty_fair_and_square_1.TextGrid
+Similarity of In: 42.38%
+Similarity of F1: 62.29%
+Similarity of F2: 39.15%
+Similarity of F3: 41.57%
+Non native: Davide_fair_and_square.TextGrid - Native: Lenny_fair_and_square_1.TextGrid
+Similarity of In: 42.38%
+Similarity of F1: 62.29%
+Similarity of F2: 39.15%
+Similarity of F3: 41.57%
+Non native: Davide_fair_and_square.TextGrid - Native: Joyce_fair_and_square_1.TextGrid
+Similarity of In: 42.38%
+Similarity of F1: 62.29%
+Similarity of F2: 39.15%
+Similarity of F3: 41.57%
+Non native: Davide_get_cold_feet.TextGrid - Native: Niki_get_cold_feet_1.TextGrid
+Similarity of In: 41.20%
+Similarity of F1: 64.34%
+Similarity of F2: 41.07%
+Similarity of F3: 43.15%
+Non native: Davide_get_cold_feet.TextGrid - Native: Marty_get_cold_feet_1.TextGrid
+Similarity of In: 41.20%
+Similarity of F1: 64.34%
+Similarity of F2: 41.07%
+Similarity of F3: 43.15%
+Non native: Davide_get_cold_feet.TextGrid - Native: Lenny_get_cold_feet_1.TextGrid
+Similarity of In: 41.20%
+Similarity of F1: 64.34%
+Similarity of F2: 41.07%
+Similarity of F3: 43.15%
+Non native: Davide_get_cold_feet.TextGrid - Native: Philip_get_cold_feet_1.TextGrid
+Similarity of In: 41.20%
+Similarity of F1: 64.34%
+Similarity of F2: 41.07%
+Similarity of F3: 43.15%
+Non native: Davide_get_cold_feet.TextGrid - Native: Jeremy_get_cold_feet_1.TextGrid
+Similarity of In: 41.20%
+Similarity of F1: 64.34%
+Similarity of F2: 41.07%
+Similarity of F3: 43.15%
+Non native: Davide_get_cold_feet.TextGrid - Native: Joyce_get_cold_feet_1.TextGrid
+Similarity of In: 41.20%
+Similarity of F1: 64.34%
+Similarity of F2: 41.07%
+Similarity of F3: 43.15%
+Non native: Davide_mellow_out.TextGrid - Native: Philip_mellow_out_1.TextGrid
+Similarity of In: 41.96%
+Similarity of F1: 49.64%
+Similarity of F2: 46.98%
+Similarity of F3: 58.99%
+Non native: Davide_mellow_out.TextGrid - Native: Niki_mellow_out_1.TextGrid
+Similarity of In: 41.96%
+Similarity of F1: 49.64%
+Similarity of F2: 46.98%
+Similarity of F3: 58.99%
+Non native: Davide_mellow_out.TextGrid - Native: Jeremy_mellow_out_1.TextGrid
+Similarity of In: 41.96%
+Similarity of F1: 49.64%
+Similarity of F2: 46.98%
+Similarity of F3: 58.99%
+Non native: Davide_mellow_out.TextGrid - Native: Joyce_mellow_out_1.TextGrid
+Similarity of In: 41.96%
+Similarity of F1: 49.64%
+Similarity of F2: 46.98%
+Similarity of F3: 58.99%
+Non native: Davide_mellow_out.TextGrid - Native: Lenny_mellow_out_1.TextGrid
+Similarity of In: 41.96%
+Similarity of F1: 49.64%
+Similarity of F2: 46.98%
+Similarity of F3: 58.99%
+Non native: Davide_mellow_out.TextGrid - Native: Marty_mellow_out_1.TextGrid
+Similarity of In: 41.96%
+Similarity of F1: 49.64%
+Similarity of F2: 46.98%
+Similarity of F3: 58.99%
+Non native: Davide_pulling_your_legs.TextGrid - Native: Joyce_pulling_your_legs_1.TextGrid
+Similarity of In: 34.33%
+Similarity of F1: 55.80%
+Similarity of F2: 47.29%
+Similarity of F3: 51.61%
+Non native: Davide_pulling_your_legs.TextGrid - Native: Philip_pulling_your_legs_1.TextGrid
+Similarity of In: 34.33%
+Similarity of F1: 55.80%
+Similarity of F2: 47.29%
+Similarity of F3: 51.61%
+Non native: Davide_pulling_your_legs.TextGrid - Native: Marty_pulling_your_legs_1.TextGrid
+Similarity of In: 34.33%
+Similarity of F1: 55.80%
+Similarity of F2: 47.29%
+Similarity of F3: 51.61%
+Non native: Davide_pulling_your_legs.TextGrid - Native: Niki_pulling_your_legs_1.TextGrid
+Similarity of In: 34.33%
+Similarity of F1: 55.80%
+Similarity of F2: 47.29%
+Similarity of F3: 51.61%
+Non native: Davide_pulling_your_legs.TextGrid - Native: Lenny_pulling_your_legs_1.TextGrid
+Similarity of In: 34.33%
+Similarity of F1: 55.80%
+Similarity of F2: 47.29%
+Similarity of F3: 51.61%
+Non native: Davide_pulling_your_legs.TextGrid - Native: Jeremy_pulling_your_legs_1.TextGrid
+Similarity of In: 34.33%
+Similarity of F1: 55.80%
+Similarity of F2: 47.29%
+Similarity of F3: 51.61%
+Non native: Davide_thinking_out_loud.TextGrid - Native: Jeremy_thinking_out_loud_1.TextGrid
+Similarity of In: 57.11%
+Similarity of F1: 62.29%
+Similarity of F2: 56.36%
+Similarity of F3: 60.90%
+Non native: Davide_thinking_out_loud.TextGrid - Native: Lenny_thinking_out_loud_1.TextGrid
+Similarity of In: 57.11%
+Similarity of F1: 62.29%
+Similarity of F2: 56.36%
+Similarity of F3: 60.90%
+Non native: Davide_thinking_out_loud.TextGrid - Native: Marty_thinking_out_loud_1.TextGrid
+Similarity of In: 57.11%
+Similarity of F1: 62.29%
+Similarity of F2: 56.36%
+Similarity of F3: 60.90%
+Non native: Davide_thinking_out_loud.TextGrid - Native: Philip_thinking_out_loud_1.TextGrid
+Similarity of In: 57.11%
+Similarity of F1: 62.29%
+Similarity of F2: 56.36%
+Similarity of F3: 60.90%
+Non native: Davide_thinking_out_loud.TextGrid - Native: Joyce_thinking_out_loud_1.TextGrid
+Similarity of In: 57.11%
+Similarity of F1: 62.29%
+Similarity of F2: 56.36%
+Similarity of F3: 60.90%
+Non native: Davide_thinking_out_loud.TextGrid - Native: Niki_thinking_out_loud_1.TextGrid
+Similarity of In: 57.11%
+Similarity of F1: 62.29%
+Similarity of F2: 56.36%
+Similarity of F3: 60.90%

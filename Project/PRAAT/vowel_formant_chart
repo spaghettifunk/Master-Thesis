@@ -1,0 +1,67 @@
+# Manual Vowel Chart Drawing
+
+# Tae-Jin Yoon
+# University of Victoria
+# 12/29/2008
+
+# Vowel formant values (F1 and F2) from Language File (OSU: p, 80)
+#[i] 280 2250
+#[\ic] 400 1920
+#[\ef] 550 1770
+#[\ae] 690 1660
+#[u] 310 870
+#[\hs] 450 1030
+#[\ct] 590 880
+#[\as] 710 1100
+
+
+Erase all
+
+Viewport... 0 6 0 6
+Draw inner box
+
+# X axis: 600 2900
+# Y axis: 100 to 1100
+Axes... -2900 -600 -1100 -100
+
+Font size... 18
+Text bottom... yes Vowel Formant Chart
+
+Font size... 14
+Text top... yes F_2 (Hz)
+Text left... yes F_1 (Hz)
+
+######################################################################
+# PROVIDE FORMANT VALUES AND VOWEL SYMBOLS MANUALLY BELOW            #
+#    USAGE: Text... -F2 Centre -F1 Half Vowel_symbol                 #
+#       -F2_value and -F1 is negative F2 and F1 values, respectively #
+######################################################################
+Font size... 18
+
+Text... -2250 Centre -280 Half [i]
+Text... -1920 Centre -400 Half [\ic]
+Text... -1770 Centre -550 Half [\ef]
+Text... -1660 Centre -690 Half [\ae]
+Text... -870 Centre -310 Half [u]
+Text... -1030 Centre -450 Half [\hs]
+Text... -880 Centre -590 Half [\ct]
+Text... -1100 Centre -710 Half [\as]
+
+# WE NEED TO TURN THE NEGATIVE VALUES TO THE POSITIVE VALUES
+#####################################################################
+# CHANGE ARGUMENTS FOR FOR LOOP DEPENDING ON THE AXES YOU SPECIFIED #
+#####################################################################
+
+Font size... 12
+
+# THE Y AXIS IS FROM 1 TO 1100 (WRITE NUMBER AT EVERY 100HZ)
+for i from 1 to 11
+     One mark left... -'i'00 no yes yes 'i'00
+endfor
+
+# THE X AXIS IS FROM 600 TO 2900 (WRITE NUMBER AT EVERY 500HZ
+for i from 1 to 2
+     One mark top... -'i'000 no yes yes 'i'000
+     One mark top... -'i'500 no yes yes 'i'500
+endfor 
+

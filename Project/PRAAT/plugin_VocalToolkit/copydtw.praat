@@ -3,6 +3,7 @@ s1$ = selected$("Sound",1)
 s2 = selected("Sound",2)
 s2$ = selected$("Sound",2)
 select s2
+
 sr2 = Get sample rate
 execute workpre.praat
 tmp1 = selected("Sound")
@@ -14,6 +15,7 @@ if sr1<>sr2
 	Resample... sr2 50
 endif
 tmp2 = selected("Sound")
+
 select tmp1
 plus tmp2
 Scale... 0.9999
