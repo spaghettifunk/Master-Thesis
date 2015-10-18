@@ -41,23 +41,62 @@ A \textbf{Spectrogram} is the visual representation of an acoustic signal \cite{
 
 \section{Fourier Analysis}
 \label{sec:fourier_analysis}
-\textbf{Fourier Analysis} is the process that decompose a periodic waveform into a set of sinusoids having different amplitudes, phases and frequencies. Yet, if we add those waveforms again, we will obtain the original signal.
+\textbf{Fourier Analysis} is the process that decompose a periodic waveform into a set of sinusoids having different amplitudes, phases and frequencies. Yet, if we add those waveforms again, we will obtain the original signal. The analysis has been involved in many scientific applications and the reason is due to the following transform properties:
 
+\begin{itemize}
+	\item Linear transformation - the relationship between two modules is kept
+	\item Exponential function are eigenfunctions of differentiation \cite{evans1997partial}
+	\item Invertible - derived from the linear relationship
+\end{itemize}
 
-\subsubsection{Sampling Frequencies}
-\label{ssubs:sampling_frequencies}
+\noindent In signal processing, the Fourier analysis is used to isolate singular components of a complex waveform. A set of techniques consist in using \textbf{Fourier Transformation} on a signal in such a way to be able to manipulate the data in the easiest way possible but at the same time we have to be capable of inverting the transformation \cite{fa_wiki} \cite{rabiner1975theory}. In the next subsections we describe the fundamental steps for manipulating a signal.
+
+\subsubsection{Sampling}
+\label{ssubs:sampling}
+\textit{Sampling} is the process that transform a continuous signal in to a discrete one. Each sample can be either be a single value or a set of values at a certain point in time \cite{sampling_wiki}. \\ 
+\noindent Consider a sound signal that varies in time a continuous function $s(t)$. For every $T$ seconds, we need to measure the value of the function. This frame of time is called the \textit{sampling intervar} \cite{weik2012communications}. To calculate the sequence a sampled function is given as follow: $s(nT), \forall$ integer values of $n$. Thus, the \textit{sampling rate} is the average number of samples obtained in a range of $T = 1sec$ \cite{sampling_wiki}. An example of sampling is shown in \ref{fig:sampling_ex}.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=0.2]{Figures/sampling_example.png}
+	\caption{Example of signal sampling. The green line represents the constinuous signal whereas the samples are represented by the blu lines \cite{sampling_wiki}}
+	\label{fig:sampling_ex}
+\end{figure}
+
+\noindent As we mentioned above, using the Fourier Analysis we need to be able to reconstruct the original signal from the transformed one. To be able to, the \textbf{Nyquist-Shannon} theorem states that the sampling rate has to be larger as twice as the maximum frequency of the signal, in order to rebuild the original signal \cite{sampling_illinois}.\\
+\noindent The \textit{Nyquist sampling rate} is defined by the following equation:
+
+\begin{equation}
+f_{s} > f_{Nyquist} = 2f_{max}
+\end{equation}
 
 
 \subsubsection{Quantization}
 \label{subs:quantization}
+To finalize the transformation from a continuous signal to a discrete one, we need to \textit{quantized} the signal in such a way to obtain a finite set of values. Unlike sampling in which permits to reconstruct the original signal, quantization is an irreversible operation that introduce a loss of information. \\
+\noindent Consider $x$ be the sampled signal and $x_{q}$ the quantized one where $x_{q}$ can be expressed as the signal $x$ plus the error $e_{q}$. From here we have:
 
+\begin{equation}
+x_{q} = x + e{q} \Leftrightarrow e_{q} = x - x_{q}
+\end{equation}
+
+Given the equation above, we can restrict the range of error to $-q/2 ... +q/2$ because we will not make a larger error than the half of the quantization step. From a mathematical point of view, the error-signal is a random signal with an uniform probability distribution between the range of $−q/2 and +q/2$, giving the following \cite{quantization_math}:
+
+\begin{equation}
+p(e) = \begin{Bmatrix}
+			\frac{1}{q} & for \frac{-q}{2} \leq  e < \frac{q}{2}\\ 
+			0 			& otherwise
+		\end{Bmatrix}
+\end{equation}
+
+Given this reason, the quantization error also called quantization noise.
 
 \subsubsection{Windowing Signals}
 \label{ssubs:windowing_signals}
 
 
-\subsubsection{Zero Crosssing Rate}
-\label{ssubs:Zero Crosssing Rate}
+\subsubsection{Zero Crossing Rate}
+\label{ssubs:Zero Crossing Rate}
 
 
 \subsubsection{Autocorrelation}
