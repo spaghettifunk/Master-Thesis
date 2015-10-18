@@ -29,44 +29,45 @@ Frequency is the number of cycles per unit of time\footnote{In general, a unit o
 \noindent Frequency plays a fundamental role with the \textit{pitch}. In fact, changing the number of oscillations but keeping the same waveform, we are able to increase or decrease the level of the pitch.
 
 \subsubsection{Phase}
-
-measures the position of the starting point of the sinusoid. Those starting at the maximum have a phase of zero while those starting at the minimum have a phase of π radians. Phase is best explained with reference to a rotating wheel, see Harrington and Cassidy Chapter 2, Figure 2.7. for more details. The phase of a sinusoid cannot be percieved but we can detect relative changes in phase between two signals, in fact this forms the basis of binaural hearing as the brain works out the location of a sound based on the different phases heard at the two ears.
-
-
-\subsection{Fourier theory}
-\label{sub:fourier_theory}
+The \textbf{phase} measures the starting point position of the waveform. If the sinusoids start at the very minimum of the wave, the value of the phase is $\pi$ radians whereas starting from the top of the wave it will have a phase of \textit{zero}. When two sounds do not have the same phase, it is possible to perceive the difference in the time scale since one of the two is delayed compared to the other. When comparing two signals, there is the need to obtain a \textit{"phase-neutral"} that means the comparison is made taking only into account Amplitude and Frequency. This method is called \textbf{autocorrelation} of the signals.
 
 \subsection{Spectrograms}
 \label{sec:spectrograms}
+A \textbf{Spectrogram} is the visual representation of an acoustic signal \cite{spectrogram_def}. Basically, a Fourier Transformation is applied to the sound, in such a way to obtain the set of waveforms extracted form the original signal and separate their frequencies and amplitudes. The result is typically depicted in a graph with degrees of amplitude with a \textit{light-dark} representation. Since amplitude represents the \textit{energy}, having a darker shade means that the energy is more intense in a certain range of frequencies - lighter when there is low energy. In \ref{fig:nasal_spectrogram} there is an example of the spectrogram. \\
+\noindent The visual feedback of the spectrogram is highly dependent from the \textbf{window size} of the Fourier Analysis. In fact, different sizes affect the levels of frequencies and time resolution. \\
+\noindent If the window size is \textit{short}, the adjacent \textbf{harmonics} are distorted but the time resolution is better \cite{spectrogram_def}. An harmonic is \textit{"an integer multiple of the fundamental frequency"}\cite{harmonic_wiki} or component frequencies. This is helpful when we are looking for the \textit{formant structure} because the striations created by the spectrogram highlights the individual pitch periods. \\
+\noindent On the other hand, a \textit{wider} window size, helps to locate the harmonics because the band of the spectrogram are narrower.
 
 
+\section{Fourier Analysis}
+\label{sec:fourier_analysis}
+\textbf{Fourier Analysis} is the process that decompose a periodic waveform into a set of sinusoids having different amplitudes, phases and frequencies. Yet, if we add those waveforms again, we will obtain the original signal.
 
-\section{Digital Signals}
-\label{sec:digital_signals}
+
+\subsubsection{Sampling Frequencies}
+\label{ssubs:sampling_frequencies}
 
 
+\subsubsection{Quantization}
+\label{subs:quantization}
 
-\section{Time Domain Processing}
-\label{sub:time_domain_processing}
 
-\subsection{Windowing Signals}
-\label{subs:windowing_signals}
+\subsubsection{Windowing Signals}
+\label{ssubs:windowing_signals}
 
-\subsection{Time Domain Parameters}
-\label{sec:time_domain_params}
+
+\subsubsection{Zero Crosssing Rate}
+\label{ssubs:Zero Crosssing Rate}
+
+
+\subsubsection{Autocorrelation}
+\label{ssubs:autocorrelation}
+
 
 
 \section{Frequency Domain Analysis}
 \label{sec:freq_domain_analysis}
 
 
-
-
 \subsection{The Discrete Fourier Transform}
 \label{sub:discrete_fourier_transform}
-
-\subsection{Bandwidth}
-\label{sub:bandwidth}
-
-\subsection{Frequency Domain Filtering}
-\label{sub:frequency_domain_filtering}
