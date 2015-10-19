@@ -24,21 +24,23 @@ THE SOFTWARE.
 '''
 
 import sys
-import yaml
 import csv
-import os
+from sklearn import mixture
+from sklearn.utils import shuffle
+from copy import deepcopy
+
+import yaml
 import statistics
-import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+from fastdtw import fastdtw
 
 from libraries.utility import *
 
-from copy import deepcopy
-from fastdtw import fastdtw
 
 # monte
-from monte.models.crf import ChainCrfLinear
-from monte import train
+from libraries.monte.models.crf import ChainCrfLinear
+from libraries.monte import train
 
 
 class Features:
@@ -90,7 +92,7 @@ class Features:
         return np.concatenate([self.intensity, self.f1, self.f2, self.f3])
 
 
-class CRF_HMM:
+class CRF_DTW:
     # region Global variables
     sentences_directory = "output-data/sentences.txt"
     train_dictionary_phonemes_directory = "output-data/train_audio_phonemes_labels.txt"
@@ -674,3 +676,184 @@ class CRF_HMM:
             self.DTW_train()
 
         print "\n*** END ***"
+
+
+class GMM_structure:
+    filename = ""
+    vowels = []
+    stress = []
+    words = []
+    norm_F1 = []
+    norm_F2 = []
+
+    def __init__(self, fn):
+        self.filename = fn
+        self.vowels = []
+        self.stress = []
+        self.words = []
+        self.norm_F1 = []
+        self.norm_F2 = []
+
+    def set_object(self, n, val):
+        if n == 0:
+            self.vowels.append(val)
+        if n == 1:
+            self.stress.append(val)
+        if n == 2:
+            self.words.append(val)
+        if n == 3:
+            self.norm_F1.append(val)
+        if n == 4:
+            self.norm_F2.append(val)
+
+    def get_object(self, n):
+        if n == 0:
+            return self.vowels
+        if n == 1:
+            return self.stress
+        if n == 2:
+            return self.words
+        if n == 3:
+            return self.norm_F1
+        if n == 4:
+            return self.norm_F2
+
+
+class GMM_prototype:
+    #region Global variables
+    output_files_directory = 'output-data/formants_results/male/'
+    #endregion
+
+    # Classify Total Pronunciation (Call from CRF_DTW)
+    def train_CRF(self):
+        crf = CRF_DTW()
+        # modeling
+        print "*** Loading dictionaries for CRF ***"
+        crf.load_train_phonemes_dictionary()
+        crf.load_test_phonemes_dictionary()
+
+        print "*** Phonemes for CRF ***"
+        crf.labels_mapping()
+        crf.load_PHONEMES_set()
+        crf.load_PHONEMES_set(True)
+        crf.train_model()
+
+    # Train model with GMM
+    def create_structure(self):
+        all_data = []
+        for root, dirs, files in os.walk(self.output_files_directory):
+            for file in files:
+                filename = os.path.join(root, file)
+
+                if ".DS_Store" in filename or "_norm" not in filename:
+                    continue
+
+                with open(filename, 'r') as tabbed_file:
+                    reader = csv.reader(tabbed_file, delimiter="\t")
+                    all_lines = list(reader)
+
+                    data = GMM_structure(file)
+
+                    not_included = 0
+                    for l in all_lines:
+                        if not_included <= 2:
+                            not_included += 1
+                            continue
+
+                        data.set_object(0, l[0])
+                        data.set_object(1, l[1])
+                        data.set_object(2, l[2])
+                        try:
+                            if l[3] == '':
+                                f1_val = 0.0
+                            else:
+                                f1_val = float(l[3])
+
+                            if l[4] == '':
+                                f2_val = 0.0
+                            else:
+                                f2_val = float(l[4])
+
+                            data.set_object(3, f1_val)
+                            data.set_object(4, f2_val)
+                        except:
+                            print "Error: ", sys.exc_info()
+
+                    all_data.append(deepcopy(data))
+        return all_data
+
+    def make_ellipses(self, gmm, ax):
+        for n, color in enumerate('rgb'):
+            v, w = np.linalg.eigh(gmm._get_covars()[n][:2, :2])
+            u = w[0] / np.linalg.norm(w[0])
+            angle = np.arctan2(u[0], u[0])
+            angle = 180 * angle / np.pi  # convert to degrees
+            v *= 9
+            ell = mpl.patches.Ellipse(gmm.means_[n, :2], v[0], v[0], 180 + angle, color=color)
+            ell.set_clip_box(ax.bbox)
+            ell.set_alpha(0.5)
+            ax.add_artist(ell)
+
+    def train_GMM(self):
+        data = self.create_structure()
+
+        all_vowels = []
+        all_norm_f1 = []
+        all_norm_f2 = []
+
+        for str in data:
+            temp_vowels = np.array(str.get_object(0))
+            temp_norm_f1 = np.array(str.get_object(3))
+            temp_norm_f2 = np.array(str.get_object(4))
+
+            all_vowels.append(temp_vowels.reshape(len(temp_vowels), 1))
+            all_norm_f1.append(temp_norm_f1.reshape(len(temp_norm_f1), 1))
+            all_norm_f2.append(temp_norm_f2.reshape(len(temp_norm_f2), 1))
+
+        res_f1 = np.vstack(all_norm_f1)
+        res_f2 = np.vstack(all_norm_f2)
+
+        X_train = np.vstack([res_f1, res_f2])
+        Y_train = np.vstack(all_vowels)
+        __X_test = shuffle(X_train)
+        X_test = __X_test[: int(0.25 * len(X_train))]
+        # Y_test = Y_train[: int(0.25 * len(Y_train))]
+
+        n_classes = len(np.unique(Y_train))
+
+        gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='spherical')
+        gmm_classifier.means_ = np.array([X_train[Y_train == i].mean(axis=0) for i in xrange(n_classes)])
+        gmm_classifier.fit(X_train)
+        pred = gmm_classifier.predict(X_test)
+        print pred
+
+    # Get Score!
+    def calculate_score(self):
+        x = 0
+
+    # test
+    def run(self):
+        #self.train_CRF()
+        self.train_GMM()
+        self.calculate_score()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

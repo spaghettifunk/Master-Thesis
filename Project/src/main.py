@@ -24,16 +24,20 @@ THE SOFTWARE.
 '''
 
 import sys
-from crf_hmm import CRF_HMM
+from crf_hmm import CRF_DTW, GMM_prototype
 
 if __name__ == "__main__":
-    goofy = CRF_HMM()
+    #goofy = CRF_DTW()
+
+    goofy = GMM_prototype()
 
     try:
-        train_model_on = False
-        dtw_on = True
+        #train_model_on = False
+        #dtw_on = True
 
-        goofy.run(train_model_on, dtw_on)
+        #goofy.run(train_model_on, dtw_on)
+        goofy.run()
+
     except:
         print "Error: ", sys.exc_info()
         raise
