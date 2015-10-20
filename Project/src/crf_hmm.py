@@ -23,8 +23,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 '''
 
+import itertools
 import sys
 import csv
+from scipy import linalg
 from sklearn import mixture
 from sklearn.utils import shuffle
 from copy import deepcopy
@@ -36,7 +38,6 @@ import matplotlib as mpl
 from fastdtw import fastdtw
 
 from libraries.utility import *
-
 
 # monte
 from libraries.monte.models.crf import ChainCrfLinear
@@ -806,26 +807,90 @@ class GMM_prototype:
             temp_norm_f1 = np.array(str.get_object(3))
             temp_norm_f2 = np.array(str.get_object(4))
 
-            all_vowels.append(temp_vowels.reshape(len(temp_vowels), 1))
-            all_norm_f1.append(temp_norm_f1.reshape(len(temp_norm_f1), 1))
-            all_norm_f2.append(temp_norm_f2.reshape(len(temp_norm_f2), 1))
+            all_vowels.extend(temp_vowels)
+            all_norm_f1.extend(temp_norm_f1)
+            all_norm_f2.extend(temp_norm_f2)
 
-        res_f1 = np.vstack(all_norm_f1)
-        res_f2 = np.vstack(all_norm_f2)
+        try:
+            res_f1 = np.vstack(all_norm_f1)
+            res_f2 = np.vstack(all_norm_f2)
 
-        X_train = np.vstack([res_f1, res_f2])
-        Y_train = np.vstack(all_vowels)
-        __X_test = shuffle(X_train)
-        X_test = __X_test[: int(0.25 * len(X_train))]
-        # Y_test = Y_train[: int(0.25 * len(Y_train))]
+            X_train = []
+            for f, b in zip(all_norm_f1, all_norm_f2):
+                X_train.append([f,b])
 
-        n_classes = len(np.unique(Y_train))
+            X_train = np.array(X_train)
+            Y_train = np.vstack(all_vowels)
+            X_test = X_train[: int(0.25 * len(X_train))]
+            Y_test = Y_train[: int(0.25 * len(Y_train))]
 
-        gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='spherical')
-        gmm_classifier.means_ = np.array([X_train[Y_train == i].mean(axis=0) for i in xrange(n_classes)])
-        gmm_classifier.fit(X_train)
-        pred = gmm_classifier.predict(X_test)
-        print pred
+            labels = np.unique(Y_train)
+            int_labels = np.arange(len(labels))
+
+            map_int_label = dict(zip(labels, int_labels))
+
+            Y_train_int = []
+            for y in Y_train:
+                val = map_int_label[y[0]]
+                Y_train_int.append(val)
+
+            Y_test_int = []
+            for y in Y_test:
+                val = map_int_label[y[0]]
+                Y_test_int.append(val)
+
+            n_classes = len(np.unique(Y_train))
+            gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='full')
+
+            # TODO: Check if i need to treat the means manually
+            #gmm_classifier.means_ = np.array([X_train[Y_train == i].mean(axis=0) for i in xrange(n_classes)])
+            gmm_classifier.fit(X_train)
+            gmm_logprob, gmm_resp = gmm_classifier.score_samples(X_test)
+
+            # dpgmm_classifier = mixture.DPGMM(n_components=n_classes, covariance_type='full')
+            # dpgmm_classifier.fit(X_train)
+            # dpgmm_logprob, dpgmm_resp = dpgmm_classifier.score_samples(X_test)
+
+            #------------------------------------------------------------
+            # Learn the best-fit GMM models
+            #  Here we'll use GMM in the standard way: the fit() method
+            #  uses an Expectation-Maximization approach to find the best
+            #  mixture of Gaussians for the data
+
+            # fit models with 1-10 components
+            # N = np.arange(1, n_classes)
+            # models = [None for i in range(len(N))]
+            #
+            # for i in range(len(N)):
+            #     models[i] = mixture.GMM(N[i]).fit(X_train)
+            #
+            # # compute the AIC and the BIC
+            # AIC = [m.aic(X_train) for m in models]
+            # BIC = [m.bic(X_train) for m in models]
+            #
+            # #------------------------------------------------------------
+            # # Plot the results
+            # #  We'll use three panels:
+            # #   1) data + best-fit mixture
+            # #   2) AIC and BIC vs number of components
+            # #   3) probability that a point came from each component
+            #
+            # # plot 1: data + best-fit mixture
+            # M_best = models[np.argmin(AIC)]
+            #
+            # # plot 2: AIC and BIC
+            # plt.plot(N, AIC, '-k', label='AIC')
+            # plt.plot(N, BIC, '--k', label='BIC')
+            # plt.xlabel('n. components')
+            # plt.ylabel('information criterion')
+            # plt.legend(loc=2)
+            #
+            # plt.show()
+
+            x = 0
+        except:
+            print sys.exc_info()
+            raise
 
     # Get Score!
     def calculate_score(self):
