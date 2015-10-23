@@ -783,18 +783,6 @@ class GMM_prototype:
                     all_data.append(deepcopy(data))
         return all_data
 
-    def make_ellipses(self, gmm, ax):
-        for n, color in enumerate('rgb'):
-            v, w = np.linalg.eigh(gmm._get_covars()[n][:2, :2])
-            u = w[0] / np.linalg.norm(w[0])
-            angle = np.arctan2(u[0], u[0])
-            angle = 180 * angle / np.pi  # convert to degrees
-            v *= 9
-            ell = mpl.patches.Ellipse(gmm.means_[n, :2], v[0], v[0], 180 + angle, color=color)
-            ell.set_clip_box(ax.bbox)
-            ell.set_alpha(0.5)
-            ax.add_artist(ell)
-
     def train_GMM(self):
         data = self.create_structure()
 
@@ -827,29 +815,40 @@ class GMM_prototype:
             labels = np.unique(Y_train)
             int_labels = np.arange(len(labels))
 
-            map_int_label = dict(zip(labels, int_labels))
-
-            Y_train_int = []
-            for y in Y_train:
-                val = map_int_label[y[0]]
-                Y_train_int.append(val)
-
-            Y_test_int = []
-            for y in Y_test:
-                val = map_int_label[y[0]]
-                Y_test_int.append(val)
+            map_int_label = dict(zip(int_labels, labels))
+            map_label_int = dict(zip(labels, int_labels))
 
             n_classes = len(np.unique(Y_train))
             gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='full')
-
-            # TODO: Check if i need to treat the means manually
-            #gmm_classifier.means_ = np.array([X_train[Y_train == i].mean(axis=0) for i in xrange(n_classes)])
             gmm_classifier.fit(X_train)
-            gmm_logprob, gmm_resp = gmm_classifier.score_samples(X_test)
 
-            # dpgmm_classifier = mixture.DPGMM(n_components=n_classes, covariance_type='full')
-            # dpgmm_classifier.fit(X_train)
-            # dpgmm_logprob, dpgmm_resp = dpgmm_classifier.score_samples(X_test)
+            # results
+            gmm_logprob, gmm_resp = gmm_classifier.score_samples(X_test)
+            gmm_res = sum(gmm_classifier.score(X_test))
+            gmm_predict = gmm_classifier.predict(X_test)
+            gmm_predict_proba = gmm_classifier.predict_proba(X_test)
+
+            fig = plt.figure()
+            ax1 = fig.add_subplot(111)
+
+            predicted_labes = []
+            for pred in gmm_predict:
+                predicted_labes.append(map_int_label[pred])
+
+            Y_test_int = []
+            for k in Y_test:
+                Y_test_int.append(map_label_int[k[0]])
+
+            test_accuracy = np.mean(gmm_predict.ravel() == np.array(Y_test_int).ravel()) * 100
+
+            # print the predicted-vowels based on the formants
+            for _s, _x, _y in zip(predicted_labes, X_test[:, 0], X_test[:, 1]):
+                ax1.scatter(_x, _y, s=400, c='r', marker=r"$ {} $".format(_s))
+
+            plt.xlabel('F2')
+            plt.ylabel('F1')
+            plt.title('Vowel Predicted - Test accuracy: %.3f' % test_accuracy)
+            plt.show()
 
             #------------------------------------------------------------
             # Learn the best-fit GMM models
@@ -857,35 +856,24 @@ class GMM_prototype:
             #  uses an Expectation-Maximization approach to find the best
             #  mixture of Gaussians for the data
 
-            # fit models with 1-10 components
-            # N = np.arange(1, n_classes)
-            # models = [None for i in range(len(N))]
-            #
-            # for i in range(len(N)):
-            #     models[i] = mixture.GMM(N[i]).fit(X_train)
-            #
-            # # compute the AIC and the BIC
-            # AIC = [m.aic(X_train) for m in models]
-            # BIC = [m.bic(X_train) for m in models]
-            #
-            # #------------------------------------------------------------
-            # # Plot the results
-            # #  We'll use three panels:
-            # #   1) data + best-fit mixture
-            # #   2) AIC and BIC vs number of components
-            # #   3) probability that a point came from each component
-            #
-            # # plot 1: data + best-fit mixture
-            # M_best = models[np.argmin(AIC)]
-            #
-            # # plot 2: AIC and BIC
-            # plt.plot(N, AIC, '-k', label='AIC')
-            # plt.plot(N, BIC, '--k', label='BIC')
-            # plt.xlabel('n. components')
-            # plt.ylabel('information criterion')
-            # plt.legend(loc=2)
-            #
-            # plt.show()
+            # fit models with 1-n_classes components
+            N = np.arange(1, n_classes)
+            models = [None for i in range(len(N))]
+
+            for i in range(len(N)):
+                models[i] = mixture.GMM(N[i], covariance_type='full').fit(X_train)
+
+            # compute the AIC and the BIC
+            AIC = [m.aic(X_train) for m in models]
+            BIC = [m.bic(X_train) for m in models]
+
+            plt.plot(N, AIC, '-k', label='AIC')
+            plt.plot(N, BIC, '--k', label='BIC')
+            plt.xlabel('n. components')
+            plt.ylabel('information criterion')
+            plt.legend(loc=2)
+
+            plt.show()
 
             x = 0
         except:
