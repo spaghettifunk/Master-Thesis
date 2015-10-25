@@ -1,0 +1,13 @@
+Formants are defined as the spectral peaks of sound spectrum, of the voice, of a person. In speech science and phonetics, formant frequencies refer to the acoustic resonance of the human vocal tract [6]. They are often measured as amplitude peaks in the frequency spectrum of the sound wave. We have considered the first 3 formants f1, f2, f3 for analysis of emotions. For different vowels, the range of f1 lies between 270 to 730 Hz while the range of f2 and f3 lie between 840 to 2290 and 1690 to 3010 Hz respectively[1]. Formant frequencies are very much important in the analysis of the emotional state of a person. [10].
+
+The Linear predictive coding technique (LPC) has been used for estimation of the formant frequencies [3]. The analog signal is converted in .wav digital format. The signal is transformed to frequency domain using FFT and the power spectrum is further calculated. Then the signal is passed through a Linear Predictive Filter (LPC) with 11 coefficients and the absolute values are considered. The roots of the polynomial are obtained which contain both real and imaginary parts. The phase spectrum is further displayed which clearly shows the formant frequencies. The first five formant frequencies are displayed in the graph. Figure 2 shows the formant frequency plot along with the original speech signal. The five formant frequencies obtained are 230 Hz, 800 Hz, 1684 Hz, 2552 Hz, 3159 Hz respectively.
+
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Vowel formants are unique across different speakers and reflect the vocal tract information of a particular speaker.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
