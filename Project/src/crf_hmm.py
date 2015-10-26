@@ -1,4 +1,4 @@
-'''
+"""
 The MIT License
 
 Copyright (c) 2015 University of Rochester, Uppsala University
@@ -21,20 +21,17 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-'''
+"""
 
 import itertools
 import sys
 import csv
-from scipy import linalg
 from sklearn import mixture
-from sklearn.utils import shuffle
 from copy import deepcopy
 
 import yaml
 import statistics
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 from fastdtw import fastdtw
 
 from libraries.utility import *
@@ -800,9 +797,6 @@ class GMM_prototype:
             all_norm_f2.extend(temp_norm_f2)
 
         try:
-            res_f1 = np.vstack(all_norm_f1)
-            res_f2 = np.vstack(all_norm_f2)
-
             X_train = []
             for f, b in zip(all_norm_f1, all_norm_f2):
                 X_train.append([f,b])
@@ -874,8 +868,6 @@ class GMM_prototype:
             plt.legend(loc=2)
 
             plt.show()
-
-            x = 0
         except:
             print sys.exc_info()
             raise

@@ -58,3 +58,11 @@ def register(request):
         print "Error: ", sys.exc_info()
         raise
 
+@api_view(['POST'])
+def test_pronunciation(request):
+    try:
+        return HttpResponse("SUCCESS")
+    except:
+        print "Error: ", sys.exc_info()
+        return HttpResponse("FAILED")
+
