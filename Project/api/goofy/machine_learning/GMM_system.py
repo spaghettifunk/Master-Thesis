@@ -27,6 +27,7 @@ import os
 import sys
 import csv
 import numpy as np
+import cPickle
 
 from sklearn import mixture
 from copy import deepcopy
@@ -75,55 +76,66 @@ class GMM_structure:
 
 class GMM_prototype:
     #region Global variables
-    output_files_directory = 'output-data/formants_results/male/'
+    male_formants_files_directory = 'data/formants_results/male/'
+    female_formants_files_directory = 'data/formants_results/female/'
+    male_model_name = 'models/gmm_male_model.pkl'
+    female_model_name = 'models/gmm_female_model.pkl'
     #endregion
 
     # Train model with GMM
-    def create_structure(self):
+    def create_structure(self, isFemale=False):
+        if isFemale:
+            self.formants_files_directory = self.female_formants_files_directory
+        else:
+            self.formants_files_directory = self.female_formants_files_directory
+
         all_data = []
-        for root, dirs, files in os.walk(self.output_files_directory):
-            for file in files:
-                filename = os.path.join(root, file)
 
-                if ".DS_Store" in filename or "_norm" not in filename:
-                    continue
+        path = os.path.dirname(os.path.abspath(__file__))
+        formants_files = os.path.join(path, self.formants_files_directory)
+        os.chdir(formants_files)
 
-                with open(filename, 'r') as tabbed_file:
-                    reader = csv.reader(tabbed_file, delimiter="\t")
-                    all_lines = list(reader)
+        for filename in os.listdir("."):
 
-                    data = GMM_structure(file)
+            if ".DS_Store" in filename or "_norm" not in filename:
+                continue
 
-                    not_included = 0
-                    for l in all_lines:
-                        if not_included <= 2:
-                            not_included += 1
-                            continue
+            with open(filename, 'r') as tabbed_file:
+                reader = csv.reader(tabbed_file, delimiter="\t")
+                all_lines = list(reader)
 
-                        data.set_object(0, l[0])
-                        data.set_object(1, l[1])
-                        data.set_object(2, l[2])
-                        try:
-                            if l[3] == '':
-                                f1_val = 0.0
-                            else:
-                                f1_val = float(l[3])
+                data = GMM_structure(file)
 
-                            if l[4] == '':
-                                f2_val = 0.0
-                            else:
-                                f2_val = float(l[4])
+                not_included = 0
+                for l in all_lines:
+                    if not_included <= 2:
+                        not_included += 1
+                        continue
 
-                            data.set_object(3, f1_val)
-                            data.set_object(4, f2_val)
-                        except:
-                            print "Error: ", sys.exc_info()
+                    data.set_object(0, l[0])
+                    data.set_object(1, l[1])
+                    data.set_object(2, l[2])
+                    try:
+                        if l[3] == '':
+                            f1_val = 0.0
+                        else:
+                            f1_val = float(l[3])
 
-                    all_data.append(deepcopy(data))
+                        if l[4] == '':
+                            f2_val = 0.0
+                        else:
+                            f2_val = float(l[4])
+
+                        data.set_object(3, f1_val)
+                        data.set_object(4, f2_val)
+                    except:
+                        print "Error: ", sys.exc_info()
+
+                all_data.append(deepcopy(data))
         return all_data
 
-    def train_GMM(self):
-        data = self.create_structure()
+    def train_GMM(self, isFemale=False):
+        data = self.create_structure(isFemale)
 
         all_vowels = []
         all_norm_f1 = []
@@ -150,6 +162,47 @@ class GMM_prototype:
             gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='full')
             gmm_classifier.fit(X_train)
 
+            # save the classifier
+            if isFemale:
+                model_name = self.female_model_name
+            else:
+                model_name = self.male_model_name
+
+            path = os.path.dirname(os.path.abspath(__file__))
+            model_directory = os.path.join(path, model_name)
+
+            with open(model_directory, 'wb') as fid:
+                cPickle.dump(gmm_classifier, fid)
+
         except:
             print sys.exc_info()
             raise
+
+    def test_GMM(self, X_test, isFemale=False):
+        if isFemale:
+            model_name = self.female_model_name
+        else:
+            model_name = self.male_model_name
+
+        # load it again
+        with open(model_name, 'rb') as fid:
+            gmm_classifier = cPickle.load(fid)
+
+        prediction = gmm_classifier.predict(X_test)
+
+        # do something here
+        # ... return data via POST
+
+    def models_if_exist(self):
+        try:
+            path = os.path.dirname(os.path.abspath(__file__))
+
+            female_model = os.path.join(path, self.female_model_name)
+            male_model = os.path.join(path, self.male_model_name)
+
+            exist_female = os.path.exists(female_model)
+            exist_male = os.path.exists(male_model)
+
+            return (exist_female and exist_male)
+        except:
+            return False
