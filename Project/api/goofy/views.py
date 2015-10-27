@@ -48,14 +48,21 @@ def login(request):
                 if data['Username'] == u.username:
                     response["Response"] = "SUCCESS"
                     response["Username"] = u.username
+                    response["Password"] = u.password
                     response["Gender"] = u.gender
                     response["Nationality"] = u.nationality
                     response["Occupation"] = u.occupation
                     response["Score"] = get_score(u)
-                    
+
+                    sentence, phonetic = get_sentence()
+                    response["Sentence"] = sentence
+                    response["Phonetic"] = phonetic
+
                     return HttpResponse(json.dumps(response))
 
-            response = {"Response": "FAILED"}
+            response = {}
+            response["Response"] = "FAILED"
+            response["Reason"] = "Something went wrong during the authentication\n Try later"
             return HttpResponse(json.dumps(response))
     except:
         print "Error: ", sys.exc_info()
@@ -72,6 +79,13 @@ def get_score(user):
         print "Error: ", sys.exc_info()
         raise
 
+def get_sentence():
+    sentences = ["A piece of cake", "Blow a fuse", "Catch some zs", "Down to the wire", "Eager beaver", "Fair and square", "Get cold feet", "Mellow out", "Pulling your legs", "Thinking out loud"]
+    phonetic = ["ɐ pˈiːs ʌv kˈeɪk", "blˈoʊ ɐ fjˈuːz", "kˈætʃ sˌʌm zˌiːˈɛs", "dˌaʊn tə ðə wˈaɪɚ", "ˈiːɡɚ bˈiːvɚ", "fˈɛɹ ænd skwˈɛɹ", "ɡɛt kˈoʊld fˈiːt", "mˈɛloʊ ˈaʊt", "pˈʊlɪŋ jʊɹ lˈɛɡz", "θˈɪŋkɪŋ ˈaʊt lˈaʊd"]
+    index = random.randrange(start=0, stop=len(sentences))
+
+    return sentences[index], phonetic[index]
+
 # Registration process
 @api_view(['POST'])
 def register(request):
@@ -80,7 +94,16 @@ def register(request):
             json_data = json.loads(request.body)
             data = dict(json_data)
 
+            response = {}
+            all_users = User.objects.all();
             username = data['Username']
+
+            for u in all_users:
+                if u.username == username:
+                    response["Response"] = "FAILED"
+                    response["Reason"] = "Username already registered"
+                    return HttpResponse(json.dumps(response))
+
             password = data['Password']
             gender = data['Gender']
             nationality = data['Nationality']
@@ -89,7 +112,13 @@ def register(request):
             new_user = User(username=username, password=password, gender=gender, nationality=nationality, occupation=occupation)
             new_user.save()
 
-            return HttpResponse("SUCCESS")
+            sentence, phonetic = get_sentence()
+
+            response["Response"] = "SUCCESS"
+            response["Sentence"] = sentence
+            response["Phonetic"] = phonetic
+
+            return HttpResponse(json.dumps(response))
     except:
         print "Error: ", sys.exc_info()
         raise
@@ -101,16 +130,3 @@ def test_pronunciation(request):
     except:
         print "Error: ", sys.exc_info()
         return HttpResponse("FAILED")
-
-@api_view(['POST'])
-def get_sentence(request):
-    sentences = ["A piece of cake", "Blow a fuse", "Catch some zs", "Down to the wire", "Eager beaver", "Fair and square", "Get cold feet", "Mellow out", "Pulling your legs", "Thinking out loud"]
-    phonetic = ["ɐ pˈiːs ʌv kˈeɪk", "blˈoʊ ɐ fjˈuːz", "kˈætʃ sˌʌm zˌiːˈɛs", "dˌaʊn tə ðə wˈaɪɚ", "ˈiːɡɚ bˈiːvɚ", "fˈɛɹ ænd skwˈɛɹ", "ɡɛt kˈoʊld fˈiːt", "mˈɛloʊ ˈaʊt", "pˈʊlɪŋ jʊɹ lˈɛɡz", "θˈɪŋkɪŋ ˈaʊt lˈaʊd"]
-    index = random.randrange(start=0, stop=len(sentences))
-
-    response = {}
-    response["Response"] = "SUCCESS"
-    response["Sentence"] = sentences[index]
-    response["Phonetic"] = phonetic[index]
-
-    return HttpResponse(json.dumps(response))
