@@ -29,6 +29,7 @@ THE SOFTWARE.
 import sys
 import json
 import random
+import tempfile
 
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
@@ -126,7 +127,37 @@ def register(request):
 @api_view(['POST'])
 def test_pronunciation(request):
     try:
-        return HttpResponse("SUCCESS")
+        response = {}
+        if request.method != "POST":
+            raise
+
+        json_data = json.loads(request.body)
+        data = dict(json_data)
+
+        audiofile_string = data["FileAudio"]
+        sentence = data["Sentence"]
+
+        audiofile_byte = [elem.encode("hex") for elem in audiofile_string]
+        tf = tempfile.NamedTemporaryFile()
+        with open(tf.name, 'wb') as output:
+            output.write(bytearray(int(i, 16) for i in audiofile_byte))
+
+        user_data = data["User"]
+        user = json.loads(user_data)
+
+        # need to load the correct model - M or F
+        gender = user["gender"]
+
+        response["Response"] = "SUCCESS"
+        response["Feedback"] = classify_user_audio(tf, sentence, gender)
+
+        return HttpResponse(json.dumps(response))
     except:
-        print "Error: ", sys.exc_info()
-        return HttpResponse("FAILED")
+        response["Response"] = "FAILED"
+        response["Reason"] = "Something went wrong during the authentication\n Try later"
+        return HttpResponse(json.dumps(response))
+
+
+def classify_user_audio(audiofile, sentence, gender):
+
+    return "Hello"
