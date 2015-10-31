@@ -48,11 +48,16 @@ def read_dict(f):
     dictfile.close()
     return dict
 
-
+# TODO: fix the path
+import os
 def read_phoneset(f):
     """reads the CMU phoneset (assigns distinctive features to each phoneme);
       returns it as dictionary object"""
-    lines = open(f, 'r').readlines()
+
+    path = os.path.dirname(os.path.abspath(__file__))
+    path = path.replace('bin', '')
+
+    lines = open(path + f, 'r').readlines()
     phoneset = {}
     for line in lines[1:]:  # leave out header line
         p = Phone()

@@ -35,6 +35,11 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from .models import User, GeneralScore
 
+from machine_learning.extract_formants import *
+from machine_learning.force_alignment import *
+
+data_directory = "data/"
+
 # login process
 @api_view(['POST'])
 def login(request):
@@ -124,40 +129,52 @@ def register(request):
         print "Error: ", sys.exc_info()
         raise
 
+
+# noinspection PyTypeChecker
 @api_view(['POST'])
 def test_pronunciation(request):
     try:
         response = {}
-        if request.method != "POST":
+        if request.method != 'POST':
             raise
 
         json_data = json.loads(request.body)
         data = dict(json_data)
 
-        audiofile_string = data["FileAudio"]
-        sentence = data["Sentence"]
+        audiofile_string = data['FileAudio']
+        sentence = data['Sentence']
 
-        audiofile_byte = [elem.encode("hex") for elem in audiofile_string]
-        tf = tempfile.NamedTemporaryFile()
-        with open(tf.name, 'wb') as output:
-            output.write(bytearray(int(i, 16) for i in audiofile_byte))
+        audiofile_byte = list(bytearray(audiofile_string, 'utf8')) #[elem.encode('hex') for elem in audiofile_string]
+        temp_audiofile = tempfile.NamedTemporaryFile(suffix='.wav')
+        with open(temp_audiofile.name, 'wb') as output:
+            output.write(''.join(str(v) for v in audiofile_byte))
 
-        user_data = data["User"]
+        user_data = data['User']
         user = json.loads(user_data)
 
         # need to load the correct model - M or F
-        gender = user["gender"]
+        gender = user['gender']
 
-        response["Response"] = "SUCCESS"
-        response["Feedback"] = classify_user_audio(tf, sentence, gender)
+        response['Response'] = 'SUCCESS'
+        response['Feedback'] = classify_user_audio(temp_audiofile , sentence, gender)
 
         return HttpResponse(json.dumps(response))
     except:
-        response["Response"] = "FAILED"
-        response["Reason"] = "Something went wrong during the authentication\n Try later"
+        print "Error: ", sys.exc_info()
+
+        response['Response'] = 'FAILED'
+        response['Reason'] = sys.exc_info()
         return HttpResponse(json.dumps(response))
 
 
 def classify_user_audio(audiofile, sentence, gender):
+    # Force Alignment
+    force_alignment(audiofile, sentence)
 
-    return "Hello"
+    if gender == 'm':
+        # FAVE-exctract
+        extract_data(audiofile, True)
+    else:
+        extract_data(audiofile, False)
+
+    return 'Hello'

@@ -1,6 +1,0 @@
-firstname lastname, 25, m, white, 2015, Rochester, NY, 
-
-vowel	stress	word	norm_F1	norm_F2	t	beg	end	dur	cd	fm	fp	fv	ps	fs	style	glide	norm_F1@20%	norm_F2@20%	norm_F1@35%	norm_F2@35%	norm_F1@50%	norm_F2@50%	norm_F1@65%	norm_F2@65%	norm_F1@80%	norm_F2@80%
-EH	1	MELLOW	808.0	1566.0	0.159	0.142	0.192	0.05	2	5	4	2	2	1			824.0	1572.0	809.0	1565.0	981.0	1779.0	1129.0	1982.0	1177.0	2085.0	
-OW	0	MELLOW	509.0	2171.0	0.331	0.322	0.392	0.07	63	0	0	0	7	0			522.0	2174.0	495.0	2172.0	368.0	2103.0	160.0	1687.0	6.0	1310.0	
-AW	1	OUT	633.0	1363.0	0.44	0.392	0.641	0.249	42	1	4	1	0	0			660.0	1364.0	894.0	1381.0	632.0	1395.0	329.0	1209.0	213.0	1757.0	

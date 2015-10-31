@@ -26,6 +26,7 @@ THE SOFTWARE.
 import os
 from subprocess import call, Popen
 
+#region FOR Training
 class FormantsExtractor:
     audio_files_directory = '../../train-audio-data/'
     textgrid_file_directory = 'train/'
@@ -67,3 +68,4 @@ if __name__ == "__main__":
     goofy = FormantsExtractor()
     goofy.extract_data()
     goofy.extract_data(True)
+#endregion

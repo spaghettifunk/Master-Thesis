@@ -1013,9 +1013,11 @@ def lennig(formants, times):
 
 def loadCovs(inFile):
     """reads covariance matrix of training data set from file"""
+    path = os.path.dirname(os.path.abspath(__file__))
+    path = path.replace('bin', '')
 
     covs = {}
-    for line in open(inFile, 'rU').readlines():
+    for line in open(path + inFile, 'rU').readlines():
         vowel = line.strip().split('\t')[0]
         values = np.array([float(x) for x in line.strip().split('\t')[1:]])
         covs[vowel] = np.linalg.inv(np.reshape(values, (4, -1)))
@@ -1026,8 +1028,11 @@ def loadCovs(inFile):
 def loadMeans(inFile):
     """reads formant means of training data set from file"""
 
+    path = os.path.dirname(os.path.abspath(__file__))
+    path = path.replace('bin', '')
+
     means = {}
-    for line in open(inFile, 'rU').readlines():
+    for line in open(path + inFile, 'rU').readlines():
         vowel = line.strip().split('\t')[0]
         means[vowel] = np.array([float(x)
                                 for x in line.strip().split('\t')[1:]])
