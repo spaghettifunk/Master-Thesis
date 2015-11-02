@@ -36,14 +36,14 @@ def extract_data(audio_file, female=False):
     path_fave = path + "/libraries/FAVE_extract/"
 
     if female:
-        config_file = "--outputFormat txt --candidates --speechSoftware Praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker speakerinfo_female.speakerfile"
+        config_file = "--outputFormat txt --candidates --speechSoftware Praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker " + path_fave + "/speakerinfo_female.speakerfile"
     else:
-        config_file = "--outputFormat txt --candidates --speechSoftware Praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker speakerinfo_male.speakerfile"
+        config_file = "--outputFormat txt --candidates --speechSoftware Praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker " + path_fave + "/speakerinfo_male.speakerfile"
 
     textgrid_file_directory = path + "/data/"
     output_file_directory = path + "/data/"
 
-    wav_file = audio_file.name
+    wav_file = audio_file
     wav_file_cleaned = wav_file.replace('.wav', '.TextGrid')
 
     (dirName, fileName) = os.path.split(wav_file_cleaned)
@@ -52,7 +52,7 @@ def extract_data(audio_file, female=False):
     output_file = os.path.join(output_file_directory, fileName.replace('.TextGrid', '.txt'))
 
     # debug print
-    command = "python " + path_fave + "bin/extractFormants.py " + config_file + " " + textgrid_file + " " + output_file
+    command = "python " + path_fave + "bin/extractFormants.py " + config_file + " " + audio_file + " " + textgrid_file + " " + output_file
     print command
 
     try:

@@ -60,11 +60,11 @@ Takes as input a sound file and a Praat .TextGrid file (with word and phone tier
 and outputs automatically extracted F1 and F2 measurements for each vowel
 (either as a tab-delimited text file or as a Plotnik file).
 """
+import os
 
-SCRIPTS_HOME = 'bin'
+SCRIPTS_HOME = os.path.dirname(os.path.abspath(__file__))
 
 import sys
-import os
 import argparse
 import math
 import re
@@ -1013,11 +1013,8 @@ def lennig(formants, times):
 
 def loadCovs(inFile):
     """reads covariance matrix of training data set from file"""
-    path = os.path.dirname(os.path.abspath(__file__))
-    path = path.replace('bin', '')
-
     covs = {}
-    for line in open(path + inFile, 'rU').readlines():
+    for line in open(inFile, 'rU').readlines():
         vowel = line.strip().split('\t')[0]
         values = np.array([float(x) for x in line.strip().split('\t')[1:]])
         covs[vowel] = np.linalg.inv(np.reshape(values, (4, -1)))
@@ -1027,12 +1024,8 @@ def loadCovs(inFile):
 
 def loadMeans(inFile):
     """reads formant means of training data set from file"""
-
-    path = os.path.dirname(os.path.abspath(__file__))
-    path = path.replace('bin', '')
-
     means = {}
-    for line in open(path + inFile, 'rU').readlines():
+    for line in open(inFile, 'rU').readlines():
         vowel = line.strip().split('\t')[0]
         means[vowel] = np.array([float(x)
                                 for x in line.strip().split('\t')[1:]])

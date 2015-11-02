@@ -34,11 +34,13 @@ import tempfile
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from .models import User, GeneralScore
+from binascii import unhexlify
 
 from machine_learning.extract_formants import *
 from machine_learning.force_alignment import *
 
 data_directory = "data/"
+
 
 # login process
 @api_view(['POST'])
@@ -74,6 +76,7 @@ def login(request):
         print "Error: ", sys.exc_info()
         raise
 
+
 def get_score(user):
     try:
         all_scores = GeneralScore.objects.all()
@@ -85,12 +88,16 @@ def get_score(user):
         print "Error: ", sys.exc_info()
         raise
 
+
 def get_sentence():
-    sentences = ["A piece of cake", "Blow a fuse", "Catch some zs", "Down to the wire", "Eager beaver", "Fair and square", "Get cold feet", "Mellow out", "Pulling your legs", "Thinking out loud"]
-    phonetic = ["ɐ pˈiːs ʌv kˈeɪk", "blˈoʊ ɐ fjˈuːz", "kˈætʃ sˌʌm zˌiːˈɛs", "dˌaʊn tə ðə wˈaɪɚ", "ˈiːɡɚ bˈiːvɚ", "fˈɛɹ ænd skwˈɛɹ", "ɡɛt kˈoʊld fˈiːt", "mˈɛloʊ ˈaʊt", "pˈʊlɪŋ jʊɹ lˈɛɡz", "θˈɪŋkɪŋ ˈaʊt lˈaʊd"]
+    sentences = ["A piece of cake", "Blow a fuse", "Catch some zs", "Down to the wire", "Eager beaver",
+                 "Fair and square", "Get cold feet", "Mellow out", "Pulling your legs", "Thinking out loud"]
+    phonetic = ["ɐ pˈiːs ʌv kˈeɪk", "blˈoʊ ɐ fjˈuːz", "kˈætʃ sˌʌm zˌiːˈɛs", "dˌaʊn tə ðə wˈaɪɚ", "ˈiːɡɚ bˈiːvɚ",
+                "fˈɛɹ ænd skwˈɛɹ", "ɡɛt kˈoʊld fˈiːt", "mˈɛloʊ ˈaʊt", "pˈʊlɪŋ jʊɹ lˈɛɡz", "θˈɪŋkɪŋ ˈaʊt lˈaʊd"]
     index = random.randrange(start=0, stop=len(sentences))
 
     return sentences[index], phonetic[index]
+
 
 # Registration process
 @api_view(['POST'])
@@ -115,7 +122,8 @@ def register(request):
             nationality = data['Nationality']
             occupation = data['Occupation']
 
-            new_user = User(username=username, password=password, gender=gender, nationality=nationality, occupation=occupation)
+            new_user = User(username=username, password=password, gender=gender, nationality=nationality,
+                            occupation=occupation)
             new_user.save()
 
             sentence, phonetic = get_sentence()
@@ -144,10 +152,10 @@ def test_pronunciation(request):
         audiofile_string = data['FileAudio']
         sentence = data['Sentence']
 
-        audiofile_byte = list(bytearray(audiofile_string, 'utf8')) #[elem.encode('hex') for elem in audiofile_string]
+        audiofile_byte = bytes(audiofile_string)
         temp_audiofile = tempfile.NamedTemporaryFile(suffix='.wav')
         with open(temp_audiofile.name, 'wb') as output:
-            output.write(''.join(str(v) for v in audiofile_byte))
+            output.write(audiofile_byte)
 
         user_data = data['User']
         user = json.loads(user_data)
@@ -155,8 +163,12 @@ def test_pronunciation(request):
         # need to load the correct model - M or F
         gender = user['gender']
 
+        # for testing
+        path = os.path.dirname(os.path.abspath(__file__))
+        path_audiofile = path + "/audio/test.wav"
+
         response['Response'] = 'SUCCESS'
-        response['Feedback'] = classify_user_audio(temp_audiofile , sentence, gender)
+        response['Feedback'] = classify_user_audio(path_audiofile, sentence, gender)
 
         return HttpResponse(json.dumps(response))
     except:
@@ -168,13 +180,21 @@ def test_pronunciation(request):
 
 
 def classify_user_audio(audiofile, sentence, gender):
+    # from PRAAT retrieve pitch graph
+
     # Force Alignment
     force_alignment(audiofile, sentence)
 
+    # FAVE-exctract
     if gender == 'm':
-        # FAVE-exctract
         extract_data(audiofile, True)
     else:
         extract_data(audiofile, False)
+
+    # Create GMM testing set
+
+    # Test on GMM and get prediction
+
+    # Create image of vowel chart
 
     return 'Hello'

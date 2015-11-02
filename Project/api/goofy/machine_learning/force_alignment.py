@@ -45,11 +45,11 @@ def force_alignment(audio_file, sentence):
 
     # result of p2fa
     try:
-        (dirName, fileName) = os.path.split(audio_file.name)
+        (dirName, fileName) = os.path.split(audio_file)
         output_filename = os.path.join(results_directory, fileName.replace('.wav', '.TextGrid'))
 
         # call the file
-        command = "python " + path_fa + "align.py " + audio_file.name + " " + get_sentences_directory + " " + output_filename
+        command = "python " + path_fa + "align.py " + audio_file + " " + get_sentences_directory + " " + output_filename
 
         # run command
         Popen(['/usr/local/bin/zsh', '-c', command])
