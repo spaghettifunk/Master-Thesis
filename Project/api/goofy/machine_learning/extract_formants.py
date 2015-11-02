@@ -57,7 +57,8 @@ def extract_data(audio_file, female=False):
 
     try:
         # run command
-        Popen(['/usr/local/bin/zsh', '-c', command])
+        proc = Popen(['/usr/local/bin/zsh', '-c', command])
+        proc.wait()
     except:
         print "Error: ", sys.exc_info()
         raise

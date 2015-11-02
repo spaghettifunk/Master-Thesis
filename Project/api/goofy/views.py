@@ -31,15 +31,14 @@ import wave
 import base64
 import json
 import random
-import tempfile
 
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from .models import User, GeneralScore
-from binascii import unhexlify
 
 from machine_learning.extract_formants import *
 from machine_learning.force_alignment import *
+from machine_learning.create_structure import *
 
 data_directory = "data/"
 
@@ -202,6 +201,8 @@ def classify_user_audio(audiofile, sentence, gender):
         extract_data(audiofile, False)
 
     # Create GMM testing set
+    (dirName, fileName) = os.path.split(audiofile)
+    test_data = create_test_data(fileName)
 
     # Test on GMM and get prediction
 

@@ -29,8 +29,8 @@ import os
 import sys
 from subprocess import Popen
 
-def force_alignment(audio_file, sentence):
 
+def force_alignment(audio_file, sentence):
     path = os.path.dirname(os.path.abspath(__file__))
     results_directory = path + "/data/"
     path_fa = path + "/libraries/force_alignment/"
@@ -52,8 +52,8 @@ def force_alignment(audio_file, sentence):
         command = "python " + path_fa + "align.py " + audio_file + " " + get_sentences_directory + " " + output_filename
 
         # run command
-        Popen(['/usr/local/bin/zsh', '-c', command])
+        proc = Popen(['/usr/local/bin/zsh', '-c', command])
+        proc.wait()
     except:
         print "Error: ", sys.exc_info()
         raise
-
