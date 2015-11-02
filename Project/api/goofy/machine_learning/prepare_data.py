@@ -28,7 +28,9 @@ THE SOFTWARE.
 import os
 import csv
 import sys
+import numpy as np
 
+from subprocess import Popen
 from copy import deepcopy
 
 
@@ -71,6 +73,69 @@ class GMM_structure:
             return self.norm_F1
         if n == 4:
             return self.norm_F2
+
+
+def force_alignment(audio_file, sentence):
+    path = os.path.dirname(os.path.abspath(__file__))
+    results_directory = path + "/data"
+    path_fa = path + "/libraries/force_alignment/"
+    path_fa_sentences = path_fa + "sentences/"
+
+    # sentence: A piece of cake -> a_piece_of_cake
+    tmp_sentence = sentence.lower()
+    phonemes_filename = tmp_sentence.replace(' ', '_')
+
+    # directory containing the txt files with each sentence
+    get_sentences_directory = os.path.join(path_fa_sentences, phonemes_filename + '.txt')
+
+    # result of p2fa
+    try:
+        (dirName, fileName) = os.path.split(audio_file)
+        output_filename = os.path.join(results_directory, fileName.replace('.wav', '.TextGrid'))
+
+        # call the file
+        command = "python " + path_fa + "align.py " + audio_file + " " + get_sentences_directory + " " + output_filename
+
+        # run command
+        proc = Popen(['/usr/local/bin/zsh', '-c', command])
+        proc.wait()
+    except:
+        print "Error: ", sys.exc_info()
+        raise
+
+
+def extract_data(audio_file, female=False):
+    # need to change speakerfile for the female gender
+    path = os.path.dirname(os.path.abspath(__file__))
+    path_fave = path + "/libraries/FAVE_extract/"
+
+    if female:
+        config_file = "--outputFormat txt --candidates --speechSoftware Praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker " + path_fave + "/speakerinfo_female.speakerfile"
+    else:
+        config_file = "--outputFormat txt --candidates --speechSoftware Praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker " + path_fave + "/speakerinfo_male.speakerfile"
+
+    textgrid_file_directory = path + "/data/"
+    output_file_directory = path + "/data/"
+
+    wav_file = audio_file
+    wav_file_cleaned = wav_file.replace('.wav', '.TextGrid')
+
+    (dirName, fileName) = os.path.split(wav_file_cleaned)
+
+    textgrid_file = os.path.join(textgrid_file_directory, fileName)
+    output_file = os.path.join(output_file_directory, fileName.replace('.TextGrid', '.txt'))
+
+    # debug print
+    command = "python " + path_fave + "bin/extractFormants.py " + config_file + " " + audio_file + " " + textgrid_file + " " + output_file
+    print command
+
+    try:
+        # run command
+        proc = Popen(['/usr/local/bin/zsh', '-c', command])
+        proc.wait()
+    except:
+        print "Error: ", sys.exc_info()
+        raise
 
 
 def create_test_data(filename):
@@ -129,3 +194,31 @@ def create_test_data(filename):
 
         all_data.append(deepcopy(data))
     return all_data
+
+
+def create_test_set(test_data):
+    all_vowels = []
+    all_norm_f1 = []
+    all_norm_f2 = []
+
+    for str in test_data:
+        temp_vowels = np.array(str.get_object(0))
+        temp_norm_f1 = np.array(str.get_object(3))
+        temp_norm_f2 = np.array(str.get_object(4))
+
+        all_vowels.extend(temp_vowels)
+        all_norm_f1.extend(temp_norm_f1)
+        all_norm_f2.extend(temp_norm_f2)
+
+    try:
+        X_test = []
+        for f, b in zip(all_norm_f1, all_norm_f2):
+            X_test.append([f,b])
+
+        X_test = np.array(X_test)
+        Y_test = np.vstack(all_vowels)
+
+        return X_test, Y_test
+    except:
+        print "Error: ", sys.exc_info()
+        raise

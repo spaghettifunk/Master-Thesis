@@ -872,15 +872,10 @@ class GMM_prototype:
             print sys.exc_info()
             raise
 
-    # Get Score!
-    def calculate_score(self):
-        x = 0
-
     # test
     def run(self):
         #self.train_CRF()
         self.train_GMM()
-        self.calculate_score()
 
 
 

@@ -26,19 +26,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import sys
-import wave
 import base64
 import json
 import random
+import glob
 
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from .models import User, GeneralScore
 
-from machine_learning.extract_formants import *
-from machine_learning.force_alignment import *
-from machine_learning.create_structure import *
+from machine_learning.prepare_data import *
+from machine_learning.GMM_system import GMM_prototype
 
 data_directory = "data/"
 
@@ -174,10 +172,22 @@ def test_pronunciation(request):
 
         # TODO: remove the following line related to sentence becuase I'm still testing the same file
         sentence = "A piece of cake"
-        response['Feedback'] = classify_user_audio(temp_audiofile, sentence, gender)
+        response['Feedbacks'] = classify_user_audio(temp_audiofile, sentence, gender)
 
         # clean up everything
-        # ...
+        cleaned_name = temp_audiofile.replace('.wav', '*')
+
+        filelist = glob.glob(cleaned_name)
+        for filename in filelist:
+            os.remove(filename)
+
+        data_path = path + '/machine_learning/data/'
+        (dirName, fileName) = os.path.split(temp_audiofile)
+        cleaned_name =  data_path + fileName.replace('.wav', '*')
+
+        filelist = glob.glob(cleaned_name)
+        for filename in filelist:
+            os.remove(filename)
 
         return HttpResponse(json.dumps(response))
     except:
@@ -205,7 +215,11 @@ def classify_user_audio(audiofile, sentence, gender):
     test_data = create_test_data(fileName)
 
     # Test on GMM and get prediction
+    X_test, Y_test = create_test_set(test_data)
+    plot_filename = audiofile.replace('.wav', '.png')
 
-    # Create image of vowel chart
-
-    return 'Hello'
+    gmm_obj = GMM_prototype()
+    if gender == 'm':
+        return gmm_obj.test_GMM(X_test, Y_test, plot_filename, False)
+    else:
+        return gmm_obj.test_GMM(X_test, Y_test, plot_filename, True)

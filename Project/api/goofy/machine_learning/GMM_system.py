@@ -28,59 +28,26 @@ import sys
 import csv
 import numpy as np
 import cPickle
+import base64
+
+import matplotlib.pyplot as plt
 
 from sklearn import mixture
 from copy import deepcopy
 
-
-class GMM_structure:
-    filename = ""
-    vowels = []
-    stress = []
-    words = []
-    norm_F1 = []
-    norm_F2 = []
-
-    def __init__(self, fn):
-        self.filename = fn
-        self.vowels = []
-        self.stress = []
-        self.words = []
-        self.norm_F1 = []
-        self.norm_F2 = []
-
-    def set_object(self, n, val):
-        if n == 0:
-            self.vowels.append(val)
-        if n == 1:
-            self.stress.append(val)
-        if n == 2:
-            self.words.append(val)
-        if n == 3:
-            self.norm_F1.append(val)
-        if n == 4:
-            self.norm_F2.append(val)
-
-    def get_object(self, n):
-        if n == 0:
-            return self.vowels
-        if n == 1:
-            return self.stress
-        if n == 2:
-            return self.words
-        if n == 3:
-            return self.norm_F1
-        if n == 4:
-            return self.norm_F2
+from prepare_data import GMM_structure
 
 
 class GMM_prototype:
-    #region Global variables
+    # region Global variables
     male_formants_files_directory = 'data/formants_results/male/'
     female_formants_files_directory = 'data/formants_results/female/'
     male_model_name = 'models/gmm_male_model.pkl'
     female_model_name = 'models/gmm_female_model.pkl'
-    #endregion
+
+    male_trainset_name = '/models/trainset_male.pkl'
+    female_trainset_name = '/models/trainset_female.pkl'
+    # endregion
 
     # Train model with GMM
     def create_structure(self, isFemale=False):
@@ -137,6 +104,8 @@ class GMM_prototype:
     def train_GMM(self, isFemale=False):
         data = self.create_structure(isFemale)
 
+        path = os.path.dirname(os.path.abspath(__file__))
+
         all_vowels = []
         all_norm_f1 = []
         all_norm_f2 = []
@@ -153,10 +122,18 @@ class GMM_prototype:
         try:
             X_train = []
             for f, b in zip(all_norm_f1, all_norm_f2):
-                X_train.append([f,b])
+                X_train.append([f, b])
 
             X_train = np.array(X_train)
             Y_train = np.vstack(all_vowels)
+
+            if isFemale:
+                path_trainset = path + self.female_trainset_name
+            else:
+                path_trainset = path + self.male_trainset_name
+
+            with open(path_trainset, 'wb') as fid:
+                cPickle.dump([X_train, Y_train], fid)
 
             n_classes = len(np.unique(Y_train))
             gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='full')
@@ -168,7 +145,6 @@ class GMM_prototype:
             else:
                 model_name = self.male_model_name
 
-            path = os.path.dirname(os.path.abspath(__file__))
             model_directory = os.path.join(path, model_name)
 
             with open(model_directory, 'wb') as fid:
@@ -178,20 +154,65 @@ class GMM_prototype:
             print sys.exc_info()
             raise
 
-    def test_GMM(self, X_test, isFemale=False):
+    def test_GMM(self, X_test, Y_test, plot_filename, isFemale=False):
+
+        path = os.path.dirname(os.path.abspath(__file__))
+        path += '/'
+
         if isFemale:
-            model_name = self.female_model_name
+            model_name = path + self.female_model_name
+            trainset_name = path + self.female_trainset_name
         else:
-            model_name = self.male_model_name
+            model_name = path + self.male_model_name
+            trainset_name = path + self.male_trainset_name
 
         # load it again
-        with open(model_name, 'rb') as fid:
-            gmm_classifier = cPickle.load(fid)
+        with open(model_name, 'rb') as model:
+            gmm_classifier = cPickle.load(model)
 
-        prediction = gmm_classifier.predict(X_test)
+        with open(trainset_name, 'rb') as traindata:
+            X_train, Y_train = cPickle.load(traindata)
 
-        # do something here
-        # ... return data via POST
+        # results
+        labels = np.unique(Y_train)
+        int_labels = np.arange(len(labels))
+
+        map_int_label = dict(zip(int_labels, labels))
+        map_label_int = dict(zip(labels, int_labels))
+
+        gmm_logprob, gmm_resp = gmm_classifier.score_samples(X_test)
+        gmm_res = sum(gmm_classifier.score(X_test))
+        gmm_predict = gmm_classifier.predict(X_test)
+        gmm_predict_proba = gmm_classifier.predict_proba(X_test)
+
+        try:
+            fig = plt.figure()
+            ax1 = fig.add_subplot(111)
+
+            predicted_labes = []
+            for pred in gmm_predict:
+                predicted_labes.append(map_int_label[pred])
+
+            Y_test_int = []
+            for k in Y_test:
+                Y_test_int.append(map_label_int[k[0]])
+
+            test_accuracy = np.mean(gmm_predict.ravel() == np.array(Y_test_int).ravel()) * 100
+
+            # print the predicted-vowels based on the formants
+            for _s, _x, _y in zip(predicted_labes, X_test[:, 0], X_test[:, 1]):
+                ax1.scatter(_x, _y, s=400, c='r', marker=r"$ {} $".format(_s))
+
+            plt.xlabel('F2')
+            plt.ylabel('F1')
+            plt.title('Vowel Predicted - Test accuracy: %.3f' % test_accuracy)
+            plt.savefig(plot_filename, bbox_inches='tight')
+
+            with open(plot_filename, "rb") as imageFile:
+                return base64.b64encode(imageFile.read())
+        except:
+            print "Error: ", sys.exc_info()
+            raise
 
     def models_if_exist(self):
         try:
