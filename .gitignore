@@ -5,6 +5,7 @@ env/*
 *idea*
 *.wav
 Project/DNN/python_speech_features/.gitignore
+Project/api/goofy/machine_learning/data/*
 
 ## Core latex/pdflatex auxiliary files:
 *.aux

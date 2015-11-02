@@ -27,6 +27,8 @@ THE SOFTWARE.
 """
 
 import sys
+import wave
+import base64
 import json
 import random
 import tempfile
@@ -146,15 +148,22 @@ def test_pronunciation(request):
         if request.method != 'POST':
             raise
 
+        path = os.path.dirname(os.path.abspath(__file__))
+        audio_path = path + "/audio/"
+
         json_data = json.loads(request.body)
         data = dict(json_data)
 
         audiofile_string = data['FileAudio']
         sentence = data['Sentence']
 
-        audiofile_byte = bytes(audiofile_string)
-        temp_audiofile = tempfile.NamedTemporaryFile(suffix='.wav')
-        with open(temp_audiofile.name, 'wb') as output:
+        audiofile_byte = base64.b64decode(audiofile_string)
+        random_hash = random.getrandbits(128)
+
+        generate_filename = sentence.replace(' ', '_')
+        temp_audiofile = audio_path + generate_filename + "_" + str(random_hash) + ".wav"
+
+        with open(temp_audiofile, 'wb') as output:
             output.write(audiofile_byte)
 
         user_data = data['User']
@@ -162,13 +171,14 @@ def test_pronunciation(request):
 
         # need to load the correct model - M or F
         gender = user['gender']
-
-        # for testing
-        path = os.path.dirname(os.path.abspath(__file__))
-        path_audiofile = path + "/audio/test.wav"
-
         response['Response'] = 'SUCCESS'
-        response['Feedback'] = classify_user_audio(path_audiofile, sentence, gender)
+
+        # TODO: remove the following line related to sentence becuase I'm still testing the same file
+        sentence = "A piece of cake"
+        response['Feedback'] = classify_user_audio(temp_audiofile, sentence, gender)
+
+        # clean up everything
+        # ...
 
         return HttpResponse(json.dumps(response))
     except:
