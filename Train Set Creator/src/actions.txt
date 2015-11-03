@@ -1,0 +1,8 @@
+Sequence of actions for training:
+1) force alignment    -> p2fa
+2) extract data       -> FAVE-extract
+3) create train data
+4) create train set
+5) create model
+6) train model
+7) save model

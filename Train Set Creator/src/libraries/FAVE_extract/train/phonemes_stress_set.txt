@@ -1,0 +1,44 @@
+AH	0
+IY	1
+AH	0
+EY	1
+
+OW	1
+AH	0
+UW	1
+
+AE	1
+AH	1
+IY	0
+
+AH	0
+AH	0
+AY	1
+ER	0
+
+IY	1
+ER	0
+IY	1
+ER	0
+
+EH	1
+AH	0
+EH	1
+
+EH	1
+OW	1
+IY	1
+
+EH	1
+OW	0
+AW	1
+
+UH	1
+IH	0
+UH	1
+EH	1
+
+IH	1
+AH	0
+AW	1
+AW	1
