@@ -218,6 +218,6 @@ def classify_user_audio(audiofile, sentence, gender):
 
     gmm_obj = GMM_prototype()
     if gender == 'm':
-        return gmm_obj.test_GMM(X_test, Y_test, plot_filename, False)
+        return gmm_obj.test_GMM(X_test, Y_test, plot_filename, sentence, False)
     else:
-        return gmm_obj.test_GMM(X_test, Y_test, plot_filename, True)
+        return gmm_obj.test_GMM(X_test, Y_test, plot_filename, sentence, True)

@@ -36,7 +36,6 @@ from copy import deepcopy
 
 class GMM_structure:
     filename = ""
-    vowels = []
     stress = []
     words = []
     norm_F1 = []
@@ -44,7 +43,6 @@ class GMM_structure:
 
     def __init__(self, fn):
         self.filename = fn
-        self.vowels = []
         self.stress = []
         self.words = []
         self.norm_F1 = []
@@ -52,26 +50,28 @@ class GMM_structure:
 
     def set_object(self, n, val):
         if n == 0:
-            self.vowels.append(val)
-        if n == 1:
             self.stress.append(val)
-        if n == 2:
+        if n == 1:
             self.words.append(val)
-        if n == 3:
+        if n == 2:
             self.norm_F1.append(val)
-        if n == 4:
+        if n == 3:
             self.norm_F2.append(val)
+
+    def concat_object(self, n, val):
+        if n == 0:
+            self.norm_F1 += val
+        if n == 1:
+            self.norm_F2 += val
 
     def get_object(self, n):
         if n == 0:
-            return self.vowels
-        if n == 1:
             return self.stress
-        if n == 2:
+        if n == 1:
             return self.words
-        if n == 3:
+        if n == 2:
             return self.norm_F1
-        if n == 4:
+        if n == 3:
             return self.norm_F2
 
 
@@ -159,64 +159,79 @@ def create_test_data(filename):
             out_csv = csv.writer(opened_csv)
             out_csv.writerows(in_txt)
 
-    all_data = []
+    all_data = dict()
     with open(csv_file, 'r') as tabbed_file:
         reader = csv.reader(tabbed_file, delimiter="\t")
         all_lines = list(reader)
 
         data = GMM_structure(file)
+
         not_included = 0
-        for l in all_lines:
+        for line in all_lines:
             if not_included <= 2:
                 not_included += 1
                 continue
 
-            data_split = l[0].split(",")
+            data = GMM_structure(txt_file)
 
-            data.set_object(0, data_split[0])
-            data.set_object(1, data_split[1])
-            data.set_object(2, data_split[2])
+            l = line[0].split(',')
+
+            data.set_object(0, l[1])
+            data.set_object(1, l[2])
             try:
-                if data_split[3] == '':
+                if l[3] == '':
                     f1_val = 0.0
                 else:
-                    f1_val = float(data_split[3])
+                    f1_val = float(l[3])
 
-                if data_split[4] == '':
+                if l[4] == '':
                     f2_val = 0.0
                 else:
-                    f2_val = float(data_split[4])
+                    f2_val = float(l[4])
 
-                data.set_object(3, f1_val)
-                data.set_object(4, f2_val)
+                data.set_object(2, f1_val)
+                data.set_object(3, f2_val)
             except:
                 print "Error: ", sys.exc_info()
 
-        all_data.append(deepcopy(data))
+            if l[0] in all_data:
+                # append the new number to the existing array at this slot
+                obj = all_data[l[0]]
+
+                # we use it only for phoneme prediction
+                obj.concat_object(0, data.norm_F1)
+                obj.concat_object(1, data.norm_F2)
+
+                all_data[l[0]] = obj
+            else:
+                # create a new array in this slot
+                all_data[l[0]] = data
     return all_data
 
 
 def create_test_set(test_data):
-    all_vowels = []
-    all_norm_f1 = []
-    all_norm_f2 = []
-
-    for str in test_data:
-        temp_vowels = np.array(str.get_object(0))
-        temp_norm_f1 = np.array(str.get_object(3))
-        temp_norm_f2 = np.array(str.get_object(4))
-
-        all_vowels.extend(temp_vowels)
-        all_norm_f1.extend(temp_norm_f1)
-        all_norm_f2.extend(temp_norm_f2)
-
+    # all_vowels = []
+    # all_norm_f1 = []
+    # all_norm_f2 = []
+    #
+    # for str in test_data:
+    #     temp_vowels = np.array(str.get_object(0))
+    #     temp_norm_f1 = np.array(str.get_object(3))
+    #     temp_norm_f2 = np.array(str.get_object(4))
+    #
+    #     all_vowels.extend(temp_vowels)
+    #     all_norm_f1.extend(temp_norm_f1)
+    #     all_norm_f2.extend(temp_norm_f2)
+    #
     try:
-        X_test = []
-        for f, b in zip(all_norm_f1, all_norm_f2):
-            X_test.append([f,b])
-
-        X_test = np.array(X_test)
-        Y_test = np.vstack(all_vowels)
+    #     X_test = []
+    #     for f, b in zip(all_norm_f1, all_norm_f2):
+    #         X_test.append([f,b])
+    #
+    #     X_test = np.array(X_test)
+    #     Y_test = np.vstack(all_vowels)
+        X_test = test_data.values()
+        Y_test = test_data.keys()
 
         return X_test, Y_test
     except:
