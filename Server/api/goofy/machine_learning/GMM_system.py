@@ -313,7 +313,7 @@ class GMM_prototype:
             fontP.set_size('x-small')
 
             plt.grid('on')
-            lgd = plt.legend(loc='best', ncol=(i + p), prop=fontP)
+            lgd = plt.legend(loc='lower center', ncol=(i + p), prop=fontP)
 
             plt.title('Vowel Predicted - Test accuracy: %.3f' % test_accuracy)
             plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
