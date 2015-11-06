@@ -31,9 +31,9 @@ import cPickle
 import base64
 
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
 
 from sklearn import mixture
-from copy import deepcopy
 
 from prepare_data import GMM_structure
 
@@ -184,19 +184,21 @@ class GMM_prototype:
             n_classes = len(np.unique(Y_train))
             gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='tied', params='mc')
 
-            c = 0
             for val in data.values():
                 f1 = val.get_object(2)
-                f1 = np.vstack(f1)
-                if len(f1) >= n_classes:
-                    gmm_classifier.fit(f1)
-
                 f2 = val.get_object(3)
-                f2 = np.vstack(f2)
-                if len(f2) >= n_classes:
-                    gmm_classifier.fit(f2)
+                data = zip(f1, f2)
+                if len(data) >= n_classes:
+                    gmm_classifier.fit(data)
 
-                c += 1
+                # f1 = np.vstack(f1)
+                # if len(f1) >= n_classes:
+                #     gmm_classifier.fit(f1)
+                #
+                # f2 = val.get_object(3)
+                # f2 = np.vstack(f2)
+                # if len(f2) >= n_classes:
+                #     gmm_classifier.fit(f2)
 
             # save the classifier
             if isFemale:
@@ -239,64 +241,62 @@ class GMM_prototype:
         map_int_label = dict(zip(int_labels, labels))
         map_label_int = dict(zip(labels, int_labels))
 
-        # f1
-        predicted_f1 = []
-        for val in X_test:
-            for f1 in val.norm_F1:
-                gmm_logprob_f1, gmm_resp_f1 = gmm_classifier.score_samples(f1)
-                gmm_res_f1 = sum(gmm_classifier.score(f1))
-                gmm_predict_f1 = gmm_classifier.predict(f1)
-                gmm_predict_proba_f1 = gmm_classifier.predict_proba(f1)
-
-                predicted_f1.append(gmm_predict_f1[0])
-
-        # f2
-        predicted_f2 = []
-        for val in X_test:
-            for f2 in val.norm_F2:
-                gmm_logprob_f2, gmm_resp_f2 = gmm_classifier.score_samples(f2)
-                gmm_res_f2 = sum(gmm_classifier.score(f2))
-                gmm_predict_f2 = gmm_classifier.predict(f2)
-                gmm_predict_proba_f2 = gmm_classifier.predict_proba(f2)
-
-                predicted_f2.append(gmm_predict_f2[0])
-
         try:
             fig = plt.figure()
             ax1 = fig.add_subplot(111)
 
-            predicted_labes = []
-            for pred in predicted_f1:
-                predicted_labes.append(map_int_label[pred])
+            colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+            markers = ['.',',','v','^','>','<','o']
 
-            # Y_test_int = []
-            # for k in Y_test:
-            #     Y_test_int.append(map_label_int[k])
+            predicted_formants = []
+            p = 0
+            for val in X_test:
+                f1 = val.norm_F1
+                f2 = val.norm_F2
+                data = zip(f1, f2)
+
+                gmm_logprob, gmm_resp = gmm_classifier.score_samples(data)
+                gmm_res = sum(gmm_classifier.score(data))
+                gmm_predict = gmm_classifier.predict(data)
+                gmm_predict_proba = gmm_classifier.predict_proba(data)
+
+                predicted_formants.append(gmm_predict.tolist())
+
+                # print the predicted-vowels based on the formants
+                for l in gmm_predict.tolist():
+                    ax1.scatter(f2, f1, s=40, c='r', marker='o', label=r"$ {} $".format(map_int_label[l]))
+                    p += 1
+
+            predicted_labels = []
+            for list in predicted_formants:
+                for l in list:
+                    predicted_labels.append(map_int_label[l])
 
             native_vowels = self.get_native_vowels(sentence)
-            test_accuracy = np.mean(predicted_f1 == np.array(native_vowels)) * 100
-
-            # print the predicted-vowels based on the formants
-            for _s, _x, _y in zip(predicted_labes, predicted_f1, predicted_f2):
-                ax1.scatter(_x, _y, s=400, c='r', marker=r"$ {} $".format(_s))
+            test_accuracy = np.mean(predicted_labels == np.array(native_vowels)) * 100
 
             # predict the native set for that sentence
-            native_f1 = []
-            native_f2 = []
-
+            i = 0
             native_data = dict(zip(Y_train, X_train))
             for n in native_vowels:
                 struct = native_data[n]
-                native_f1.append(struct.get_object(2))
-                native_f2.append(struct.get_object(3))
+                native_f1 = struct.get_object(2)
+                native_f2 = struct.get_object(3)
 
-            for _s, _x, _y in zip(map_label_int, native_f1, native_f2):
-                ax1.scatter(_x, _y, s=400, c='b', marker=r"$ {} $".format(_s))
+                ax1.scatter(native_f2, native_f1, s=40, c=colors[i], marker=markers[i], label=r"$ {} $".format(n))
+                i += 1
 
             plt.xlabel('F2')
             plt.ylabel('F1')
+
+            fontP = FontProperties()
+            fontP.set_size('x-small')
+
+            plt.grid('on')
+            lgd = plt.legend(loc='best', ncol=(i + p), prop=fontP)
+
             plt.title('Vowel Predicted - Test accuracy: %.3f' % test_accuracy)
-            plt.savefig(plot_filename, bbox_inches='tight')
+            plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
 
             with open(plot_filename, "rb") as imageFile:
                 return base64.b64encode(imageFile.read())
