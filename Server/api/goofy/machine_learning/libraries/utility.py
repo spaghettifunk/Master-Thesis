@@ -58,7 +58,7 @@ class Utility:
 
 
 def clean_filename(filename):
-    cleaned_name = filename.replace(".wav", "")
+    cleaned_name = filename.replace(".txt", "")
     if "Jeremy_" in cleaned_name:
         return cleaned_name.replace("Jeremy_", "")
     elif "Lenny_" in cleaned_name:

@@ -35,14 +35,12 @@ from copy import deepcopy
 
 
 class GMM_structure:
-    filename = ""
     stress = []
     words = []
     norm_F1 = []
     norm_F2 = []
 
-    def __init__(self, fn):
-        self.filename = fn
+    def __init__(self):
         self.stress = []
         self.words = []
         self.norm_F1 = []
@@ -164,18 +162,15 @@ def create_test_data(filename):
         reader = csv.reader(tabbed_file, delimiter="\t")
         all_lines = list(reader)
 
-        data = GMM_structure(file)
-
         not_included = 0
         for line in all_lines:
             if not_included <= 2:
                 not_included += 1
                 continue
 
-            data = GMM_structure(txt_file)
-
             l = line[0].split(',')
 
+            data = GMM_structure()
             data.set_object(0, l[1])
             data.set_object(1, l[2])
             try:
@@ -210,26 +205,8 @@ def create_test_data(filename):
 
 
 def create_test_set(test_data):
-    # all_vowels = []
-    # all_norm_f1 = []
-    # all_norm_f2 = []
-    #
-    # for str in test_data:
-    #     temp_vowels = np.array(str.get_object(0))
-    #     temp_norm_f1 = np.array(str.get_object(3))
-    #     temp_norm_f2 = np.array(str.get_object(4))
-    #
-    #     all_vowels.extend(temp_vowels)
-    #     all_norm_f1.extend(temp_norm_f1)
-    #     all_norm_f2.extend(temp_norm_f2)
-    #
+
     try:
-    #     X_test = []
-    #     for f, b in zip(all_norm_f1, all_norm_f2):
-    #         X_test.append([f,b])
-    #
-    #     X_test = np.array(X_test)
-    #     Y_test = np.vstack(all_vowels)
         X_test = test_data.values()
         Y_test = test_data.keys()
 

@@ -183,7 +183,7 @@ def test_pronunciation(request):
 
         data_path = path + '/machine_learning/data/'
         (dirName, fileName) = os.path.split(temp_audiofile)
-        cleaned_name =  data_path + fileName.replace('.wav', '*')
+        cleaned_name = data_path + fileName.replace('.wav', '*')
 
         filelist = glob.glob(cleaned_name)
         for filename in filelist:
