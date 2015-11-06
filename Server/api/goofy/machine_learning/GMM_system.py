@@ -182,17 +182,19 @@ class GMM_prototype:
                 cPickle.dump([X_train, Y_train], fid)
 
             n_classes = len(np.unique(Y_train))
-            gmm_classifier = mixture.GMM(n_components=2, covariance_type='full')
+            gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='tied', params='mc')
 
             c = 0
             for val in data.values():
                 f1 = val.get_object(2)
                 f1 = np.vstack(f1)
-                gmm_classifier.fit(f1)
+                if len(f1) >= n_classes:
+                    gmm_classifier.fit(f1)
 
                 f2 = val.get_object(3)
                 f2 = np.vstack(f2)
-                gmm_classifier.fit(f2)
+                if len(f2) >= n_classes:
+                    gmm_classifier.fit(f2)
 
                 c += 1
 
