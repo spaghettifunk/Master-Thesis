@@ -6,7 +6,7 @@ In the past decade, digital computers have significantly helped \textit{signal p
 \section{Speech signals}
 \label{sec:speech_signals}
 The \textbf{speech} is the human way of communication. The protocol used in communication is based on a syntactic combination of different words taken from a very large vocabulary. Each word in the vocabulary is composed by a small set of vowels and consonants that combined with a phonetic units form a spoken word. \\
-\noindent When a word is pronounced\footnote{\ref{ch:english_language} explains in details how phonemes are pronunced}, a sounds is produced causing the air particles to be excited at a certain vibration rate. The source of our voice is due to the vibration of the vocal cords. The resultant signal is a \textit{non-stationary} but it can be divided in segments since each phoneme has a common acoustic properties. In \ref{fig:ex_sound_wave} is possible to notice how the pronounced words have a different shape as well as when the intensity of the voice is higher/lower during the pronunciation.
+\noindent When a word is pronounced\footnote{\ref{ch:english_language} explains in details how phonemes are pronounced}, a sounds is produced causing the air particles to be excited at a certain vibration rate. The source of our voice is due to the vibration of the vocal cords. The resultant signal is a \textit{non-stationary} but it can be divided in segments since each phoneme has a common acoustic properties. In \ref{fig:ex_sound_wave} is possible to notice how the pronounced words have a different shape as well as when the intensity of the voice is higher/lower during the pronunciation.
  
 \begin{figure}[!ht]
 	\centering
@@ -59,7 +59,7 @@ A \textbf{Spectrogram} is the visual representation of an acoustic signal \cite{
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=0.2]{Figures/sampling_example.png}
-	\caption{Example of signal sampling. The green line represents the constinuous signal whereas the samples are represented by the blu lines \cite{sampling_wiki}}
+	\caption{Example of signal sampling. The green line represents the continuous signal whereas the samples are represented by the blu lines \cite{sampling_wiki}}
 	\label{fig:sampling_ex}
 \end{figure}
 
@@ -80,8 +80,7 @@ To finalize the transformation from a continuous signal to a discrete one, we ne
 x_{q} = x + e{q} \Leftrightarrow e_{q} = x - x_{q}
 \end{equation}
 
-Given the equation above, we can restrict the range of error to $-q/2 ... +q/2$ because we will not make a larger error than the half of the quantization step. From a mathematical point of view, the error-signal is a random signal with an uniform probability distribution between the range of $−q/2 and +q/2$, giving the following \cite{quantization_math
-	}:
+Given the equation above, we can restrict the range of error to $-q/2 ... +q/2$ because we will not make a larger error than the half of the quantization step. From a mathematical point of view, the error-signal is a random signal with an uniform probability distribution between the range of $−q/2 and +q/2$, giving the following \cite{quantization_math}:
 
 \begin{equation}
 p(e) = \begin{Bmatrix}
@@ -94,7 +93,45 @@ Given this reason, the quantization error also called quantization noise.
 
 \subsubsection{Windowing Signals}
 \label{ssubs:windowing_signals}
+Speech sound is a \textbf{non-stationary} signal where its properties (amplitude, frequency and pitch) rapidly change over time \cite{windowing_fi}. Due to the quick changes of those properties, it makes hard to use \textit{autocorrelation} or \textit{Discrete Fourier Transformation}. In \ref{ch:english_language} we highlighted the fact that phonemes have some invariant properties for a small period of time. Having said that, it is possible to apply methods that will take \textit{short windows} (pieces of signal) and process them. This window is also called \textbf{frame}. Typically, the shape of this window is \textit{rectangular} because one of the most used methods are the \textit{Hanning} and \textit{Hamming} in which the window covers the whole amplitude spectrum between a range. In \ref{fig:windowing_ex} there is an example on how the Hamming window is taken from a signal. The rectangle called \textit{Time Record}, is the frame that is extracted and processed by the windowing function. 
 
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=0.5]{Figures/windowing.png}
+	\caption{Hamming window example on a sinusoid signal}
+	\label{fig:windowing_ex}
+\end{figure}
+
+
+\subsubsection{Hann Function}
+\label{ssubs:hann_function}
+This is one of the most used windowing method in signal processing. The function is discrete and it is defined by \ref{eq:discrete_window_function}. The method is a linear combination of the \textit{rectangular function} defined by \ref{eq:rectangular_function}. Starting from the \textit{Euler's formula}, it is possible to inject the rectangular equation as in \ref{eq:euler_formula}. From here, given the properties of the \textit{Fourier Transformation}, the spectrum of the window function is defined as in \ref{eq:spectrum_ft}. Combining the spectrum with \ref{eq:rectangular_function} we obtain \ref{eq:final_hann} in which the signal modulation factor \textit{disappears} when the windows are moved around time $0$.
+
+\begin{equation}
+w(n)= 0.5 \left(1 - \cos \left ( \frac{2 \pi n}{N-1} \right) \right) \label{eq:discrete_window_function}
+\end{equation}
+
+\begin{equation}
+\label{eq:rectangular_function}
+w_r = \mathbf{1}_{[0,N-1]}
+\end{equation}
+
+\begin{equation}
+\label{eq:euler_formula}
+w(n)= \frac{1}{2} \,w_r(n) -\frac{1}{4} e^{\mathrm{i}2\pi \frac{n}{N-1}} w_r(n) - \frac{1}{4}e^{-\mathrm{i}2\pi \frac{n}{N-1}} w_r(n)
+\end{equation}
+
+\begin{equation}
+\label{eq:spectrum_ft}
+\hat{w} (\omega) = \frac{1}{2} \hat{w}_r (\omega) - \frac{1}{4} \hat{w}_r \left(\omega + \frac{2\pi}{N-1}\right) - \frac{1}{4} \hat{w}_r \left(\omega - \frac{2\pi}{N-1}\right) 
+\end{equation}
+
+\begin{equation}
+\label{eq:final_hann}
+\hat{w}_r (\omega) = e^{-\mathrm{i} \omega \frac{N-1}{2}} \frac{\sin(N\omega/2)}{\sin(\omega/2)}
+\end{equation}
+
+The reason why this windowing method is one of the most diffuse is due to the \textit{low aliasing}
 
 \subsubsection{Zero Crossing Rate}
 \label{ssubs:Zero Crossing Rate}
@@ -104,10 +141,10 @@ Given this reason, the quantization error also called quantization noise.
 \label{ssubs:autocorrelation}
 
 
-
 \section{Frequency Domain Analysis}
 \label{sec:freq_domain_analysis}
 
 
 \subsection{The Discrete Fourier Transform}
 \label{sub:discrete_fourier_transform}
+
