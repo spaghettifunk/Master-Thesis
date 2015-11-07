@@ -107,44 +107,72 @@ Speech sound is a \textbf{non-stationary} signal where its properties (amplitude
 \label{ssubs:hann_function}
 This is one of the most used windowing method in signal processing. The function is discrete and it is defined by \ref{eq:discrete_window_function}. The method is a linear combination of the \textit{rectangular function} defined by \ref{eq:rectangular_function}. Starting from the \textit{Euler's formula}, it is possible to inject the rectangular equation as in \ref{eq:euler_formula}. From here, given the properties of the \textit{Fourier Transformation}, the spectrum of the window function is defined as in \ref{eq:spectrum_ft}. Combining the spectrum with \ref{eq:rectangular_function} we obtain \ref{eq:final_hann} in which the signal modulation factor \textit{disappears} when the windows are moved around time $0$.
 
-\begin{equation}
-w(n)= 0.5 \left(1 - \cos \left ( \frac{2 \pi n}{N-1} \right) \right) \label{eq:discrete_window_function}
-\end{equation}
+\begin{subequations}
+\label{eq:hann_function_equations}
+\begin{align}
+w(n) &= 0.5 \left(1 - \cos \left ( \frac{2 \pi n}{N-1} \right) \right) \label{eq:discrete_window_function} \\
+w_r &= \mathbf{1}_{[0,N-1]} \label{eq:rectangular_function} \\
+w(n) &= \frac{1}{2} \,w_r(n) -\frac{1}{4} e^{\mathrm{i}2\pi \frac{n}{N-1}} w_r(n) - \frac{1}{4}e^{-\mathrm{i}2\pi \frac{n}{N-1}} w_r(n) \label{eq:euler_formula} \\
+\hat{w} (\omega) &= \frac{1}{2} \hat{w}_r (\omega) - \frac{1}{4} \hat{w}_r \left(\omega + \frac{2\pi}{N-1}\right) - \frac{1}{4} \hat{w}_r \left(\omega - \frac{2\pi}{N-1}\right) \label{eq:spectrum_ft} \\
+\hat{w}_r (\omega) &= e^{-\mathrm{i} \omega \frac{N-1}{2}} \frac{\sin(N\omega/2)}{\sin(\omega/2)} \label{eq:final_hann}
+\end{align}
+\end{subequations}
 
-\begin{equation}
-\label{eq:rectangular_function}
-w_r = \mathbf{1}_{[0,N-1]}
-\end{equation}
-
-\begin{equation}
-\label{eq:euler_formula}
-w(n)= \frac{1}{2} \,w_r(n) -\frac{1}{4} e^{\mathrm{i}2\pi \frac{n}{N-1}} w_r(n) - \frac{1}{4}e^{-\mathrm{i}2\pi \frac{n}{N-1}} w_r(n)
-\end{equation}
-
-\begin{equation}
-\label{eq:spectrum_ft}
-\hat{w} (\omega) = \frac{1}{2} \hat{w}_r (\omega) - \frac{1}{4} \hat{w}_r \left(\omega + \frac{2\pi}{N-1}\right) - \frac{1}{4} \hat{w}_r \left(\omega - \frac{2\pi}{N-1}\right) 
-\end{equation}
-
-\begin{equation}
-\label{eq:final_hann}
-\hat{w}_r (\omega) = e^{-\mathrm{i} \omega \frac{N-1}{2}} \frac{\sin(N\omega/2)}{\sin(\omega/2)}
-\end{equation}
-
-The reason why this windowing method is one of the most diffuse is due to the \textit{low aliasing}
+\noindent The reason why this windowing method is one of the most diffuse is due to the \textit{low aliasing}
 
 \subsubsection{Zero Crossing Rate}
 \label{ssubs:Zero Crossing Rate}
+Zero crossing is the point of the function where the sign changes from a positive value to a negative one or vice versa. The method of counting the zero crossings is widely used in speech recognition for estimating the \textit{fundamental} frequency of the signal. The zero-crossing rate is the rate of this positive-negative changes. Formally, it is defined as follow:
+
+\begin{equation}
+ZCR = \frac{1}{T-1} \sum_{t=1}^{T-1} \begin{Bmatrix}
+										1  & s_t s_{t-1} < 0 \\ 
+										0 & otherwise
+									 \end{Bmatrix}
+\end{equation}
+
+\noindent where $s$ is the signal of length $T$.
+
+\subsubsection{The Discrete Fourier Transform}
+\label{ssubs:discrete_fourier_transform}
+Before to jump into the definition of the Discrete Fourier Transformation (DFT), we need to introduce the Fourier Transformation (FT) from the mathematical point of view. The FT of a continuous-signal $x(t)$ is defined by the following equation:
+
+\begin{equation}
+X(\omega) = \int_{-\infty}^\infty x(t)e^{-j\omega t} dt, \qquad \omega\in(-\infty,\infty)
+\end{equation}
+
+\noindent The discrete operation allows us to transform the equation above from an infinite space in a finite sum as follows:
+\begin{equation}
+X(\omega_k ) = \sum_{n=0}^{N-1}x(t_n)e^{-j\omega_k t_n}, \qquad k=0,1,2,\ldots,N-1
+\end{equation}
+
+where $x(t_n)$ is the \textit{amplitude} of the signal at time $t_n$ (sampling time). $T$ is the sampling period in which the transformation is applied. $X(\omega_k )$ is the \textit{spectrum} of the complex value $x$ at frequency $\omega_k$. $\Omega$ is the sampling interval defined by the \textit{Nyquist-Shannon} theorem whereas $N$ is the number of samples. \\
+
+\noindent The motivation behind the DFT is that we want to move the signal from the \textit{Time or space domain} to the \textit{Frequency domain}. This allows us to analyze the spectrum in a simpler way. \ref{fig:dft} shows the transformation.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=0.7]{Figures/dft.png}
+	\caption{DFT transformation \cite{dft_matlab}}
+	\label{fig:dft}
+\end{figure}
 
 
-\subsubsection{Autocorrelation}
-\label{ssubs:autocorrelation}
 
 
-\section{Frequency Domain Analysis}
-\label{sec:freq_domain_analysis}
 
 
-\subsection{The Discrete Fourier Transform}
-\label{sub:discrete_fourier_transform}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
