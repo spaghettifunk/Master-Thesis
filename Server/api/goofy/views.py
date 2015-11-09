@@ -205,8 +205,10 @@ def classify_user_audio(audiofile, sentence, gender):
     # FAVE-exctract
     if gender == 'm':
         extract_data(audiofile, True)
+        get_pitch_contour(audiofile, True)
     else:
         extract_data(audiofile, False)
+        get_pitch_contour(audiofile, False)
 
     # Create GMM testing set
     (dirName, fileName) = os.path.split(audiofile)

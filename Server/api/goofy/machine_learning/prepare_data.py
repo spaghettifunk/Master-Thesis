@@ -136,6 +136,34 @@ def extract_data(audio_file, female=False):
         raise
 
 
+def get_pitch_contour(audio_file, isFemale=False):
+    try:
+        path = os.path.dirname(os.path.abspath(__file__))
+        path_script = path + "/libraries/pitch_contour/pitch_contour.praat"
+
+        (dirName, fileName) = os.path.split(audio_file)
+        output_name = fileName.replace(".wav", ".csv")
+        output_folder = path + "/data/" + output_name
+
+        if isFemale:
+            min_pitch = '75'
+        else:
+            min_pitch = '50'
+
+        # see script file for the usage
+        proc = Popen(['/Applications/Praat.app/Contents/MacOS/Praat', path_script, audio_file, output_folder, 'wav', '10', min_pitch, '500', '11025'])
+        proc.wait()
+
+        # do something with the csv file here
+        # TODO: Read user and native csv files
+        # TODO: try to align the two
+        # TODO: scatter the two pitch signals
+        # TODO: save it as bynary array like the other one
+
+    except:
+        print "Error: ", sys.exc_info()
+        raise
+
 def create_test_data(filename):
     path = os.path.dirname(os.path.abspath(__file__))
     path_data = path + "/data/"
