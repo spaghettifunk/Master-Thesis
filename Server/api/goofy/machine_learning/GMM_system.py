@@ -316,7 +316,7 @@ class GMM_prototype:
             lgd = plt.legend(loc='lower center', ncol=(i + p), prop=fontP)
 
             plt.title('Vowel Predicted - Test accuracy: %.3f' % test_accuracy)
-            plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
+            plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight', transparent=True)
 
             with open(plot_filename, "rb") as imageFile:
                 return base64.b64encode(imageFile.read())

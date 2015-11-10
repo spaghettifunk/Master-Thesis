@@ -213,7 +213,7 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
 
         # Save as bynary file
         plot_filename = audio_file.replace('.wav', '_pitch.png')
-        plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
+        plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight', transparent=True)
 
         with open(plot_filename, "rb") as imageFile:
             return base64.b64encode(imageFile.read())
