@@ -5,27 +5,28 @@
 
 form supply_arguments
 	
-	sentence input_directory  /Users/dado/Documents/University/Courses/Master-Thesis/Server/api/goofy/machine_learning/data/native/male
-	sentence output_directory /Users/dado/Documents/University/Courses/Master-Thesis/Server/api/goofy/machine_learning/data/native/male
+	sentence fileName
+	sentence outputFile
     
     sentence type_file wav
 	positive prediction_order 10
-	positive minimum_pitch 50
+	positive minimum_pitch
 	positive maximum_pitch 500
 	positive new_sample_rate 11025
 endform
 
 # finding files we are looking for
-Create Strings as file list... list 'input_directory$'/*.'type_file$'
+# Create Strings as file list... list 'input_directory$'/*.'type_file$'
 # the name of files - later we could track each file
-numberOfFiles = Get number of strings
-for ifile to numberOfFiles
-	select Strings list
-	fileName$ = Get string... ifile
-	Read from file... 'input_directory$'/'fileName$'
-endfor
+#numberOfFiles = Get number of strings
+#for ifile to numberOfFiles
+#	select Strings list
+#	fileName$ = Get string... ifile
+#	Read from file... 'input_directory$'/'fileName$'
+#endfor
 
-select all
+#select all
+Read from file... 'fileName$'
 numSelected = numberOfSelected ("Sound")
 
 # change the name of each file - for batch processing
@@ -122,13 +123,7 @@ for i to numSelected
 		Set numeric value... itime formant2 'f2$' 
 		Set numeric value... itime formant3 'f3$' 
 	endfor
-	select Strings list
-	fileName$ = Get string... i
-	select Table table_word_'i'
-	
-	; Write to text file... 'output_directory$'/'fileName$'.txt
 
-	s$ = replace$ (fileName$, ".wav", "", 1)
-	Save as comma-separated file... 'output_directory$'/'s$'.csv
-	; Write to table file... 'output_directory$'/'fileName$'.xls
+	select Table table_word_'i'
+	Save as comma-separated file... 'outputFile$'
 endfor

@@ -28,11 +28,13 @@ THE SOFTWARE.
 import os
 import csv
 import sys
+import base64
+
 import numpy as np
+import matplotlib.pyplot as plt
 
+from matplotlib.font_manager import FontProperties
 from subprocess import Popen
-from copy import deepcopy
-
 
 class GMM_structure:
     stress = []
@@ -136,30 +138,85 @@ def extract_data(audio_file, female=False):
         raise
 
 
-def get_pitch_contour(audio_file, isFemale=False):
+def get_pitch_contour(audio_file, sentence, isFemale=False):
     try:
         path = os.path.dirname(os.path.abspath(__file__))
-        path_script = path + "/libraries/pitch_contour/pitch_contour.praat"
+        path_script = path + "/libraries/pitch_contour/pitch_intensity_formants.praat"
 
         (dirName, fileName) = os.path.split(audio_file)
         output_name = fileName.replace(".wav", ".csv")
         output_folder = path + "/data/" + output_name
 
+        sentence = sentence.lower()
+        sentence = sentence.replace(' ', '_')
+
         if isFemale:
             min_pitch = '75'
+            native_csv = path + "/data/native/female/" + sentence + ".csv"
         else:
             min_pitch = '50'
+            native_csv = path + "/data/native/male/" + sentence + ".csv"
 
         # see script file for the usage
         proc = Popen(['/Applications/Praat.app/Contents/MacOS/Praat', path_script, audio_file, output_folder, 'wav', '10', min_pitch, '500', '11025'])
         proc.wait()
 
-        # do something with the csv file here
         # TODO: Read user and native csv files
-        # TODO: try to align the two
-        # TODO: scatter the two pitch signals
-        # TODO: save it as bynary array like the other one
+        # native
+        native_pitch = []
+        with open(native_csv, 'r') as native_file:
+            reader = csv.reader(native_file, delimiter=',')
+            all_lines = list(reader)
 
+            for line in all_lines:
+                if line[1] == 'pitch':
+                    continue
+                native_pitch.append(line[1])
+
+        # user
+        user_pitch = []
+        with open(output_folder, 'r') as user_file:
+            reader = csv.reader(user_file, delimiter=',')
+            all_lines = list(reader)
+
+            for line in all_lines:
+                if line[1] == 'pitch':
+                    continue
+                user_pitch.append(line[1])
+
+        # TODO: try to align the two
+        if len(native_pitch) != len(user_pitch):
+            x = 0   # pad here
+
+        # Create scatter image
+        fig = plt.figure()
+        ax1 = fig.add_subplot(111)
+
+        time = []
+        val = 0
+        for i in range(len(native_pitch)):
+            val += 0.1
+            time.append(val)
+
+        ax1.scatter(time, native_pitch, s=100, c='r', marker='+', label='Native Pitch')
+        ax1.scatter(time, user_pitch, s=100, c='b', marker='x', label='User Pitch')
+
+        plt.xlabel('Time (sec)')
+        plt.ylabel('Frequency (Hz)')
+
+        fontP = FontProperties()
+        fontP.set_size('x-small')
+        plt.grid('on')
+
+        lgd = plt.legend(loc='lower center', ncol=2, prop=fontP)
+        plt.title('Stress trend')
+
+        # Save as bynary file
+        plot_filename = audio_file.replace('.wav', '_pitch.png')
+        plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
+
+        with open(plot_filename, "rb") as imageFile:
+            return base64.b64encode(imageFile.read())
     except:
         print "Error: ", sys.exc_info()
         raise

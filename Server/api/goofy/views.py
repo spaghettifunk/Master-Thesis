@@ -172,7 +172,10 @@ def test_pronunciation(request):
 
         # TODO: remove the following line related to sentence becuase I'm still testing the same file
         sentence = "A piece of cake"
-        response['VowelChart'] = classify_user_audio(temp_audiofile, sentence, gender)
+
+        pitch_chart, vowel_chart = classify_user_audio(temp_audiofile, sentence, gender)
+        response['PitchChart'] = pitch_chart
+        response['VowelChart'] = vowel_chart
 
         # clean up everything
         cleaned_name = temp_audiofile.replace('.wav', '*')
@@ -205,10 +208,10 @@ def classify_user_audio(audiofile, sentence, gender):
     # FAVE-exctract
     if gender == 'm':
         extract_data(audiofile, True)
-        get_pitch_contour(audiofile, True)
+        pitch_binary = get_pitch_contour(audiofile, sentence, True)
     else:
         extract_data(audiofile, False)
-        get_pitch_contour(audiofile, False)
+        pitch_binary = get_pitch_contour(audiofile, sentence, False)
 
     # Create GMM testing set
     (dirName, fileName) = os.path.split(audiofile)
@@ -216,10 +219,12 @@ def classify_user_audio(audiofile, sentence, gender):
 
     # Test on GMM and get prediction
     X_test, Y_test = create_test_set(test_data)
-    plot_filename = audiofile.replace('.wav', '.png')
+    plot_filename = audiofile.replace('.wav', '_chart.png')
 
     gmm_obj = GMM_prototype()
     if gender == 'm':
-        return gmm_obj.test_GMM(X_test, Y_test, plot_filename, sentence, False)
+        vowel_binary = gmm_obj.test_GMM(X_test, Y_test, plot_filename, sentence, False)
     else:
-        return gmm_obj.test_GMM(X_test, Y_test, plot_filename, sentence, True)
+        vowel_binary = gmm_obj.test_GMM(X_test, Y_test, plot_filename, sentence, True)
+
+    return pitch_binary, vowel_binary
