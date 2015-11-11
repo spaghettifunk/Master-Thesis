@@ -29,12 +29,11 @@ import os
 import csv
 import sys
 import base64
-
 import numpy as np
 import matplotlib.pyplot as plt
-
 from matplotlib.font_manager import FontProperties
 from subprocess import Popen
+
 
 class GMM_structure:
     stress = []
@@ -104,6 +103,47 @@ def force_alignment(audio_file, sentence):
         raise
 
 
+def extract_phonemes(audio_file):
+    path = os.path.dirname(os.path.abspath(__file__))
+    textgrid_directory = path + "/data"
+
+    (dirName, fileName) = os.path.split(audio_file)
+    output_filename = os.path.join(textgrid_directory, fileName.replace('.wav', '.txt'))
+
+    vowel_stress = []
+    phonemes = []
+    with open(output_filename, 'r') as texgrid_file:
+        reader = csv.reader(texgrid_file, delimiter='\t')
+        all_lines = list(reader)
+
+        i = 0
+        for line in all_lines:
+            if i == 0:
+                i += 1
+                continue
+
+            # vowel, stress
+            vowel = line[12]
+            stress = line[13]
+            vowel_stress.append((vowel, stress))
+
+            # phonemes
+            pre_word_trans = line[39]
+            word_trans = line[40]
+            fol_word_trans = line[41]
+
+            if pre_word_trans != "SP" and pre_word_trans not in phonemes:
+                phonemes.append(pre_word_trans)
+
+            if word_trans != "SP" and word_trans not in phonemes:
+                phonemes.append(word_trans)
+
+            if fol_word_trans != "SP" and fol_word_trans not in phonemes:
+                phonemes.append(fol_word_trans)
+
+    return phonemes, vowel_stress
+
+
 def extract_data(audio_file, female=False):
     # need to change speakerfile for the female gender
     path = os.path.dirname(os.path.abspath(__file__))
@@ -158,7 +198,9 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
             native_csv = path + "/data/native/male/" + sentence + ".csv"
 
         # see script file for the usage
-        proc = Popen(['/Applications/Praat.app/Contents/MacOS/Praat', path_script, audio_file, output_folder, 'wav', '10', min_pitch, '500', '11025'])
+        proc = Popen(
+            ['/Applications/Praat.app/Contents/MacOS/Praat', path_script, audio_file, output_folder, 'wav', '10',
+             min_pitch, '500', '11025'])
         proc.wait()
 
         # TODO: Read user and native csv files
@@ -186,7 +228,7 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
 
         # TODO: try to align the two
         if len(native_pitch) != len(user_pitch):
-            x = 0   # pad here
+            x = 0  # pad here
 
         # Create scatter image
         fig = plt.figure()
@@ -220,6 +262,7 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
     except:
         print "Error: ", sys.exc_info()
         raise
+
 
 def create_test_data(filename):
     path = os.path.dirname(os.path.abspath(__file__))
@@ -290,7 +333,6 @@ def create_test_data(filename):
 
 
 def create_test_set(test_data):
-
     try:
         X_test = test_data.values()
         Y_test = test_data.keys()

@@ -30,11 +30,9 @@ import base64
 import json
 import random
 import glob
-
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from .models import User, GeneralScore
-
 from machine_learning.prepare_data import *
 from machine_learning.GMM_system import GMM_prototype
 
@@ -173,7 +171,9 @@ def test_pronunciation(request):
         # TODO: remove the following line related to sentence becuase I'm still testing the same file
         sentence = "A piece of cake"
 
-        pitch_chart, vowel_chart = classify_user_audio(temp_audiofile, sentence, gender)
+        phonemes, vowel_stress, pitch_chart, vowel_chart = classify_user_audio(temp_audiofile, sentence, gender)
+        response['Phonemes'] = phonemes
+        response['VowelStress'] = vowel_stress
         response['PitchChart'] = pitch_chart
         response['VowelChart'] = vowel_chart
 
@@ -213,6 +213,9 @@ def classify_user_audio(audiofile, sentence, gender):
         extract_data(audiofile, False)
         pitch_binary = get_pitch_contour(audiofile, sentence, False)
 
+    # TODO: extract pronounced phonemes and stress
+    phonemes, vowel_stress = extract_phonemes(audiofile)
+
     # Create GMM testing set
     (dirName, fileName) = os.path.split(audiofile)
     test_data = create_test_data(fileName)
@@ -227,4 +230,4 @@ def classify_user_audio(audiofile, sentence, gender):
     else:
         vowel_binary = gmm_obj.test_GMM(X_test, Y_test, plot_filename, sentence, True)
 
-    return pitch_binary, vowel_binary
+    return phonemes, vowel_stress, pitch_binary, vowel_binary
