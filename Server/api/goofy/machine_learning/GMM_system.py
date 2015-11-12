@@ -31,10 +31,10 @@ import cPickle
 import base64
 
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+
 from matplotlib.font_manager import FontProperties
-
 from sklearn import mixture
-
 from prepare_data import GMM_structure
 from libraries.utility import clean_filename, clean_filename_numbers
 
@@ -306,6 +306,10 @@ class GMM_prototype:
                 duplicate.append(n)
                 i += 1
 
+            # draw ellipses on the scatter graph -> it will get better once
+            # we have the whole trainset
+            self.make_ellipses(gmm_classifier, ax1)
+
             plt.xlabel('F1')
             plt.ylabel('F2')
 
@@ -315,7 +319,7 @@ class GMM_prototype:
             plt.grid('on')
             lgd = plt.legend(loc='lower center', ncol=(i + p), prop=fontP)
 
-            plt.title('Vowel Predicted - Test accuracy: %.3f' % test_accuracy)
+            plt.title('Vowel Predicted') #- Test accuracy: %.3f' % test_accuracy)
             plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight', transparent=True)
 
             with open(plot_filename, "rb") as imageFile:
@@ -323,6 +327,20 @@ class GMM_prototype:
         except:
             print "Error: ", sys.exc_info()
             raise
+
+    def make_ellipses(self, gmm, ax):
+        for n, color in enumerate('rgb'):
+            v, w = np.linalg.eigh(gmm._get_covars()[n][:2, :2])
+            u = w[0] / np.linalg.norm(w[0])
+            angle = np.arctan2(u[1], u[0])
+            angle = 180 * angle / np.pi  # convert to degrees
+            v *= 9
+            ell = mpl.patches.Ellipse(gmm.means_[n, :2], v[0], v[1], 180 + angle)
+            ell.set_edgecolor(color)
+            ell.set_facecolor('none')
+            ell.set_clip_box(ax.bbox)
+            ell.set_alpha(0.5)
+            ax.add_artist(ell)
 
     def models_if_exist(self):
         try:

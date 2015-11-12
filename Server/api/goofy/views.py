@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import base64
 import json
 import random
 import glob
@@ -171,9 +170,10 @@ def test_pronunciation(request):
         # TODO: remove the following line related to sentence becuase I'm still testing the same file
         sentence = "A piece of cake"
 
-        phonemes, vowel_stress, pitch_chart, vowel_chart = classify_user_audio(temp_audiofile, sentence, gender)
+        phonemes, vowel_stress, result_wer, pitch_chart, vowel_chart = classify_user_audio(temp_audiofile, sentence, gender)
         response['Phonemes'] = phonemes
         response['VowelStress'] = vowel_stress
+        response['WER'] = result_wer
         response['PitchChart'] = pitch_chart
         response['VowelChart'] = vowel_chart
 
@@ -213,8 +213,8 @@ def classify_user_audio(audiofile, sentence, gender):
         extract_data(audiofile, False)
         pitch_binary = get_pitch_contour(audiofile, sentence, False)
 
-    # TODO: extract pronounced phonemes and stress
-    phonemes, vowel_stress = extract_phonemes(audiofile)
+    # Exctract pronounced phonemes and vowel stress
+    phonemes, vowel_stress, result_wer = extract_phonemes(audiofile, sentence)
 
     # Create GMM testing set
     (dirName, fileName) = os.path.split(audiofile)
@@ -230,4 +230,4 @@ def classify_user_audio(audiofile, sentence, gender):
     else:
         vowel_binary = gmm_obj.test_GMM(X_test, Y_test, plot_filename, sentence, True)
 
-    return phonemes, vowel_stress, pitch_binary, vowel_binary
+    return phonemes, vowel_stress, result_wer, pitch_binary, vowel_binary
