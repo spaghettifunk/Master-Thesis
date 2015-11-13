@@ -154,7 +154,7 @@ def extract_phonemes(audio_file, sentence):
     test_phonemes = ''.join([i for i in test_phonemes if not i.isdigit()])
     current_native_phonemes = native_phonemes[index]
     wer_result, numCor, numSub, numIns, numDel = wer(current_native_phonemes, test_phonemes)
-    result_wer = "WER: {} - OK: {} - SUB: {} - INS: {} - DEL: {}".format(wer_result, numCor, numSub, numIns, numDel)
+    result_wer = "Word Errod Rate: {}%".format(wer_result)
 
     return phonemes, vowel_stress, result_wer
 
