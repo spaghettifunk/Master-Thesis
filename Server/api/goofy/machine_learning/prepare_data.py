@@ -33,11 +33,10 @@ import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 from subprocess import Popen
 
-
-native_phonemes = ["AH PIYS AHV KEYK", "BLOW AH FYUWZ", "KAECH SAHM ZIYZ","DAWN TAH DHAH WAYER", "IYGER BIYVER",
-                   "FEHR AHND SKWEHR", "GEHT KOWLD FIYT", "MEHLOW AWT", "PUHLIHNG YUHR LEHGZ", "THIHNGKAHNG AWT LAWD" ]
+native_phonemes = ["AH PIYS AHV KEYK", "BLOW AH FYUWZ", "KAECH SAHM ZIYZ", "DAWN TAH DHAH WAYER", "IYGER BIYVER",
+                   "FEHR AHND SKWEHR", "GEHT KOWLD FIYT", "MEHLOW AWT", "PUHLIHNG YUHR LEHGZ", "THIHNGKAHNG AWT LAWD"]
 native_sentences = ["A piece of cake", "Blow a fuse", "Catch some zs", "Down to the wire", "Eager beaver",
-                    "Fair and square", "Get cold feet", "Mellow out", "Pulling your legs", "Thinking out loud" ]
+                    "Fair and square", "Get cold feet", "Mellow out", "Pulling your legs", "Thinking out loud"]
 
 
 class GMM_structure:
@@ -154,7 +153,7 @@ def extract_phonemes(audio_file, sentence):
     test_phonemes = ''.join([i for i in test_phonemes if not i.isdigit()])
     current_native_phonemes = native_phonemes[index]
     wer_result, numCor, numSub, numIns, numDel = wer(current_native_phonemes, test_phonemes)
-    result_wer = "Word Errod Rate: {}%".format(wer_result)
+    result_wer = "Word Errod Rate: {}%".format(wer_result * 100)
 
     return phonemes, vowel_stress, result_wer
 
@@ -337,9 +336,41 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
                     continue
                 user_pitch.append(line[1])
 
-        # TODO: try to align the two
+        # Padding with 0s on the end
         if len(native_pitch) != len(user_pitch):
-            x = 0  # pad here
+            copy_native_pitch = native_pitch
+            index = 0
+            for val in copy_native_pitch:
+                if val == 0 or val == '0':
+                    del native_pitch[index]
+                    index += 1
+                else:
+                    break
+
+            copy_user_pitch = user_pitch
+            index = 0
+            for val in copy_user_pitch:
+                if val == 0 or val == '0':
+                    del user_pitch[index]
+                    index += 1
+                else:
+                    break
+
+            length_native = len(native_pitch)
+            length_user = len(user_pitch)
+            if length_native > length_user:
+                diff = length_native - length_user
+                temp = ['0'] * (diff)
+                user_pitch += temp
+
+            elif length_user > length_native:
+                diff = length_user - length_native
+                temp = ['0'] * (diff)
+                native_pitch += temp
+
+            # append some 0s in the beginning to make a better visualization when plotting
+            native_pitch = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0'] + native_pitch
+            user_pitch = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0'] + user_pitch
 
         # Create scatter image
         fig = plt.figure()
@@ -351,7 +382,7 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
             val += 0.1
             time.append(val)
 
-        #Normalized Data
+        # Normalized Data
         normalized_native = []
         normalized_native_floats = [float(x) for x in native_pitch]
         for val in normalized_native_floats:
@@ -365,8 +396,8 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
             normalized_user.append(dd)
 
         # plot pitch
-        ax1.scatter(time, normalized_native, s=200, c='r', marker='+', label='Native Pitch')
-        ax1.scatter(time, normalized_user, s=200, c='b', marker='x', label='User Pitch')
+        ax1.scatter(time, normalized_native, s=200, c='r', marker='.', label='Native Pitch')
+        ax1.scatter(time, normalized_user, s=200, c='b', marker='.', label='User Pitch')
 
         plt.xlabel('Time (sec)')
         plt.ylabel('Normalized Frequency (Hz)')
