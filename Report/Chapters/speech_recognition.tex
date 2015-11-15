@@ -1,13 +1,17 @@
 \chapter{Speech Recognition}
 \label{chap:Speech Recognition}
+Speech recognition is a sub-field of machine learning in which allows a computer program to extract and recognize words or sentences from a human being language, and converting them back to a machine language. Advance techniques nowadays, permits to understand natural speech for executing tasks. Google Voice Search\footnote{\url{https://www.google.com/search/about/}} and Siri\footnote{\url{http://www.apple.com/ios/siri/}} are two examples of very advance speech recognition softwares with the capability of understanding natural language.
 
 \section{The Problem of Speech Recognition}
 \label{sec:The Problem of Speech Recognition}
+Human languages are very complex and different among each other. Despite they might have a well-structured grammar, automatically recognition is still a very difficult problem since people have many ways to say the same thing. In fact, spoken language is different from written one because the articulation of verbal utterance is less strict and complicated. \\
+The environment in which the sound is taken has a big influence on the speech recognition software because it introduces a \textit{unwanted} amount of information in the signal. For this reason it is important that the system is capable of \textit{identifying} and \textit{filtering out} this surplus of information \cite{forsberg2003speech}. \\
 
-\section{Components}
-\label{sec:Components}
+\noindent Another interesting set of problems are related to the speaker itself. Each person has a different body that means there are a variety of components that the recognition system has to take care of in such a way to be able to understand correctly. Gender, vocal tracts, speaking style, speed of the speech, regional provenience are fundamental parts that have to be taken in consideration when building the \textit{acoustic model} for the system. Despite these features are unique for each person, there some common aspects that will be used to construct the model. The acoustic model represents the relationship between the acoustic signal of the speech and the phonemes related to it. \\
+
+\noindent Ambiguity represents the major concern since natural languages have inherited it. In fact, it may happen that in a sentence we are not able to discriminate which words are actually intended \cite{forsberg2003speech}. In speech recognition there are two types of ambiguity: \textit{homophones} and \textit{word boundary ambiguity}. \\
+Homophones refers to those words that are spelled in a different way but they \textbf{sound} the same. Generally speaking, these words are not correlated to each other but it happened that the sound is equivalent. Word boundary ambiguity instead, it \textit{occurs when there are multiple ways of grouping phones into words}\cite{forsberg2003speech}.
 
 \section{\Naive Bayes and Gaussian models for classification}
 \label{sec:Gaussian Classifiers and Distance Measures}
 
-% here the whole talks about the GMM 
