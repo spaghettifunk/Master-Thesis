@@ -368,10 +368,6 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
                 temp = ['0'] * (diff)
                 native_pitch += temp
 
-            # append some 0s in the beginning to make a better visualization when plotting
-            native_pitch = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0'] + native_pitch
-            user_pitch = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0'] + user_pitch
-
         # Create scatter image
         fig = plt.figure()
         ax1 = fig.add_subplot(111)

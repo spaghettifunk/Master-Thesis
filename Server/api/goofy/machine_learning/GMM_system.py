@@ -248,8 +248,8 @@ class GMM_prototype:
         Y_train = train_dict.keys()
 
         try:
-            fig = plt.figure()
-            ax1 = fig.add_subplot(111)
+            plt.figure(1)
+            plt.subplots_adjust(wspace=0.4, hspace=0.5)
 
             colors = ['b', 'g', 'c', 'm', 'y', 'k']
 
@@ -258,22 +258,21 @@ class GMM_prototype:
 
             predicted_formants = []
             p = 0
+            index = 1
             for val in X_test:
                 f1 = val.norm_F1
                 f2 = val.norm_F2
                 data = zip(f1, f2)
 
-                gmm_logprob, gmm_resp = gmm_classifier.score_samples(data)
-                gmm_res = sum(gmm_classifier.score(data))
                 gmm_predict = gmm_classifier.predict(data)
-                gmm_predict_proba = gmm_classifier.predict_proba(data)
-
                 predicted_formants.append(gmm_predict.tolist())
 
                 # print the predicted-vowels based on the formants
                 for l in gmm_predict.tolist():
-                    ax1.scatter(f1, f2, s=100, c='r', marker=markers_predicted[p], label=r"$ {} $".format(map_int_label[l]))
+                    plt.subplot(2, 2, index)
+                    plt.scatter(f1, f2, s=50, c='r', marker=r"$ {} $".format(map_int_label[l]))
                     p += 1
+                index += 1
 
             predicted_labels = []
             for list in predicted_formants:
@@ -292,6 +291,7 @@ class GMM_prototype:
             i = 0
             duplicate = []
             native_data = dict(zip(Y_train, X_train))
+            index = 1
             for n in native_vowels:
 
                 if n in duplicate:
@@ -302,25 +302,34 @@ class GMM_prototype:
                 native_f1 = struct.get_object(2)
                 native_f2 = struct.get_object(3)
 
-                ax1.scatter(native_f1, native_f2, s=40, c=colors[i], marker=markers_native[i], label=r"$ {} $".format(n))
+                ax = plt.subplot(2, 2, index)
+                ax.scatter(native_f1, native_f2, s=40, c=colors[i], marker=markers_native[i], label=r"$ {} $".format(n))
+                axes = plt.gca()
+                axes.set_xlim([min(native_f1) - 800, max(native_f1) + 800])
+                axes.set_ylim([min(native_f2) - 800, max(native_f2) + 800])
+                ax.set_xlabel('F1')
+                ax.set_ylabel('F2')
+                ax.set_title("Vowel: " + n)
+
+                # ellipse inside graph
+                #self.make_ellipses(ax, native_f1, native_f2)
+
                 duplicate.append(n)
                 i += 1
+                index += 1
 
-            # draw ellipses on the scatter graph -> it will get better once
-            # we have the whole trainset
-            self.make_ellipses(gmm_classifier, ax1)
+            #plt.xlabel('F1')
+            #plt.ylabel('F2')
 
-            plt.xlabel('F1')
-            plt.ylabel('F2')
+            #fontP = FontProperties()
+            #fontP.set_size('x-small')
 
-            fontP = FontProperties()
-            fontP.set_size('x-small')
+            #plt.grid('on')
+            #lgd = plt.legend(loc='lower center', ncol=(i + p), prop=fontP)
 
-            plt.grid('on')
-            lgd = plt.legend(loc='lower center', ncol=(i + p), prop=fontP)
-
-            plt.title('Vowel Predicted') #- Test accuracy: %.3f' % test_accuracy)
-            plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight', transparent=True)
+            #plt.title('Vowel Predicted') #- Test accuracy: %.3f' % test_accuracy)
+            #plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight', transparent=True)
+            plt.savefig(plot_filename, bbox_inches='tight', transparent=True)
 
             with open(plot_filename, "rb") as imageFile:
                 return base64.b64encode(imageFile.read())
@@ -328,19 +337,9 @@ class GMM_prototype:
             print "Error: ", sys.exc_info()
             raise
 
-    def make_ellipses(self, gmm, ax):
-        for n, color in enumerate('rgb'):
-            v, w = np.linalg.eigh(gmm._get_covars()[n][:2, :2])
-            u = w[0] / np.linalg.norm(w[0])
-            angle = np.arctan2(u[1], u[0])
-            angle = 180 * angle / np.pi  # convert to degrees
-            v *= 9
-            ell = mpl.patches.Ellipse(gmm.means_[n, :2], v[0], v[1], 180 + angle)
-            ell.set_edgecolor(color)
-            ell.set_facecolor('none')
-            ell.set_clip_box(ax.bbox)
-            ell.set_alpha(0.5)
-            ax.add_artist(ell)
+    def make_ellipses(self, ax, x, y):
+        ellipse = mpl.patches.Ellipse(xy=(x, y), width=2.0, height=1.0)
+        ax.add_artist(ellipse)
 
     def models_if_exist(self):
         try:

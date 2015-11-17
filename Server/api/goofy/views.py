@@ -168,7 +168,7 @@ def test_pronunciation(request):
         response['Response'] = 'SUCCESS'
 
         # TODO: remove the following line related to sentence becuase I'm still testing the same file
-        # sentence = "A piece of cake"
+        sentence = "A piece of cake"
 
         phonemes, vowel_stress, result_wer, pitch_chart, vowel_chart = classify_user_audio(temp_audiofile, sentence, gender)
         response['Phonemes'] = phonemes
