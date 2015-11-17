@@ -253,8 +253,8 @@ class GMM_prototype:
 
             colors = ['b', 'g', 'c', 'm', 'y', 'k']
 
-            markers_predicted = ['s', 'p', '*', '+', 'd', 'D']
-            markers_native = ['.',',','+','x','_','|']
+            # markers_predicted = ['s', 'p', '*', '+', 'd', 'D']
+            # markers_native = ['.',',','+','x','_','|']
 
             predicted_formants = []
             p = 0
@@ -270,7 +270,7 @@ class GMM_prototype:
                 # print the predicted-vowels based on the formants
                 for l in gmm_predict.tolist():
                     plt.subplot(2, 2, index)
-                    plt.scatter(f1, f2, s=50, c='r', marker=r"$ {} $".format(map_int_label[l]))
+                    plt.scatter(f1, f2, s=80, c='r', marker='+', label=r"$ {} $".format(map_int_label[l]))
                     p += 1
                 index += 1
 
@@ -303,32 +303,27 @@ class GMM_prototype:
                 native_f2 = struct.get_object(3)
 
                 ax = plt.subplot(2, 2, index)
-                ax.scatter(native_f1, native_f2, s=40, c=colors[i], marker=markers_native[i], label=r"$ {} $".format(n))
+                ax.scatter(native_f1, native_f2, s=40, c=colors[i], marker='.', label=r"$ {} $".format(n))
                 axes = plt.gca()
-                axes.set_xlim([min(native_f1) - 800, max(native_f1) + 800])
-                axes.set_ylim([min(native_f2) - 800, max(native_f2) + 800])
+                axes.set_xlim([min(native_f1) - 500, max(native_f1) + 500])
+                axes.set_ylim([min(native_f2) - 500, max(native_f2) + 500])
                 ax.set_xlabel('F1')
                 ax.set_ylabel('F2')
                 ax.set_title("Vowel: " + n)
 
-                # ellipse inside graph
-                #self.make_ellipses(ax, native_f1, native_f2)
+                #fontP = FontProperties()
+                #fontP.set_size('x-small')
 
+                #plt.grid('on')
+                #plt.legend(loc='upper center', ncol=2, prop=fontP)
+
+                # ellipse inside graph
+                self.make_ellipses(ax, native_f1, native_f2)
                 duplicate.append(n)
+
                 i += 1
                 index += 1
 
-            #plt.xlabel('F1')
-            #plt.ylabel('F2')
-
-            #fontP = FontProperties()
-            #fontP.set_size('x-small')
-
-            #plt.grid('on')
-            #lgd = plt.legend(loc='lower center', ncol=(i + p), prop=fontP)
-
-            #plt.title('Vowel Predicted') #- Test accuracy: %.3f' % test_accuracy)
-            #plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight', transparent=True)
             plt.savefig(plot_filename, bbox_inches='tight', transparent=True)
 
             with open(plot_filename, "rb") as imageFile:
@@ -337,8 +332,17 @@ class GMM_prototype:
             print "Error: ", sys.exc_info()
             raise
 
-    def make_ellipses(self, ax, x, y):
-        ellipse = mpl.patches.Ellipse(xy=(x, y), width=2.0, height=1.0)
+    def make_ellipses(self, ax, native_f1, native_f2):
+        x1 = min(native_f1)
+        x2 = max(native_f1)
+        y1 = min(native_f2)
+        y2 = max(native_f2)
+
+        ellipse = mpl.patches.Ellipse(xy=((x2+x1)/2, (y2+y1)/2), width=(x2-x1)*1.4, height=(y2-y1)*1.2)
+        ellipse.set_edgecolor('r')
+        ellipse.set_facecolor('none')
+        ellipse.set_clip_box(ax.bbox)
+        ellipse.set_alpha(0.5)
         ax.add_artist(ellipse)
 
     def models_if_exist(self):
