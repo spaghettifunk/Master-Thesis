@@ -153,7 +153,7 @@ def extract_phonemes(audio_file, sentence):
     test_phonemes = ''.join([i for i in test_phonemes if not i.isdigit()])
     current_native_phonemes = native_phonemes[index]
     wer_result, numCor, numSub, numIns, numDel = wer(current_native_phonemes, test_phonemes)
-    result_wer = "Word Errod Rate: {}%".format(wer_result * 100)
+    result_wer = "Word Error Rate: {}%".format(wer_result * 100)
 
     return phonemes, vowel_stress, result_wer
 
@@ -392,8 +392,8 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
             normalized_user.append(dd)
 
         # plot pitch
-        ax1.scatter(time, normalized_native, s=200, c='r', marker='.', label='Native Pitch')
-        ax1.scatter(time, normalized_user, s=200, c='b', marker='.', label='User Pitch')
+        ax1.scatter(time, normalized_native, s=100, c='r', marker='.', label='Native Pitch')
+        ax1.scatter(time, normalized_user, s=100, c='b', marker='+', label='User Pitch')
 
         plt.xlabel('Time (sec)')
         plt.ylabel('Normalized Frequency (Hz)')
