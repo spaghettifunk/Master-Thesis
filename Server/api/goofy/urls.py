@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^login/', views.login),
     url(r'^register/', views.register),
     url(r'^pronunciation/', views.test_pronunciation),
+    url(r'^history/', views.fetch_history_data),
 ]

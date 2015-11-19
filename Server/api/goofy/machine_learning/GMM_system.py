@@ -29,18 +29,24 @@ import csv
 import numpy as np
 import cPickle
 import base64
-
+import glob
+import scipy.io.wavfile as wav
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-from matplotlib.font_manager import FontProperties
+from libraries.features import mfcc
 from sklearn import mixture
 from prepare_data import GMM_structure
 from libraries.utility import clean_filename, clean_filename_numbers
 
 
 class GMM_prototype:
+
     # region Global variables
+
+    male_audio_files = "train-audio-data/male/"
+    female_audio_files = "train-audio-data/female/"
+
     male_formants_files_directory = 'data/formants_results/male/'
     female_formants_files_directory = 'data/formants_results/female/'
     male_model_name = 'models/gmm_male_model.pkl'
@@ -49,9 +55,74 @@ class GMM_prototype:
     male_trainset_name = '/models/trainset_male.pkl'
     female_trainset_name = '/models/trainset_female.pkl'
 
+    sentence_phonemese_labels = 'data/sentences_phonemes_labels.txt'
+
     native_vowels = '/data/labels.txt'
     native_sentences = '/data/sentences.txt'
+
     # endregion
+
+    def extract_mfcc(self, isFemale=False):
+        X_train = []
+
+        if isFemale is False:
+            directory = self.male_audio_files
+        else:
+            directory = self.female_audio_files
+
+        path = os.path.dirname(os.path.abspath(__file__))
+        directory = os.path.join(path, directory) + "*.wav"
+
+        # Iterate through each .wav file and extract the mfcc
+        for audio_file in glob.glob(directory):
+            (rate, sig) = wav.read(audio_file)
+            mfcc_feat = mfcc(sig, rate)
+
+            X_train.append(mfcc_feat)
+        return np.array(X_train)
+
+    def extract_labels(self):
+        Y_train = []
+
+        path = os.path.dirname(os.path.abspath(__file__))
+        directory = os.path.join(path, self.sentence_phonemese_labels)
+
+        # here I have all the labels - each label is a sentence composed by a set of phonemes
+        for j in range(3):
+            with open(directory) as f:
+                for line in f:  # Ex: line = AH PIYS AHV KEYK
+                    for i in range(4):  # each person said 4 times the same sentence
+                        Y_train.append(line)
+        return np.array(Y_train)
+
+    # Phoneme recognition with GMM, MFCC and PCA
+    def train_phonemes_gmm(self, isFemale=False):
+        # both sets shoudl have the same row shape value
+        X_train = self.extract_mfcc(isFemale)
+        Y_train = self.extract_labels()
+
+        n_classes = 10
+        gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='diag',
+                                     init_params='wmc', min_covar=0.001, n_init=1,
+                                     n_iter=100, params='wmc', random_state=None,
+                                     thresh=None, tol=0.001)
+
+        index = 0
+        for feat in X_train:
+            gmm_classifier.fit(feat, Y_train[index])
+            index += 1
+
+        # testing
+        path = os.path.dirname(os.path.abspath(__file__))
+        audio_file = os.path.join(path, "data/") + "test.wav"
+        (rate, sig) = wav.read(audio_file)
+        mfcc_feat = mfcc(sig, rate)
+
+        predicted = gmm_classifier.predict(mfcc_feat)
+
+        print "Predicted: ", predicted
+        x = 0
+
 
     # Train model with GMM
     def create_structure(self, isFemale=False):
@@ -125,7 +196,7 @@ class GMM_prototype:
                 vowels = curr.keys()
 
                 for key, value in training_data.items():
-                    if key in vowels: # the vowel is present - otherwise mistake
+                    if key in vowels:  # the vowel is present - otherwise mistake
                         old_gmm_struc = curr.get(key)
 
                         old_gmm_struc.concat_object(0, value.norm_F1)
@@ -166,16 +237,18 @@ class GMM_prototype:
         result = dict(zip(sentences, vowels))
         return result[s]
 
-    def train_GMM(self, isFemale=False):
+    def train_gmm(self, isFemale=False):
 
         all_data = self.create_structure(isFemale)
         path = os.path.dirname(os.path.abspath(__file__))
 
         try:
-
             keys = all_data.keys()
             n_classes = len(np.unique(keys))
-            gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='tied', params='mc')
+            gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='diag',
+                                         init_params='wmc', min_covar=0.001, n_init=1,
+                                         n_iter=100, params='wmc', random_state=None,
+                                         thresh=None, tol=0.001)
 
             for data in all_data.values():
                 for val in data.values():
@@ -209,7 +282,7 @@ class GMM_prototype:
             print "Error: ", sys.exc_info()
             raise
 
-    def test_GMM(self, X_test, Y_test, plot_filename, sentence, isFemale=False):
+    def test_gmm(self, X_test, Y_test, plot_filename, sentence, isFemale=False):
 
         path = os.path.dirname(os.path.abspath(__file__))
         path += '/'
@@ -227,7 +300,6 @@ class GMM_prototype:
 
         with open(trainset_name, 'rb') as traindata:
             all_data = cPickle.load(traindata)
-
 
         all_vowels = []
         for key, val in all_data.items():
@@ -248,7 +320,7 @@ class GMM_prototype:
         Y_train = train_dict.keys()
 
         try:
-            plt.figure(1)
+            plt.figure()
             plt.subplots_adjust(wspace=0.4, hspace=0.5)
 
             colors = ['b', 'g', 'c', 'm', 'y', 'k']
@@ -311,11 +383,11 @@ class GMM_prototype:
                 ax.set_ylabel('F2')
                 ax.set_title("Vowel: " + n)
 
-                #fontP = FontProperties()
-                #fontP.set_size('x-small')
+                # fontP = FontProperties()
+                # fontP.set_size('x-small')
 
-                #plt.grid('on')
-                #plt.legend(loc='upper center', ncol=2, prop=fontP)
+                # plt.grid('on')
+                # plt.legend(loc='upper center', ncol=2, prop=fontP)
 
                 # ellipse inside graph
                 self.make_ellipses(ax, native_f1, native_f2)
@@ -338,7 +410,7 @@ class GMM_prototype:
         y1 = min(native_f2)
         y2 = max(native_f2)
 
-        ellipse = mpl.patches.Ellipse(xy=((x2+x1)/2, (y2+y1)/2), width=(x2-x1)*1.4, height=(y2-y1)*1.2)
+        ellipse = mpl.patches.Ellipse(xy=((x2 + x1) / 2, (y2 + y1) / 2), width=(x2 - x1) * 1.4, height=(y2 - y1) * 1.2)
         ellipse.set_edgecolor('r')
         ellipse.set_facecolor('none')
         ellipse.set_clip_box(ax.bbox)

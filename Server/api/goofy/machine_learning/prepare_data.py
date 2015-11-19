@@ -323,7 +323,11 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
             for line in all_lines:
                 if line[1] == 'pitch':
                     continue
-                native_pitch.append(line[1])
+
+                if line[1] == '?':
+                    native_pitch.append('0')
+                else:
+                    native_pitch.append(line[1])
 
         # user
         user_pitch = []
@@ -334,7 +338,10 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
             for line in all_lines:
                 if line[1] == 'pitch':
                     continue
-                user_pitch.append(line[1])
+                if line[1] == '?':
+                    user_pitch.append('0')
+                else:
+                    user_pitch.append(line[1])
 
         # Padding with 0s on the end
         if len(native_pitch) != len(user_pitch):

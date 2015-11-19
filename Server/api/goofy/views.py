@@ -29,16 +29,18 @@ THE SOFTWARE.
 import json
 import random
 import glob
+import datetime
+
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
-from .models import User, GeneralScore
+from .models import User, UserHistory
 from machine_learning.prepare_data import *
 from machine_learning.GMM_system import GMM_prototype
 
 data_directory = "data/"
 
 
-# login process
+# Login prcess
 @api_view(['POST'])
 def login(request):
     try:
@@ -56,7 +58,6 @@ def login(request):
                     response["Gender"] = u.gender
                     response["Nationality"] = u.nationality
                     response["Occupation"] = u.occupation
-                    response["Score"] = get_score(u)
 
                     sentence, phonetic = get_sentence()
                     response["Sentence"] = sentence
@@ -68,18 +69,6 @@ def login(request):
             response["Response"] = "FAILED"
             response["Reason"] = "Something went wrong during the authentication\n Try later"
             return HttpResponse(json.dumps(response))
-    except:
-        print "Error: ", sys.exc_info()
-        raise
-
-
-def get_score(user):
-    try:
-        all_scores = GeneralScore.objects.all()
-        for sc in all_scores:
-            if user.id == sc.id:
-                return sc.total_score
-        return -1
     except:
         print "Error: ", sys.exc_info()
         raise
@@ -104,7 +93,7 @@ def register(request):
             data = dict(json_data)
 
             response = {}
-            all_users = User.objects.all();
+            all_users = User.objects.all()
             username = data['Username']
 
             for u in all_users:
@@ -168,9 +157,15 @@ def test_pronunciation(request):
         response['Response'] = 'SUCCESS'
 
         # TODO: remove the following line related to sentence becuase I'm still testing the same file
-        sentence = "A piece of cake"
+        # sentence = "A piece of cake"
 
         phonemes, vowel_stress, result_wer, pitch_chart, vowel_chart = classify_user_audio(temp_audiofile, sentence, gender)
+
+        # save data here on model
+        user_model = User.objects.filter(username=user['username'])
+        user_history = UserHistory(username=user['username'], sentence=sentence, date=datetime.date.today(), vowels=vowel_chart)
+        user_history.save()
+
         response['Phonemes'] = phonemes
         response['VowelStress'] = vowel_stress
         response['WER'] = result_wer
@@ -193,6 +188,13 @@ def test_pronunciation(request):
             os.remove(filename)
 
         return HttpResponse(json.dumps(response))
+
+    except User.DoesNotExist:
+        print "Error: ", sys.exc_info()
+        response['Response'] = 'FAILED'
+        response['Reason'] = "User not existing in model"
+
+        return HttpResponse(json.dumps(response))
     except:
         print "Error: ", sys.exc_info()
 
@@ -202,6 +204,9 @@ def test_pronunciation(request):
 
 
 def classify_user_audio(audiofile, sentence, gender):
+
+    # Phoneme recognition
+
     # Force Alignment
     force_alignment(audiofile, sentence)
 
@@ -226,8 +231,40 @@ def classify_user_audio(audiofile, sentence, gender):
 
     gmm_obj = GMM_prototype()
     if gender == 'm':
-        vowel_binary = gmm_obj.test_GMM(X_test, Y_test, plot_filename, sentence, False)
+        vowel_binary = gmm_obj.test_gmm(X_test, Y_test, plot_filename, sentence, False)
     else:
-        vowel_binary = gmm_obj.test_GMM(X_test, Y_test, plot_filename, sentence, True)
-
+        vowel_binary = gmm_obj.test_gmm(X_test, Y_test, plot_filename, sentence, True)
     return phonemes, vowel_stress, result_wer, pitch_binary, vowel_binary
+
+
+# History process
+@api_view(['POST'])
+def fetch_history_data(request):
+    try:
+        if request.method == 'POST':
+            json_data = json.loads(request.body)
+            data = dict(json_data)
+
+            response = {}
+            username = data['Username']
+            sentence = data['Sentence']
+
+            vowels_date = []
+            vowels_images = []
+            history_data = UserHistory.objects.all()
+            for history in history_data:
+                if history.username == username and history.sentence == sentence:
+
+                    decoded_str = str(history.vowels).decode('utf-8')
+                    json_image = json.dumps(decoded_str, ensure_ascii=False).decode('utf8')
+                    vowels_images.append(json_image)
+                    vowels_date.append(str(history.date))
+
+            response["Response"] = "SUCCESS"
+            response["VowelsDate"] = vowels_date
+            response["VowelsImages"] = vowels_images
+            return HttpResponse(json.dumps(response))
+
+    except:
+        print "Error: ", sys.exc_info()
+        raise

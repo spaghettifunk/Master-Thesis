@@ -1,8 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import User, UserScore, GeneralScore
+from .models import User, UserHistory
 
 admin.site.register(User)
-admin.site.register(UserScore)
-admin.site.register(GeneralScore)
+admin.site.register(UserHistory)

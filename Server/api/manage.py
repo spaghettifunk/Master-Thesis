@@ -39,12 +39,12 @@ if __name__ == "__main__":
     trainer = GMM_prototype()
 
     if trainer.models_if_exist() is False:
-        trainer.train_GMM(False)
-        trainer.train_GMM(True)
+        trainer.train_gmm(False)
+        trainer.train_gmm(True)
 
-    # CRF model here
-    # trainer_crf = CRF_prototype()
-    # trainer_crf.run()
+    # GMM phonemes model here
+    # trainer.train_phonemes_gmm(False)
+    # trainer.train_phonemes_gmm(True)
 
     from django.core.management import execute_from_command_line
 
