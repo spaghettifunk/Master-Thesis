@@ -123,7 +123,6 @@ class GMM_prototype:
         print "Predicted: ", predicted
         x = 0
 
-
     # Train model with GMM
     def create_structure(self, isFemale=False):
         if isFemale:
