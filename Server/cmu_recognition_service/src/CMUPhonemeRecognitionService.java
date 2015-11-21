@@ -28,17 +28,17 @@ public class CMUPhonemeRecognitionService {
 
         Configuration configuration = new Configuration();
 
-        // Load model from the jar
-        configuration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
+        // Load model from the folder
+        configuration.setAcousticModelPath("model/en-us");
 
         // You can also load model from folder
         // configuration.setAcousticModelPath("file:en-us");
 
-        configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
+        configuration.setDictionaryPath("model/cmudict-en-us.dict");
         Context context = new Context(configuration);
         context.setLocalProperty("decoder->searchManager", "allphoneSearchManager");
         Recognizer recognizer = context.getInstance(Recognizer.class);
-        InputStream stream = CMUPhonemeRecognitionService.class.getResourceAsStream("test.wav");
+        InputStream stream = CMUPhonemeRecognitionService.class.getResourceAsStream("__test.wav");
         stream.skip(44);
 
         // Simple recognition with generic model
@@ -54,8 +54,7 @@ public class CMUPhonemeRecognitionService {
                 System.out.println(r);
             }
 
-            System.out.println("Lattice contains "
-                    + speechResult.getLattice().getNodes().size() + " nodes");
+            System.out.println("Lattice contains " + speechResult.getLattice().getNodes().size() + " nodes");
         }
         recognizer.deallocate();
     }
