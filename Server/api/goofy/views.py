@@ -138,6 +138,7 @@ def test_pronunciation(request):
         data = dict(json_data)
 
         audiofile_string = data['FileAudio']
+        phonemes = data['PredictedPhonemes']
         sentence = data['Sentence']
 
         audiofile_byte = base64.b64decode(audiofile_string)

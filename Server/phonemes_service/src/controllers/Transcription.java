@@ -43,9 +43,9 @@ public class Transcription {
             boolean isDeleted = file.delete();
             assert isDeleted;
 
-            return phonemes.replace("SIL", "");
+            return "{ \"Response\" : \"SUCCESS\", \"Phonemes\" : \"" + phonemes.replace("SIL", "") + "\" }";
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return "{ \"Response\" : \"FAILED\", \"Reason\" : " + e.getMessage() + "\" }";
         }
     }
 
@@ -55,8 +55,8 @@ public class Transcription {
         stream.skip(44);
 
         // Simple recognition with generic model
+        SpeechResult result;
         RecognizerService.recognizer.startRecognition(stream);
-        SpeechResult result = RecognizerService.recognizer.getResult();
 
         // Live adaptation to speaker with speaker profiles
         // Stats class is used to collect speaker-specific data
@@ -85,7 +85,10 @@ public class Transcription {
             SpeechResult speechResult = new SpeechResult(phone_result);
             phonemes = speechResult.getHypothesis();
         }
+
         phone_recognizer.deallocate();
+        RecognizerService.recognizer.stopRecognition();
+
         return phonemes;
     }
 }

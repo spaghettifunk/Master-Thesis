@@ -6,4 +6,4 @@ Created lattice with 7 nodes / 6 arcs from label file
  WARNING [-8232]  ExpandWordNet: Pronunciation 1 of sp is 'tee' word in HVite
  WARNING [-8232]  ExpandWordNet: Pronunciation 1 of sp is 'tee' word in HVite
  WARNING [-8232]  ExpandWordNet: Pronunciation 1 of sp is 'tee' word in HVite
-sp GET sp COLD sp FEET sp  ==  [166 frames] 19.7600 [Ac=3280.2 LM=0.0] (Act=23.9)
+sp BLOW sp A sp FUSE sp  ==  [166 frames] 19.4554 [Ac=3229.6 LM=0.0] (Act=20.5)
