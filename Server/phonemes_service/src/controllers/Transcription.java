@@ -32,14 +32,25 @@ public class Transcription {
             String audioFileString = requestObject.getString("FileAudio");
 
             String filename = "recorded_" + UUID.randomUUID() + ".wav";
+            String editedFilename = "edited_" + filename;
             byte[] decoded = Base64.decodeBase64(audioFileString);
 
+            // recorded file from the user
             File file = new File(filename);
             FileOutputStream os = new FileOutputStream(file);
             os.write(decoded);
             os.close();
 
-            String phonemes = extractPhonemes(file.getAbsolutePath());
+            // TODO: check this part when deploying to VM
+            Runtime runtime = Runtime.getRuntime();
+            String command = "sox -r 8000 -c 1 " + filename + " " + editedFilename;
+            Process soxprocess = runtime.exec(command);
+            soxprocess.waitFor();
+
+            // edited file with sox
+            File editedFile = new File(editedFilename);
+
+            String phonemes = extractPhonemes(editedFile.getAbsolutePath());
             boolean isDeleted = file.delete();
             assert isDeleted;
 
