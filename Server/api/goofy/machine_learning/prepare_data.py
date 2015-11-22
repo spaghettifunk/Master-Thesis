@@ -107,7 +107,7 @@ def force_alignment(audio_file, sentence):
         raise
 
 
-def extract_phonemes(audio_file, sentence):
+def extract_phonemes(audio_file, sentence, predicted_phonemes):
     path = os.path.dirname(os.path.abspath(__file__))
     textgrid_directory = path + "/data"
 
@@ -149,13 +149,25 @@ def extract_phonemes(audio_file, sentence):
                 phonemes.append(fol_word_trans)
 
     index = native_sentences.index(sentence)
-    test_phonemes = (' '.join(x for x in phonemes))
-    test_phonemes = ''.join([i for i in test_phonemes if not i.isdigit()])
+    #test_phonemes = (' '.join(x for x in phonemes))
+    #test_phonemes = ''.join([i for i in test_phonemes if not i.isdigit()])
     current_native_phonemes = native_phonemes[index]
+
+    # do WER with the CMU Sphinx phonemes but keep the old ones for stress
+    test_phonemes = ""
+    cmu_phonemes_list = str(predicted_phonemes).split(' ')
+    sentence_list = current_native_phonemes.split(' ')
+    for s in sentence_list:
+        for cmu in cmu_phonemes_list[:]:
+            if cmu in s:
+                test_phonemes += cmu
+                cmu_phonemes_list.remove(cmu)
+        test_phonemes += " "
+
     wer_result, numCor, numSub, numIns, numDel = wer(current_native_phonemes, test_phonemes)
     result_wer = "Word Error Rate: {}%".format(wer_result * 100)
 
-    return phonemes, vowel_stress, result_wer
+    return test_phonemes.split(' '), vowel_stress, result_wer
 
 
 def wer(ref, hyp, debug=False):

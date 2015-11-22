@@ -160,7 +160,7 @@ def test_pronunciation(request):
         # TODO: remove the following line related to sentence becuase I'm still testing the same file
         # sentence = "A piece of cake"
 
-        phonemes, vowel_stress, result_wer, pitch_chart, vowel_chart = classify_user_audio(temp_audiofile, sentence, gender)
+        phonemes, vowel_stress, result_wer, pitch_chart, vowel_chart = classify_user_audio(temp_audiofile, phonemes, sentence, gender)
 
         # save data here on model
         user_model = User.objects.filter(username=user['username'])
@@ -204,9 +204,7 @@ def test_pronunciation(request):
         return HttpResponse(json.dumps(response))
 
 
-def classify_user_audio(audiofile, sentence, gender):
-
-    # Phoneme recognition
+def classify_user_audio(audiofile, phonemes, sentence, gender):
 
     # Force Alignment
     force_alignment(audiofile, sentence)
@@ -220,7 +218,7 @@ def classify_user_audio(audiofile, sentence, gender):
         pitch_binary = get_pitch_contour(audiofile, sentence, False)
 
     # Exctract pronounced phonemes and vowel stress
-    phonemes, vowel_stress, result_wer = extract_phonemes(audiofile, sentence)
+    phonemes, vowel_stress, result_wer = extract_phonemes(audiofile, sentence, phonemes)
 
     # Create GMM testing set
     (dirName, fileName) = os.path.split(audiofile)

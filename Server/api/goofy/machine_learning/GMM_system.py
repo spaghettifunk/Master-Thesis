@@ -62,67 +62,6 @@ class GMM_prototype:
 
     # endregion
 
-    def extract_mfcc(self, isFemale=False):
-        X_train = []
-
-        if isFemale is False:
-            directory = self.male_audio_files
-        else:
-            directory = self.female_audio_files
-
-        path = os.path.dirname(os.path.abspath(__file__))
-        directory = os.path.join(path, directory) + "*.wav"
-
-        # Iterate through each .wav file and extract the mfcc
-        for audio_file in glob.glob(directory):
-            (rate, sig) = wav.read(audio_file)
-            mfcc_feat = mfcc(sig, rate)
-
-            X_train.append(mfcc_feat)
-        return np.array(X_train)
-
-    def extract_labels(self):
-        Y_train = []
-
-        path = os.path.dirname(os.path.abspath(__file__))
-        directory = os.path.join(path, self.sentence_phonemese_labels)
-
-        # here I have all the labels - each label is a sentence composed by a set of phonemes
-        for j in range(3):
-            with open(directory) as f:
-                for line in f:  # Ex: line = AH PIYS AHV KEYK
-                    for i in range(4):  # each person said 4 times the same sentence
-                        Y_train.append(line)
-        return np.array(Y_train)
-
-    # Phoneme recognition with GMM, MFCC and PCA
-    def train_phonemes_gmm(self, isFemale=False):
-        # both sets shoudl have the same row shape value
-        X_train = self.extract_mfcc(isFemale)
-        Y_train = self.extract_labels()
-
-        n_classes = 10
-        gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='diag',
-                                     init_params='wmc', min_covar=0.001, n_init=1,
-                                     n_iter=100, params='wmc', random_state=None,
-                                     thresh=None, tol=0.001)
-
-        index = 0
-        for feat in X_train:
-            gmm_classifier.fit(feat, Y_train[index])
-            index += 1
-
-        # testing
-        path = os.path.dirname(os.path.abspath(__file__))
-        audio_file = os.path.join(path, "data/") + "test.wav"
-        (rate, sig) = wav.read(audio_file)
-        mfcc_feat = mfcc(sig, rate)
-
-        predicted = gmm_classifier.predict(mfcc_feat)
-
-        print "Predicted: ", predicted
-        x = 0
-
     # Train model with GMM
     def create_structure(self, isFemale=False):
         if isFemale:
@@ -148,15 +87,16 @@ class GMM_prototype:
             training_data = dict()
 
             with open(filename, 'r') as tabbed_file:
-                reader = csv.reader(tabbed_file, delimiter="\t")
+                reader = csv.reader(tabbed_file, delimiter="\n")
                 all_lines = list(reader)
 
                 not_included = 0
-                for l in all_lines:
+                for line in all_lines:
                     if not_included <= 2:
                         not_included += 1
                         continue
 
+                    l = line[0].split('\t')
                     data = GMM_structure()
 
                     data.set_object(0, l[1])
@@ -196,12 +136,14 @@ class GMM_prototype:
 
                 for key, value in training_data.items():
                     if key in vowels:  # the vowel is present - otherwise mistake
-                        old_gmm_struc = curr.get(key)
+                        old_gmm_struct = curr.get(key)
 
-                        old_gmm_struc.concat_object(0, value.norm_F1)
-                        old_gmm_struc.concat_object(1, value.norm_F2)
+                        old_gmm_struct.concat_object(0, value.norm_F1)
+                        old_gmm_struct.concat_object(1, value.norm_F2)
 
-                        curr[key] = old_gmm_struc
+                        curr[key] = old_gmm_struct
+                    else:
+                        curr[key] = value
             else:
                 all_data[cleaned_filename] = training_data
 
@@ -329,6 +271,13 @@ class GMM_prototype:
 
             predicted_formants = []
             p = 0
+
+            # 3 rows when we have 5 vowels
+            if len(X_test) > 4:
+                rows = 3
+            else:
+                rows = 2
+            columns = 2
             index = 1
             for val in X_test:
                 f1 = val.norm_F1
@@ -340,7 +289,7 @@ class GMM_prototype:
 
                 # print the predicted-vowels based on the formants
                 for l in gmm_predict.tolist():
-                    plt.subplot(2, 2, index)
+                    plt.subplot(rows, columns, index)
                     plt.scatter(f1, f2, s=80, c='r', marker='+', label=r"$ {} $".format(map_int_label[l]))
                     p += 1
                 index += 1

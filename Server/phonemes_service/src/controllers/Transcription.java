@@ -51,8 +51,8 @@ public class Transcription {
             File editedFile = new File(editedFilename);
 
             String phonemes = extractPhonemes(editedFile.getAbsolutePath());
-            boolean isDeleted = file.delete();
-            assert isDeleted;
+            file.delete();
+            editedFile.delete();
 
             return "{ \"Response\" : \"SUCCESS\", \"Phonemes\" : \"" + phonemes.replace("SIL", "") + "\" }";
         } catch (Exception e) {
