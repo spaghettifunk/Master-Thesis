@@ -29,12 +29,11 @@ import csv
 import numpy as np
 import cPickle
 import base64
-import glob
-import scipy.io.wavfile as wav
+import datetime
+import math
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-from libraries.features import mfcc
 from sklearn import mixture
 from prepare_data import GMM_structure
 from libraries.utility import clean_filename, clean_filename_numbers
@@ -225,6 +224,7 @@ class GMM_prototype:
 
     def test_gmm(self, X_test, Y_test, plot_filename, sentence, isFemale=False):
 
+        #region LOAD SETS
         path = os.path.dirname(os.path.abspath(__file__))
         path += '/'
 
@@ -259,8 +259,10 @@ class GMM_prototype:
         train_dict = all_data.get(key_sentence)
         X_train = train_dict.values()
         Y_train = train_dict.keys()
+        #endregion
 
         try:
+            #region PLOT PARAMETERS
             plt.figure()
             plt.subplots_adjust(wspace=0.4, hspace=0.5)
 
@@ -270,13 +272,16 @@ class GMM_prototype:
             # markers_native = ['.',',','+','x','_','|']
 
             predicted_formants = []
-            p = 0
+            current_trend_formants_data = dict()
+            #endregion
 
             # 3 rows when we have 5 vowels
             if len(X_test) > 4:
                 rows = 3
             else:
                 rows = 2
+
+            #region PRINT PREDICTED VOWELS
             columns = 2
             index = 1
             for val in X_test:
@@ -285,29 +290,40 @@ class GMM_prototype:
                 data = zip(f1, f2)
 
                 gmm_predict = gmm_classifier.predict(data)
-                predicted_formants.append(gmm_predict.tolist())
+                current_trend_formants_data[index] = data    # save data for trend graph + index of subplot
+
+                gmm_l = gmm_predict.tolist()
+                predicted_formants.append(gmm_l[0])
 
                 # print the predicted-vowels based on the formants
-                for l in gmm_predict.tolist():
-                    plt.subplot(rows, columns, index)
-                    plt.scatter(f1, f2, s=80, c='r', marker='+', label=r"$ {} $".format(map_int_label[l]))
-                    p += 1
+                l = gmm_l[0]    # TODO: investigate on how to have the highest probability only
+                plt.subplot(rows, columns, index)
+                plt.scatter(f1, f2, s=80, c='r', marker='+', label=r"$ {} $".format(map_int_label[l]))
                 index += 1
+            #endregion
 
+            #region STRUCT FOR RETRIEVING THE ACTUAL LABEL
             predicted_labels = []
-            for list in predicted_formants:
-                for l in list:
-                    predicted_labels.append(map_int_label[l])
+            for pf in predicted_formants:
+                predicted_labels.append(map_int_label[pf])
 
             native_vowels = self.get_native_vowels(sentence)
             uniq_predicted_labels = np.unique(predicted_labels)
+            #endregion
 
+            # TODO: saving data for creating trend chart
+            current_trend_data = zip(predicted_labels, current_trend_formants_data)
+
+            #region ACCURACY
             if uniq_predicted_labels.shape != np.array(native_vowels).shape:
                 test_accuracy = 0.0
             else:
                 test_accuracy = np.mean(uniq_predicted_labels == np.array(native_vowels)) * 100
+            #endregion
 
-            # predict the native set for that sentence
+            new_trend_data = []
+
+            #region PRINT NATIVE VOWELS FORMANTS
             i = 0
             duplicate = []
             native_data = dict(zip(Y_train, X_train))
@@ -317,12 +333,23 @@ class GMM_prototype:
                 if n in duplicate:
                     continue
 
+                found = False
+                for pred  in current_trend_data:
+                    if n in pred[0]:
+                        plot_index = pred[1]
+                        predicted_data = current_trend_formants_data[plot_index]
+                        found = True
+
+                if found is False:
+                    plot_index = index
+                    predicted_data = current_trend_formants_data[index]
+
                 struct = native_data[n]
 
                 native_f1 = struct.get_object(2)
                 native_f2 = struct.get_object(3)
 
-                ax = plt.subplot(2, 2, index)
+                ax = plt.subplot(rows, columns, plot_index)
                 ax.scatter(native_f1, native_f2, s=40, c=colors[i], marker='.', label=r"$ {} $".format(n))
                 axes = plt.gca()
                 axes.set_xlim([min(native_f1) - 500, max(native_f1) + 500])
@@ -331,32 +358,42 @@ class GMM_prototype:
                 ax.set_ylabel('F2')
                 ax.set_title("Vowel: " + n)
 
-                # fontP = FontProperties()
-                # fontP.set_size('x-small')
-
-                # plt.grid('on')
-                # plt.legend(loc='upper center', ncol=2, prop=fontP)
-
                 # ellipse inside graph
-                self.make_ellipses(ax, native_f1, native_f2)
+                distance_from_centroid = self.make_ellipses(ax, native_f1, native_f2, predicted_data[0][0], predicted_data[0][1])
+
+                # American date format
+                date_obj = datetime.datetime.utcnow()
+                date_str = date_obj.strftime('%m-%d-%Y')
+
+                new_trend_data.append((current_trend_data[index - 1][0], n, distance_from_centroid, date_str))
+
                 duplicate.append(n)
 
                 i += 1
                 index += 1
+            #endregion
 
             plt.savefig(plot_filename, bbox_inches='tight', transparent=True)
 
             with open(plot_filename, "rb") as imageFile:
-                return base64.b64encode(imageFile.read())
+                return base64.b64encode(imageFile.read()), new_trend_data
         except:
             print "Error: ", sys.exc_info()
             raise
 
-    def make_ellipses(self, ax, native_f1, native_f2):
+    def make_ellipses(self, ax, native_f1, native_f2, predicted_f1, predicted_f2):
         x1 = min(native_f1)
         x2 = max(native_f1)
         y1 = min(native_f2)
         y2 = max(native_f2)
+
+        centroid_x = (x2 + x1) / 2
+        centroid_y = (y2 + y1) / 2
+
+        x_2 = math.pow((centroid_x - predicted_f1), 2)
+        y_2 = math.pow((centroid_y - predicted_f2), 2)
+
+        distance_from_centroid = math.sqrt(x_2 + y_2)
 
         ellipse = mpl.patches.Ellipse(xy=((x2 + x1) / 2, (y2 + y1) / 2), width=(x2 - x1) * 1.4, height=(y2 - y1) * 1.2)
         ellipse.set_edgecolor('r')
@@ -364,6 +401,8 @@ class GMM_prototype:
         ellipse.set_clip_box(ax.bbox)
         ellipse.set_alpha(0.5)
         ax.add_artist(ellipse)
+
+        return distance_from_centroid
 
     def models_if_exist(self):
         try:

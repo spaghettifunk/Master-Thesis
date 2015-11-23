@@ -30,10 +30,10 @@ import json
 import random
 import glob
 import datetime
-
+import matplotlib.dates as dates
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
-from .models import User, UserHistory
+from .models import User, UserHistory, UserSentenceVowelsTrend
 from machine_learning.prepare_data import *
 from machine_learning.GMM_system import GMM_prototype
 
@@ -157,14 +157,14 @@ def test_pronunciation(request):
         gender = user['gender']
         response['Response'] = 'SUCCESS'
 
-        # TODO: remove the following line related to sentence becuase I'm still testing the same file
-        # sentence = "A piece of cake"
-
-        phonemes, vowel_stress, result_wer, pitch_chart, vowel_chart = classify_user_audio(temp_audiofile, phonemes, sentence, gender)
-
+        phonemes, vowel_stress, result_wer, pitch_chart, vowel_chart = classify_user_audio(temp_audiofile,
+                                                                                           phonemes,
+                                                                                           sentence,
+                                                                                           user['username'],
+                                                                                           gender)
         # save data here on model
-        user_model = User.objects.filter(username=user['username'])
-        user_history = UserHistory(username=user['username'], sentence=sentence, chart_id=str(random_hash), date=datetime.date.today(), vowels=vowel_chart)
+        user_history = UserHistory(username=user['username'], sentence=sentence, chart_id=str(random_hash),
+                                   date=datetime.date.today(), vowels=vowel_chart)
         user_history.save()
 
         response['Phonemes'] = phonemes
@@ -204,8 +204,7 @@ def test_pronunciation(request):
         return HttpResponse(json.dumps(response))
 
 
-def classify_user_audio(audiofile, phonemes, sentence, gender):
-
+def classify_user_audio(audiofile, phonemes, sentence, username, gender):
     # Force Alignment
     force_alignment(audiofile, sentence)
 
@@ -230,10 +229,49 @@ def classify_user_audio(audiofile, phonemes, sentence, gender):
 
     gmm_obj = GMM_prototype()
     if gender == 'm':
-        vowel_binary = gmm_obj.test_gmm(X_test, Y_test, plot_filename, sentence, False)
+        vowel_binary, trend_data = gmm_obj.test_gmm(X_test, Y_test, plot_filename, sentence, False)
     else:
-        vowel_binary = gmm_obj.test_gmm(X_test, Y_test, plot_filename, sentence, True)
+        vowel_binary, trend_data = gmm_obj.test_gmm(X_test, Y_test, plot_filename, sentence, True)
+
+    # build trend chart
+    build_trend_chart(username, sentence, trend_data)
+
     return phonemes, vowel_stress, result_wer, pitch_binary, vowel_binary
+
+
+def build_trend_chart(username, sentence, trend_data):
+    try:
+
+        for pred_vowel, actual_vowel, distance, date in trend_data:
+            chart_from_db = UserSentenceVowelsTrend.objects.filter(username=username, sentence=sentence,
+                                                                   vowel=actual_vowel)
+
+            if len(chart_from_db) == 0:
+                # insert new data
+                random_hash = random.getrandbits(128)
+                value_tuple = [(pred_vowel, actual_vowel, distance, date)]
+                trend_values_json = json.dumps(value_tuple)
+                new_data_db = UserSentenceVowelsTrend(username=username,
+                                                      sentence=sentence,
+                                                      vowel=actual_vowel,
+                                                      trend_values=trend_values_json,
+                                                      trend=None)
+                new_data_db.save()
+            else:
+                # update values
+                old_trend_data_json = chart_from_db.get().trend_values
+                old_trend_data = json.loads(old_trend_data_json)
+                value_tuple = [pred_vowel, actual_vowel, distance, date]
+                old_trend_data.append(value_tuple)
+
+                chart_from_db.update(trend_values=json.dumps(old_trend_data))
+
+                for item in chart_from_db:
+                    item.save()
+
+    except:
+        print "Error: ", sys.exc_info()
+        raise
 
 
 # History process
@@ -247,25 +285,72 @@ def fetch_history_data(request):
             response = {}
             username = data['Username']
             sentence = data['Sentence']
+            vowels = data['Vowels']
 
-            chart_ids = []
-            vowels_date = []
-            vowels_images = []
+            # region History
+            history_chart_ids = []
+            history_vowels_date = []
+            history_vowels_images = []
             history_data = UserHistory.objects.all()
             for history in history_data:
                 if history.username == username and history.sentence == sentence:
-
-                    chart_ids.append(history.chart_id)
+                    history_chart_ids.append(history.chart_id)
 
                     decoded_str = str(history.vowels).decode('utf-8')
                     json_image = json.dumps(decoded_str, ensure_ascii=False).decode('utf8')
-                    vowels_images.append(json_image)
-                    vowels_date.append(str(history.date))
+                    history_vowels_images.append(json_image)
+                    history_vowels_date.append(str(history.date))
+            # endregion
+
+            path = os.path.dirname(os.path.abspath(__file__))
+            audio_path = path + "/audio/"
+
+            # region Trend
+            trend_images = []
+            trend_data = UserSentenceVowelsTrend.objects.filter(username=username, sentence=sentence)
+            trend_plot_filename = audio_path + sentence.replace(' ', '_') + "_" + str(random.getrandbits(128)) + ".png"
+            vowels = vowels.replace(' ', '')
+            native_vowels = vowels.split(',')
+
+            for trend in trend_data:
+                if trend.vowel in native_vowels:
+                    # build the graph here
+                    index = 0
+
+                    plt.figure()
+                    x_axis = []
+                    y_axis = []
+                    x_values_str = []
+                    for data in json.loads(trend.trend_values):
+                        date_obj = datetime.datetime.strptime(str(data[3]), '%m-%d-%Y')
+                        x_axis.append(dates.date2num(date_obj))
+                        y_axis.append(str(data[2]))
+                        x_values_str.append(str(data[3]))
+
+                    plt.xticks(x_axis, x_values_str, rotation=90)
+                    plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D', color='g')
+                    plt.title("Vowel: " + trend.vowel)
+
+                    plt.savefig(trend_plot_filename, bbox_inches='tight', transparent=True)
+                    with open(trend_plot_filename, "rb") as imageFile:
+                        trend_pic = base64.b64encode(imageFile.read())
+
+                        json_image = json.dumps(trend_pic)
+                        trend_images.append(json_image)
+
+                    index += 1
+            # endregion
 
             response["Response"] = "SUCCESS"
-            response["ChartId"] = chart_ids
-            response["VowelsDate"] = vowels_date
-            response["VowelsImages"] = vowels_images
+            response["ChartId"] = history_chart_ids
+            response["VowelsDate"] = history_vowels_date
+            response["VowelsImages"] = history_vowels_images
+
+            response["TrendImages"] = trend_images
+
+            # clean things up
+            os.remove(trend_plot_filename)
+
             return HttpResponse(json.dumps(response))
 
     except:
