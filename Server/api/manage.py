@@ -29,7 +29,6 @@ import os
 import sys
 
 from goofy.machine_learning.GMM_system import GMM_prototype
-#from goofy.machine_learning.CRF_system import CRF_prototype
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "api.settings")
@@ -41,10 +40,6 @@ if __name__ == "__main__":
     if trainer.models_if_exist() is False:
         trainer.train_gmm(False)
         trainer.train_gmm(True)
-
-    # GMM phonemes model here
-    # trainer.train_phonemes_gmm(False)
-    # trainer.train_phonemes_gmm(True)
 
     from django.core.management import execute_from_command_line
 

@@ -25,24 +25,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import logbook
+from github import Github
+
 
 class Logger:
-    path_logfile = "Log/debug.txt"
 
-    # initializa a static logger
-    logger = logbook.Logger('*** Server Log ***')
-    log = logbook.FileHandler(path_logfile)
-    log.push_application()
+    def __init__(self):
+        self.git_account = Github("davideberdin", "sardegna21")
 
-    def LogInfo(self, message):
-        self.logger.info(message)
+        repositories = self.git_account.get_user().get_repos()
+        for rep in repositories:
+            if rep._name.value == "Master-Thesis":
+                self.repository = rep
+                break
 
-    def LogWarning(self, message):
-        self.logger.warning(message)
-
-    def LogError(self, message):
-        self.logger.error(message)
-
-    def LogCritical(self, message):
-        self.logger.critical(message)
+    def LogError(self, title, message):
+        self.repository.create_issue(title=title, body=message, labels=["bug"])
