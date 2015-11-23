@@ -164,7 +164,7 @@ def test_pronunciation(request):
 
         # save data here on model
         user_model = User.objects.filter(username=user['username'])
-        user_history = UserHistory(username=user['username'], sentence=sentence, date=datetime.date.today(), vowels=vowel_chart)
+        user_history = UserHistory(username=user['username'], sentence=sentence, chart_id=str(random_hash), date=datetime.date.today(), vowels=vowel_chart)
         user_history.save()
 
         response['Phonemes'] = phonemes
@@ -248,11 +248,14 @@ def fetch_history_data(request):
             username = data['Username']
             sentence = data['Sentence']
 
+            chart_ids = []
             vowels_date = []
             vowels_images = []
             history_data = UserHistory.objects.all()
             for history in history_data:
                 if history.username == username and history.sentence == sentence:
+
+                    chart_ids.append(history.chart_id)
 
                     decoded_str = str(history.vowels).decode('utf-8')
                     json_image = json.dumps(decoded_str, ensure_ascii=False).decode('utf8')
@@ -260,6 +263,7 @@ def fetch_history_data(request):
                     vowels_date.append(str(history.date))
 
             response["Response"] = "SUCCESS"
+            response["ChartId"] = chart_ids
             response["VowelsDate"] = vowels_date
             response["VowelsImages"] = vowels_images
             return HttpResponse(json.dumps(response))

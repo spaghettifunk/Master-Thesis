@@ -7,4 +7,4 @@ Created lattice with 9 nodes / 8 arcs from label file
  WARNING [-8232]  ExpandWordNet: Pronunciation 1 of sp is 'tee' word in HVite
  WARNING [-8232]  ExpandWordNet: Pronunciation 1 of sp is 'tee' word in HVite
  WARNING [-8232]  ExpandWordNet: Pronunciation 1 of sp is 'tee' word in HVite
-sp DOWN sp TO sp THE sp WIRE sp  ==  [166 frames] 20.1407 [Ac=3343.4 LM=0.0] (Act=37.2)
+sp A sp PIECE sp OF sp CAKE sp  ==  [166 frames] 23.1086 [Ac=3836.0 LM=0.0] (Act=27.0)

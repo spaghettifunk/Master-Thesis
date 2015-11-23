@@ -16,6 +16,7 @@ class User(models.Model):
 class UserHistory(models.Model):
     username = models.CharField(max_length=50, null=False, blank=False)
     sentence = models.CharField(max_length=100, null=False, blank=False)
+    chart_id = models.CharField(max_length=50, null=False, blank=False)
     date = models.DateField()
     vowels = models.BinaryField(null=False, blank=False)
 
