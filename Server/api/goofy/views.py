@@ -69,8 +69,11 @@ def login(request):
             response["Response"] = "FAILED"
             response["Reason"] = "Something went wrong during the authentication\n Try later"
             return HttpResponse(json.dumps(response))
-    except:
-        print "Error: ", sys.exc_info()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
         raise
 
 
@@ -118,8 +121,11 @@ def register(request):
             response["Phonetic"] = phonetic
 
             return HttpResponse(json.dumps(response))
-    except:
-        print "Error: ", sys.exc_info()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
         raise
 
 
@@ -248,7 +254,6 @@ def build_trend_chart(username, sentence, trend_data):
 
             if len(chart_from_db) == 0:
                 # insert new data
-                random_hash = random.getrandbits(128)
                 value_tuple = [(pred_vowel, actual_vowel, distance, date)]
                 trend_values_json = json.dumps(value_tuple)
                 new_data_db = UserSentenceVowelsTrend(username=username,
@@ -269,8 +274,10 @@ def build_trend_chart(username, sentence, trend_data):
                 for item in chart_from_db:
                     item.save()
 
-    except:
-        print "Error: ", sys.exc_info()
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
         raise
 
 
@@ -322,12 +329,12 @@ def fetch_history_data(request):
                     y_axis = []
                     x_values_str = []
                     for data in json.loads(trend.trend_values):
-                        date_obj = datetime.datetime.strptime(str(data[3]), '%m-%d-%Y')
+                        date_obj = datetime.datetime.strptime(str(data[3]), '%m-%d-%Y %H:%M')
                         x_axis.append(dates.date2num(date_obj))
                         y_axis.append(str(data[2]))
                         x_values_str.append(str(data[3]))
 
-                    plt.xticks(x_axis, x_values_str, rotation=90)
+                    plt.xticks(x_axis, x_values_str, rotation=45)
                     plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D', color='g')
                     plt.title("Vowel: " + trend.vowel)
 
@@ -353,6 +360,8 @@ def fetch_history_data(request):
 
             return HttpResponse(json.dumps(response))
 
-    except:
-        print "Error: ", sys.exc_info()
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
         raise

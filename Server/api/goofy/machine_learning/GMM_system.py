@@ -63,119 +63,131 @@ class GMM_prototype:
 
     # Train model with GMM
     def create_structure(self, isFemale=False):
-        if isFemale:
-            self.formants_files_directory = self.female_formants_files_directory
-        else:
-            self.formants_files_directory = self.female_formants_files_directory
-
-        all_data = dict()
-
-        path = os.path.dirname(os.path.abspath(__file__))
-        formants_files = os.path.join(path, self.formants_files_directory)
-        os.chdir(formants_files)
-
-        for filename in os.listdir("."):
-
-            if ".DS_Store" in filename or "_norm" not in filename:
-                continue
-
-            cleaned_filename = clean_filename(filename)
-            cleaned_filename = clean_filename_numbers(cleaned_filename)
-            cleaned_filename = cleaned_filename.replace('_norm', '')
-
-            training_data = dict()
-
-            with open(filename, 'r') as tabbed_file:
-                reader = csv.reader(tabbed_file, delimiter="\n")
-                all_lines = list(reader)
-
-                not_included = 0
-                for line in all_lines:
-                    if not_included <= 2:
-                        not_included += 1
-                        continue
-
-                    l = line[0].split('\t')
-                    data = GMM_structure()
-
-                    data.set_object(0, l[1])
-                    data.set_object(1, l[2])
-                    try:
-                        if l[3] == '':
-                            f1_val = 0.0
-                        else:
-                            f1_val = float(l[3])
-
-                        if l[4] == '':
-                            f2_val = 0.0
-                        else:
-                            f2_val = float(l[4])
-
-                        data.set_object(2, f1_val)
-                        data.set_object(3, f2_val)
-                    except:
-                        print "Error: ", sys.exc_info()
-
-                    if l[0] in training_data:
-                        # append the new number to the existing array at this slot
-                        obj = training_data.get(l[0])
-
-                        # we use it only for phoneme prediction
-                        obj.concat_object(0, data.norm_F1)
-                        obj.concat_object(1, data.norm_F2)
-
-                        training_data[l[0]] = obj
-                    else:
-                        # create a new array in this slot
-                        training_data[l[0]] = data
-
-            if cleaned_filename in all_data:
-                curr = all_data.get(cleaned_filename)
-                vowels = curr.keys()
-
-                for key, value in training_data.items():
-                    if key in vowels:  # the vowel is present - otherwise mistake
-                        old_gmm_struct = curr.get(key)
-
-                        old_gmm_struct.concat_object(0, value.norm_F1)
-                        old_gmm_struct.concat_object(1, value.norm_F2)
-
-                        curr[key] = old_gmm_struct
-                    else:
-                        curr[key] = value
+        try:
+            if isFemale:
+                self.formants_files_directory = self.female_formants_files_directory
             else:
-                all_data[cleaned_filename] = training_data
+                self.formants_files_directory = self.female_formants_files_directory
 
-        return all_data
+            all_data = dict()
+
+            path = os.path.dirname(os.path.abspath(__file__))
+            formants_files = os.path.join(path, self.formants_files_directory)
+            os.chdir(formants_files)
+
+            for filename in os.listdir("."):
+
+                if ".DS_Store" in filename or "_norm" not in filename:
+                    continue
+
+                cleaned_filename = clean_filename(filename)
+                cleaned_filename = clean_filename_numbers(cleaned_filename)
+                cleaned_filename = cleaned_filename.replace('_norm', '')
+
+                training_data = dict()
+
+                with open(filename, 'r') as tabbed_file:
+                    reader = csv.reader(tabbed_file, delimiter="\n")
+                    all_lines = list(reader)
+
+                    not_included = 0
+                    for line in all_lines:
+                        if not_included <= 2:
+                            not_included += 1
+                            continue
+
+                        l = line[0].split('\t')
+                        data = GMM_structure()
+
+                        data.set_object(0, l[1])
+                        data.set_object(1, l[2])
+                        try:
+                            if l[3] == '':
+                                f1_val = 0.0
+                            else:
+                                f1_val = float(l[3])
+
+                            if l[4] == '':
+                                f2_val = 0.0
+                            else:
+                                f2_val = float(l[4])
+
+                            data.set_object(2, f1_val)
+                            data.set_object(3, f2_val)
+                        except:
+                            print "Error: ", sys.exc_info()
+
+                        if l[0] in training_data:
+                            # append the new number to the existing array at this slot
+                            obj = training_data.get(l[0])
+
+                            # we use it only for phoneme prediction
+                            obj.concat_object(0, data.norm_F1)
+                            obj.concat_object(1, data.norm_F2)
+
+                            training_data[l[0]] = obj
+                        else:
+                            # create a new array in this slot
+                            training_data[l[0]] = data
+
+                if cleaned_filename in all_data:
+                    curr = all_data.get(cleaned_filename)
+                    vowels = curr.keys()
+
+                    for key, value in training_data.items():
+                        if key in vowels:  # the vowel is present - otherwise mistake
+                            old_gmm_struct = curr.get(key)
+
+                            old_gmm_struct.concat_object(0, value.norm_F1)
+                            old_gmm_struct.concat_object(1, value.norm_F2)
+
+                            curr[key] = old_gmm_struct
+                        else:
+                            curr[key] = value
+                else:
+                    all_data[cleaned_filename] = training_data
+
+            return all_data
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            raise
 
     def get_native_vowels(self, sentence):
 
-        path = os.path.dirname(os.path.abspath(__file__))
-        label_path = path + self.native_vowels
-        sentences_path = path + self.native_sentences
+        try:
+            path = os.path.dirname(os.path.abspath(__file__))
+            label_path = path + self.native_vowels
+            sentences_path = path + self.native_sentences
 
-        s = sentence.lower()
+            s = sentence.lower()
 
-        vowels = []
-        with open(label_path, 'rb') as vowels_file:
-            reader = csv.reader(vowels_file, delimiter='\n')
-            all_lines = list(reader)
+            vowels = []
+            with open(label_path, 'rb') as vowels_file:
+                reader = csv.reader(vowels_file, delimiter='\n')
+                all_lines = list(reader)
 
-            for line in all_lines:
-                l = line[0].split(' ')
-                vowels.append(l)
+                for line in all_lines:
+                    l = line[0].split(' ')
+                    vowels.append(l)
 
-        sentences = []
-        with open(sentences_path, 'rb') as sentences_file:
-            reader = csv.reader(sentences_file, delimiter='\n')
-            all_lines = list(reader)
+            sentences = []
+            with open(sentences_path, 'rb') as sentences_file:
+                reader = csv.reader(sentences_file, delimiter='\n')
+                all_lines = list(reader)
 
-            for line in all_lines:
-                sen = line[0]
-                sentences.append(sen)
+                for line in all_lines:
+                    sen = line[0]
+                    sentences.append(sen)
 
-        result = dict(zip(sentences, vowels))
-        return result[s]
+            result = dict(zip(sentences, vowels))
+            return result[s]
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            raise
 
     def train_gmm(self, isFemale=False):
 
@@ -218,8 +230,10 @@ class GMM_prototype:
             with open(model_directory, 'wb') as fid:
                 cPickle.dump(gmm_classifier, fid)
 
-        except:
-            print "Error: ", sys.exc_info()
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             raise
 
     def test_gmm(self, X_test, Y_test, plot_filename, sentence, isFemale=False):
@@ -363,7 +377,7 @@ class GMM_prototype:
 
                 # American date format
                 date_obj = datetime.datetime.utcnow()
-                date_str = date_obj.strftime('%m-%d-%Y')
+                date_str = date_obj.strftime('%m-%d-%Y %H:%M')
 
                 new_trend_data.append((current_trend_data[index - 1][0], n, distance_from_centroid, date_str))
 
@@ -377,32 +391,41 @@ class GMM_prototype:
 
             with open(plot_filename, "rb") as imageFile:
                 return base64.b64encode(imageFile.read()), new_trend_data
-        except:
-            print "Error: ", sys.exc_info()
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             raise
 
     def make_ellipses(self, ax, native_f1, native_f2, predicted_f1, predicted_f2):
-        x1 = min(native_f1)
-        x2 = max(native_f1)
-        y1 = min(native_f2)
-        y2 = max(native_f2)
+        try:
+            x1 = min(native_f1)
+            x2 = max(native_f1)
+            y1 = min(native_f2)
+            y2 = max(native_f2)
 
-        centroid_x = (x2 + x1) / 2
-        centroid_y = (y2 + y1) / 2
+            centroid_x = (x2 + x1) / 2
+            centroid_y = (y2 + y1) / 2
 
-        x_2 = math.pow((centroid_x - predicted_f1), 2)
-        y_2 = math.pow((centroid_y - predicted_f2), 2)
+            x_2 = math.pow((centroid_x - predicted_f1), 2)
+            y_2 = math.pow((centroid_y - predicted_f2), 2)
 
-        distance_from_centroid = math.sqrt(x_2 + y_2)
+            distance_from_centroid = math.sqrt(x_2 + y_2)
 
-        ellipse = mpl.patches.Ellipse(xy=((x2 + x1) / 2, (y2 + y1) / 2), width=(x2 - x1) * 1.4, height=(y2 - y1) * 1.2)
-        ellipse.set_edgecolor('r')
-        ellipse.set_facecolor('none')
-        ellipse.set_clip_box(ax.bbox)
-        ellipse.set_alpha(0.5)
-        ax.add_artist(ellipse)
+            ellipse = mpl.patches.Ellipse(xy=((x2 + x1) / 2, (y2 + y1) / 2), width=(x2 - x1) * 1.4, height=(y2 - y1) * 1.2)
+            ellipse.set_edgecolor('r')
+            ellipse.set_facecolor('none')
+            ellipse.set_clip_box(ax.bbox)
+            ellipse.set_alpha(0.5)
+            ax.add_artist(ellipse)
 
-        return distance_from_centroid
+            return distance_from_centroid
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            raise
 
     def models_if_exist(self):
         try:
@@ -415,5 +438,8 @@ class GMM_prototype:
             exist_male = os.path.exists(male_model)
 
             return (exist_female and exist_male)
-        except:
-            return False
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            raise
