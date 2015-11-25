@@ -32,4 +32,5 @@ urlpatterns = [
     url(r'^register/', views.register),
     url(r'^pronunciation/', views.test_pronunciation),
     url(r'^history/', views.fetch_history_data),
+    url(r'^report/', views.save_report),
 ]

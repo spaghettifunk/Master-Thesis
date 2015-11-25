@@ -30,17 +30,20 @@ import json
 import random
 import glob
 import datetime
+
 import matplotlib.dates as dates
+
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
-from .models import User, UserHistory, UserSentenceVowelsTrend
 from machine_learning.prepare_data import *
 from machine_learning.GMM_system import GMM_prototype
+
+from .models import User, UserHistory, UserSentenceVowelsTrend, UserReport
 
 data_directory = "data/"
 
 
-# Login prcess
+# Login process
 @api_view(['POST'])
 def login(request):
     try:
@@ -335,7 +338,8 @@ def fetch_history_data(request):
                         x_values_str.append(str(data[3]))
 
                     plt.xticks(x_axis, x_values_str, rotation=45)
-                    plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D', color='g')
+                    plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D',
+                                  color='g')
                     plt.title("Vowel: " + trend.vowel)
 
                     plt.savefig(trend_plot_filename, bbox_inches='tight', transparent=True)
@@ -357,6 +361,37 @@ def fetch_history_data(request):
 
             # clean things up
             os.remove(trend_plot_filename)
+
+            return HttpResponse(json.dumps(response))
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        raise
+
+
+# Report process
+@api_view(['POST'])
+def save_report(request):
+    try:
+        if request.method == 'POST':
+            json_data = json.loads(request.body)
+            data = dict(json_data)
+
+            username = data['Username']
+            report = data['Report']
+
+            user_report = UserReport.objects.filter(username=username)
+            if len(user_report) == 0:
+                u = UserReport(username=username, report_values=report)
+                u.save()
+            else:
+                user_report.update(report_values=json.dumps(report))
+                for item in user_report:
+                    item.save()
+
+            response = {"Response": "SUCCESS", "Result": "OK"}
 
             return HttpResponse(json.dumps(response))
 

@@ -23,6 +23,7 @@ class UserHistory(models.Model):
     def __str__(self):
         return self.sentence
 
+
 class UserSentenceVowelsTrend(models.Model):
     username = models.CharField(max_length=50, null=False, blank=False)
     sentence = models.CharField(max_length=100, null=False, blank=False)
@@ -32,3 +33,11 @@ class UserSentenceVowelsTrend(models.Model):
 
     def __str__(self):
         return self.sentence
+
+
+class UserReport(models.Model):
+    username = models.CharField(max_length=50, null=False, blank=False)
+    report_values = models.TextField(null=False, blank=False)
+
+    def __str__(self):
+        return self.username
