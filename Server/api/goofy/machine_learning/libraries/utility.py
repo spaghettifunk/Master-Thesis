@@ -1,3 +1,5 @@
+__author__ = 'davideberdin'
+
 """
 The MIT License
 
