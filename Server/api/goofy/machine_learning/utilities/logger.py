@@ -39,5 +39,5 @@ class Logger:
                 self.repository = rep
                 break
 
-    def LogError(self, title, message):
+    def log_error(self, title, message):
         self.repository.create_issue(title=title, body=message, labels=["bug"])

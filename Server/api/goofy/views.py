@@ -26,18 +26,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import json
-import random
-import glob
 import datetime
+import glob
+import random
 
 import matplotlib.dates as dates
-
-from django.http import HttpResponse
 from rest_framework.decorators import api_view
-from machine_learning.prepare_data import *
-from machine_learning.GMM_system import GMM_prototype
 
+from api.goofy.machine_learning.utilities.logger import Logger
+from machine_learning.GMM_system import GMM_prototype
+from machine_learning.prepare_data import *
 from .models import User, UserHistory, UserSentenceVowelsTrend, UserReport
 
 data_directory = "data/"
@@ -76,8 +74,14 @@ def login(request):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in Login-request", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response['Response'] = 'FAILED'
+        response['Reason'] = "Exception in login-process"
+
+        return HttpResponse(json.dumps(response))
 
 
 def get_sentence():
@@ -128,8 +132,14 @@ def register(request):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in Register-request", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response['Response'] = 'FAILED'
+        response['Reason'] = "Exception in registration process"
+
+        return HttpResponse(json.dumps(response))
 
 
 # noinspection PyTypeChecker
@@ -200,16 +210,25 @@ def test_pronunciation(request):
         return HttpResponse(json.dumps(response))
 
     except User.DoesNotExist:
-        print "Error: ", sys.exc_info()
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+
+        l = Logger()
+        l.log_error("Exception in build-trend-chart", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
         response['Response'] = 'FAILED'
         response['Reason'] = "User not existing in model"
 
         return HttpResponse(json.dumps(response))
     except:
-        print "Error: ", sys.exc_info()
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+
+        l = Logger()
+        l.log_error("Exception in build-trend-chart", exc_type + " " + fname + " " + exc_tb.tb_lineno)
 
         response['Response'] = 'FAILED'
-        response['Reason'] = sys.exc_info()
+        response['Reason'] = "Exception in test-pronunciation process"
         return HttpResponse(json.dumps(response))
 
 
@@ -280,8 +299,12 @@ def build_trend_chart(username, sentence, trend_data):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in build-trend-chart", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response = {'Response': 'FAILED', 'Reason': "Exception in build-chart-process"}
+        return HttpResponse(json.dumps(response))
 
 
 # History process
@@ -367,8 +390,14 @@ def fetch_history_data(request):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in fetch-history-request", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response['Response'] = 'FAILED'
+        response['Reason'] = "Exception in fetch-history process"
+
+        return HttpResponse(json.dumps(response))
 
 
 # Report process
@@ -398,5 +427,11 @@ def save_report(request):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in save-report-request", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response['Response'] = 'FAILED'
+        response['Reason'] = "Exception in save-report process"
+
+        return HttpResponse(json.dumps(response))

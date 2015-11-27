@@ -23,20 +23,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+import base64
+import cPickle
+import csv
+import datetime
+import json
+import math
 import os
 import sys
-import csv
-import numpy as np
-import cPickle
-import base64
-import datetime
-import math
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+from django.http import HttpResponse
 from sklearn import mixture
-from prepare_data import GMM_structure
+
+from utilities.logger import Logger
 from libraries.utility import clean_filename, clean_filename_numbers
+from prepare_data import GMM_structure
 
 
 class GMM_prototype:
@@ -151,8 +155,12 @@ class GMM_prototype:
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            raise
+
+            l = Logger()
+            l.log_error("Exception in GMM-create-struct", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+            response = {'Response': 'FAILED', 'Reason': "Exception in GMM-creation-structure process"}
+            return HttpResponse(json.dumps(response))
 
     def get_native_vowels(self, sentence):
 
@@ -186,8 +194,12 @@ class GMM_prototype:
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            raise
+
+            l = Logger()
+            l.log_error("Exception in GMM-get-native-vowels-struct", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+            response = {'Response': 'FAILED', 'Reason': "Exception in GMM-get-native-vowels process"}
+            return HttpResponse(json.dumps(response))
 
     def train_gmm(self, isFemale=False):
 
@@ -233,8 +245,12 @@ class GMM_prototype:
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            raise
+
+            l = Logger()
+            l.log_error("Exception in GMM-train model", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+            response = {'Response': 'FAILED', 'Reason': "Exception in GMM-train-model process"}
+            return HttpResponse(json.dumps(response))
 
     def test_gmm(self, X_test, Y_test, plot_filename, sentence, isFemale=False):
 
@@ -395,8 +411,12 @@ class GMM_prototype:
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            raise
+
+            l = Logger()
+            l.log_error("Exception in GMM-test-model", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+            response = {'Response': 'FAILED', 'Reason': "Exception in GMM-test-model process"}
+            return HttpResponse(json.dumps(response))
 
     def make_ellipses(self, ax, native_f1, native_f2, predicted_f1, predicted_f2):
         try:
@@ -424,8 +444,12 @@ class GMM_prototype:
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            raise
+
+            l = Logger()
+            l.log_error("Exception in GMM-make ellipse", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+            response = {'Response': 'FAILED', 'Reason': "Exception in GMM-make-ellipse process"}
+            return HttpResponse(json.dumps(response))
 
     def models_if_exist(self):
         try:
@@ -441,5 +465,9 @@ class GMM_prototype:
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            raise
+
+            l = Logger()
+            l.log_error("Exception in GMM-check-if-models-exist", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+            response = {'Response': 'FAILED', 'Reason': "Exception in GMM-check-if-models-exist process"}
+            return HttpResponse(json.dumps(response))

@@ -25,13 +25,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import os
-import csv
-import sys
 import base64
-import matplotlib.pyplot as plt
-from matplotlib.font_manager import FontProperties
+import csv
+import json
+import os
+import sys
 from subprocess import Popen
+
+import matplotlib.pyplot as plt
+from django.http import HttpResponse
+from matplotlib.font_manager import FontProperties
+
+from utilities.logger import Logger
 
 native_phonemes = ["AH PIYS AHV KEYK", "BLOW AH FYUWZ", "KAECH SAHM ZIYZ", "DAWN TAH DHAH WAYER", "IYGER BIYVER",
                    "FEHR AHND SKWEHR", "GEHT KOWLD FIYT", "MEHLOW AWT", "PUHLIHNG YUHR LEHGZ", "THIHNGKAHNG AWT LAWD"]
@@ -105,8 +110,12 @@ def force_alignment(audio_file, sentence):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in force-alignment", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response = {'Response': 'FAILED', 'Reason': "Exception in force-alignment process"}
+        return HttpResponse(json.dumps(response))
 
 
 def extract_phonemes(audio_file, sentence, predicted_phonemes):
@@ -152,8 +161,6 @@ def extract_phonemes(audio_file, sentence, predicted_phonemes):
                     phonemes.append(fol_word_trans)
 
         index = native_sentences.index(sentence)
-        # test_phonemes = (' '.join(x for x in phonemes))
-        # test_phonemes = ''.join([i for i in test_phonemes if not i.isdigit()])
         current_native_phonemes = native_phonemes[index]
 
         # do WER with the CMU Sphinx phonemes but keep the old ones for stress
@@ -174,8 +181,12 @@ def extract_phonemes(audio_file, sentence, predicted_phonemes):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in extract-phonemes", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response = {'Response': 'FAILED', 'Reason': "Exception in exctract-phonemes process"}
+        return HttpResponse(json.dumps(response))
 
 
 def wer(ref, hyp, debug=False):
@@ -276,8 +287,12 @@ def wer(ref, hyp, debug=False):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in WER", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response = {'Response': 'FAILED', 'Reason': "Exception in WER process"}
+        return HttpResponse(json.dumps(response))
 
 
 def extract_data(audio_file, female=False):
@@ -312,8 +327,12 @@ def extract_data(audio_file, female=False):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in exctract-formants", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response = {'Response': 'FAILED', 'Reason': "Exception in extract-formants process"}
+        return HttpResponse(json.dumps(response))
 
 
 def get_pitch_contour(audio_file, sentence, isFemale=False):
@@ -449,8 +468,12 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in get-pitch-contour", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response = {'Response': 'FAILED', 'Reason': "Exception in get-pitch-contour process"}
+        return HttpResponse(json.dumps(response))
 
 
 def create_test_data(filename):
@@ -523,8 +546,12 @@ def create_test_data(filename):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in create-test-data", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response = {'Response': 'FAILED', 'Reason': "Exception in create-test-data process"}
+        return HttpResponse(json.dumps(response))
 
 
 def create_test_set(test_data):
@@ -538,5 +565,9 @@ def create_test_set(test_data):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        raise
+
+        l = Logger()
+        l.log_error("Exception in create-test-set", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+
+        response = {'Response': 'FAILED', 'Reason': "Exception in create-test-set process"}
+        return HttpResponse(json.dumps(response))
