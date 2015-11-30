@@ -43,7 +43,7 @@ public class Transcription {
 
             // TODO: check this part when deploying to VM
             Runtime runtime = Runtime.getRuntime();
-            String command = "sox -r 8000 -c 1 " + filename + " " + editedFilename;
+            String command = "/usr/local/bin/sox -r 8000 -c 1 " + filename + " " + editedFilename;
             Process soxprocess = runtime.exec(command);
             soxprocess.waitFor();
 

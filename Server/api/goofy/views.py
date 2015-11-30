@@ -33,7 +33,7 @@ import random
 import matplotlib.dates as dates
 from rest_framework.decorators import api_view
 
-from api.goofy.machine_learning.utilities.logger import Logger
+from machine_learning.utilities.logger import Logger
 from machine_learning.GMM_system import GMM_prototype
 from machine_learning.prepare_data import *
 from .models import User, UserHistory, UserSentenceVowelsTrend, UserReport

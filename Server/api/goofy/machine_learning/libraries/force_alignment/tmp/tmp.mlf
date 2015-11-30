@@ -1,12 +1,8 @@
 #!MLF!#
 "*/tmp.lab"
 sp
-DOWN
+EAGER
 sp
-TO
-sp
-THE
-sp
-WIRE
+BEAVER
 sp
 .
