@@ -4,8 +4,9 @@ Project/essentia*
 env/*
 *idea*
 *.wav
-Project/DNN/python_speech_features/.gitignore
-Project/api/goofy/machine_learning/data/*
+
+Server/api/goofy/audio/*
+Server/api/goofy/machine_learning/data/collected/*
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
