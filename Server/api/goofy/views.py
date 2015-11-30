@@ -29,6 +29,7 @@ THE SOFTWARE.
 import datetime
 import glob
 import random
+import shutil
 
 import matplotlib.dates as dates
 from rest_framework.decorators import api_view
@@ -39,6 +40,7 @@ from machine_learning.prepare_data import *
 from .models import User, UserHistory, UserSentenceVowelsTrend, UserReport
 
 data_directory = "data/"
+collected_directory = "collected/"
 
 
 # Login process
@@ -193,11 +195,11 @@ def test_pronunciation(request):
         response['VowelChart'] = vowel_chart
 
         # clean up everything
-        cleaned_name = temp_audiofile.replace('.wav', '*')
+        # cleaned_name = temp_audiofile.replace('.wav', '*')
 
-        filelist = glob.glob(cleaned_name)
-        for filename in filelist:
-            os.remove(filename)
+        # filelist = glob.glob(cleaned_name)
+        # for filename in filelist:
+        #     os.remove(filename)
 
         data_path = path + '/machine_learning/data/'
         (dirName, fileName) = os.path.split(temp_audiofile)
@@ -205,7 +207,8 @@ def test_pronunciation(request):
 
         filelist = glob.glob(cleaned_name)
         for filename in filelist:
-            os.remove(filename)
+            f = os.path.basename(filename)
+            shutil.move(filename, data_path + collected_directory + f)
 
         return HttpResponse(json.dumps(response))
 
