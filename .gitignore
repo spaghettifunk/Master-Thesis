@@ -8,6 +8,8 @@ env/*
 Server/api/goofy/audio/*
 Server/api/goofy/machine_learning/data/collected/*
 
+Server/phonemes_service/*
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
