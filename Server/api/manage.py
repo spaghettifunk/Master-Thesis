@@ -27,6 +27,8 @@ THE SOFTWARE.
 
 import os
 import sys
+import matplotlib
+matplotlib.use('Agg')
 
 from goofy.machine_learning.GMM_system import GMM_prototype
 

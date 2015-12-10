@@ -2074,10 +2074,10 @@ def extractFormants(wavInput, tgInput, output, opts, SPATH='', PPATH=''):
     if os.name == 'nt':
         PRAATNAME = 'praatcon'
     elif os.name == 'posix':
-        PRAATNAME = 'Praat'
+        PRAATNAME = 'praat'
     else:
         print "WARNING: unknown OS type '%s' may not be supported" % os.name
-        PRAATNAME = 'Praat'
+        PRAATNAME = 'praat'
 
     # by default, assume that these files are located in the current directory
     meansFile = opts.means
@@ -2187,7 +2187,7 @@ def extractFormants(wavInput, tgInput, output, opts, SPATH='', PPATH=''):
         # extract list of words and their corresponding phones (with all
         # coding) -> only for chosen speaker
         words = getWordsAndPhones(tg, phoneset, speaker, vowelSystem)
-                                  # (all initial vowels are counted here)                                 
+        # (all initial vowels are counted here)
         print 'Identified vowels in the TextGrid.'
         global maxTime
         maxTime = tg.xmax()  # duration of TextGrid/sound file
@@ -2207,8 +2207,7 @@ def extractFormants(wavInput, tgInput, output, opts, SPATH='', PPATH=''):
             sys.stdout.write("\b" * (progressbar_width + 1))
                              # return to start of line, after '['
 
-        for pre_w, w, fol_w in window(words, window_len = 3):
-            
+        for pre_w, w, fol_w in window(words, window_len=3):
 
             if not opts.verbose:
                 word_iter = word_iter + 1
@@ -2318,8 +2317,6 @@ def extractFormants(wavInput, tgInput, output, opts, SPATH='', PPATH=''):
                     pre_seg = w.phones[p_index-1].label
                     fol_seg = w.phones[p_index+1].label
 
-
-
                 vowelFileStem = fileStem + '_' + \
                     p.label  # name of sound file - ".wav" + phone label
                 vowelWavFile = vowelFileStem + '.wav'
@@ -2391,4 +2388,4 @@ if __name__ == '__main__':
     tgInput = opts.tgInput
     output = opts.output
 
-    extractFormants(wavInput, tgInput, output, opts, PPATH='/Applications/Praat.app/Contents/MacOS')
+    extractFormants(wavInput, tgInput, output, opts, PPATH='/usr/bin/')

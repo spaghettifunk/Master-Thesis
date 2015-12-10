@@ -30,11 +30,8 @@ import datetime
 import glob
 import random
 import shutil
-
 import matplotlib.dates as dates
 from rest_framework.decorators import api_view
-
-from machine_learning.utilities.logger import Logger
 from machine_learning.GMM_system import GMM_prototype
 from machine_learning.prepare_data import *
 from .models import User, UserHistory, UserSentenceVowelsTrend, UserReport
@@ -152,6 +149,8 @@ def test_pronunciation(request):
         if request.method != 'POST':
             raise
 
+        print>> sys.stderr, "*** TEST PRONUNCIATION ***"
+
         path = os.path.dirname(os.path.abspath(__file__))
         audio_path = path + "/audio/"
 
@@ -177,6 +176,8 @@ def test_pronunciation(request):
         # need to load the correct model - M or F
         gender = user['gender']
         response['Response'] = 'SUCCESS'
+
+        print>> sys.stderr, "*** FILE CONVERTED ***"
 
         phonemes, vowel_stress, result_wer, pitch_chart, vowel_chart = classify_user_audio(temp_audiofile,
                                                                                            phonemes,
@@ -236,20 +237,31 @@ def test_pronunciation(request):
 
 
 def classify_user_audio(audiofile, phonemes, sentence, username, gender):
+    print >> sys.stderr, "*** START FORCE ALIGNMENT ***"
+
     # Force Alignment
     force_alignment(audiofile, sentence)
 
     # FAVE-exctract
     if gender == 'm':
+
+        print >> sys.stderr, "*** START EXTRACT DATA ***"
         extract_data(audiofile, True)
+
+        print >> sys.stderr, "*** START PITCH CONTOUR ***"
         pitch_binary = get_pitch_contour(audiofile, sentence, True)
     else:
+        print >> sys.stderr, "*** START EXTRACT DATA ***"
         extract_data(audiofile, False)
+
+        print >> sys.stderr, "*** START PITCH CONTOUR ***"
         pitch_binary = get_pitch_contour(audiofile, sentence, False)
 
+    print >> sys.stderr, "*** START EXTRACT PHONEMES ***"
     # Exctract pronounced phonemes and vowel stress
     phonemes, vowel_stress, result_wer = extract_phonemes(audiofile, sentence, phonemes)
 
+    print >> sys.stderr, "*** START CREATION GMM TESTSET ***"
     # Create GMM testing set
     (dirName, fileName) = os.path.split(audiofile)
     test_data = create_test_data(fileName)
@@ -258,12 +270,14 @@ def classify_user_audio(audiofile, phonemes, sentence, username, gender):
     X_test, Y_test = create_test_set(test_data)
     plot_filename = audiofile.replace('.wav', '_chart.png')
 
+    print >> sys.stderr, "*** START GMM TEST ***"
     gmm_obj = GMM_prototype()
     if gender == 'm':
         vowel_binary, trend_data = gmm_obj.test_gmm(X_test, Y_test, plot_filename, sentence, False)
     else:
         vowel_binary, trend_data = gmm_obj.test_gmm(X_test, Y_test, plot_filename, sentence, True)
 
+    print >> sys.stderr, "*** START BUILD TREND CHART ***"
     # build trend chart
     build_trend_chart(username, sentence, trend_data)
 

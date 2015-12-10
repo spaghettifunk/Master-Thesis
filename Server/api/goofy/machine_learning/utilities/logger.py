@@ -31,7 +31,7 @@ from github import Github
 class Logger:
 
     def __init__(self):
-        self.git_account = Github("davideberdin", "sardegna21")
+        self.git_account = Github("davideberdin", "Sardegna21")
 
         repositories = self.git_account.get_user().get_repos()
         for rep in repositories:

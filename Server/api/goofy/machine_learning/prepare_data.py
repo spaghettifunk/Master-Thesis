@@ -33,9 +33,9 @@ import sys
 from subprocess import Popen
 
 import matplotlib.pyplot as plt
-from django.http import HttpResponse
 from matplotlib.font_manager import FontProperties
 
+from django.http import HttpResponse
 from utilities.logger import Logger
 
 native_phonemes = ["AH PIYS AHV KEYK", "BLOW AH FYUWZ", "KAECH SAHM ZIYZ", "DAWN TAH DHAH WAYER", "IYGER BIYVER",
@@ -84,6 +84,9 @@ class GMM_structure:
 
 
 def force_alignment(audio_file, sentence):
+
+    print >>sys.stderr, "*** DOING FORCE ALIGNMENT ***"
+
     path = os.path.dirname(os.path.abspath(__file__))
     results_directory = path + "/data"
     path_fa = path + "/libraries/force_alignment/"
@@ -103,23 +106,19 @@ def force_alignment(audio_file, sentence):
 
         # call the file
         command = "python " + path_fa + "align.py " + audio_file + " " + get_sentences_directory + " " + output_filename
-
         # run command
-        proc = Popen(['/usr/local/bin/zsh', '-c', command])
+        proc = Popen(command, shell=True)
         proc.wait()
+
     except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-
-        l = Logger()
-        l.log_error("Exception in force-alignment", exc_type + " " + fname + " " + exc_tb.tb_lineno)
-
-        response = {'Response': 'FAILED', 'Reason': "Exception in force-alignment process"}
-        return HttpResponse(json.dumps(response))
+        pass
 
 
 def extract_phonemes(audio_file, sentence, predicted_phonemes):
     try:
+
+        print>>sys.stderr, "*** DOING EXTRACT PHONEMES ***"
+
         path = os.path.dirname(os.path.abspath(__file__))
         textgrid_directory = path + "/data"
 
@@ -164,6 +163,7 @@ def extract_phonemes(audio_file, sentence, predicted_phonemes):
         current_native_phonemes = native_phonemes[index]
 
         # do WER with the CMU Sphinx phonemes but keep the old ones for stress
+        print>>sys.stderr, "*** WER ***"
         test_phonemes = ""
         cmu_phonemes_list = str(predicted_phonemes).split(' ')
         sentence_list = current_native_phonemes.split(' ')
@@ -178,6 +178,7 @@ def extract_phonemes(audio_file, sentence, predicted_phonemes):
         result_wer = "Word Error Rate: {}%".format(wer_result * 100)
 
         return test_phonemes.split(' '), vowel_stress, result_wer
+
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -296,14 +297,17 @@ def wer(ref, hyp, debug=False):
 
 
 def extract_data(audio_file, female=False):
+
+    print>>sys.stderr, "*** DOING EXTRACT DATA ***"
+
     # need to change speakerfile for the female gender
     path = os.path.dirname(os.path.abspath(__file__))
     path_fave = path + "/libraries/FAVE_extract/"
 
     if female:
-        config_file = "--outputFormat txt --candidates --speechSoftware Praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker " + path_fave + "/speakerinfo_female.speakerfile"
+        config_file = "--outputFormat txt --candidates --speechSoftware praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker " + path_fave + "/speakerinfo_female.speakerfile"
     else:
-        config_file = "--outputFormat txt --candidates --speechSoftware Praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker " + path_fave + "/speakerinfo_male.speakerfile"
+        config_file = "--outputFormat txt --candidates --speechSoftware praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker " + path_fave + "/speakerinfo_male.speakerfile"
 
     textgrid_file_directory = path + "/data/"
     output_file_directory = path + "/data/"
@@ -318,12 +322,12 @@ def extract_data(audio_file, female=False):
 
     # debug print
     command = "python " + path_fave + "bin/extractFormants.py " + config_file + " " + audio_file + " " + textgrid_file + " " + output_file
-    print command
 
     try:
         # run command
-        proc = Popen(['/usr/local/bin/zsh', '-c', command])
+        proc = Popen(command, shell=True)
         proc.wait()
+
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -337,6 +341,9 @@ def extract_data(audio_file, female=False):
 
 def get_pitch_contour(audio_file, sentence, isFemale=False):
     try:
+
+        print>>sys.stderr, "*** DOING PITCH CONTOUR ***"
+
         path = os.path.dirname(os.path.abspath(__file__))
         path_script = path + "/libraries/pitch_contour/pitch_intensity_formants.praat"
 
@@ -355,13 +362,14 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
             native_csv = path + "/data/native/male/" + sentence + ".csv"
 
         # see script file for the usage
-        proc = Popen(
-            ['/Applications/Praat.app/Contents/MacOS/Praat', path_script, audio_file, output_folder, 'wav', '10',
-             min_pitch, '500', '11025'])
+        command = '/usr/bin/praat ' + path_script + " " + audio_file + " " + output_folder + " " + 'wav' + " " + '10' + " " + min_pitch + " " + '500' + " " + '11025'
+        print>>sys.stderr, command
+
+        proc = Popen(command, shell=True)
         proc.wait()
 
-        # TODO: Read user and native csv files
         # native
+        print>>sys.stderr, "*** READING NATIVE CSV ***"
         native_pitch = []
         with open(native_csv, 'r') as native_file:
             reader = csv.reader(native_file, delimiter=',')
@@ -377,6 +385,7 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
                     native_pitch.append(line[1])
 
         # user
+        print>>sys.stderr, "*** READING USER CSV ***"
         user_pitch = []
         with open(output_folder, 'r') as user_file:
             reader = csv.reader(user_file, delimiter=',')
@@ -390,6 +399,7 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
                 else:
                     user_pitch.append(line[1])
 
+        print>>sys.stderr, "*** PADDING ***"
         # Padding with 0s on the end
         if len(native_pitch) != len(user_pitch):
             copy_native_pitch = native_pitch
@@ -423,6 +433,7 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
                 native_pitch += temp
 
         # Create scatter image
+        print>>sys.stderr, "*** CREATING FIGURE ***"
         fig = plt.figure()
         ax1 = fig.add_subplot(111)
 
@@ -460,11 +471,13 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
         plt.title('Stress trend')
 
         # Save as bynary file
+        print>>sys.stderr, "*** SAVING FIGURE ***"
         plot_filename = audio_file.replace('.wav', '_pitch.png')
         plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight', transparent=True)
 
         with open(plot_filename, "rb") as imageFile:
             return base64.b64encode(imageFile.read())
+
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -478,6 +491,9 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
 
 def create_test_data(filename):
     try:
+
+        print>>sys.stderr, "*** DOING TEST DATA ***"
+
         path = os.path.dirname(os.path.abspath(__file__))
         path_data = path + "/data/"
 
@@ -556,6 +572,8 @@ def create_test_data(filename):
 
 def create_test_set(test_data):
     try:
+
+        print>>sys.stderr, "*** DOING TEST SET ***"
 
         X_test = test_data.values()
         Y_test = test_data.keys()
