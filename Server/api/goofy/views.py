@@ -31,6 +31,7 @@ import glob
 import random
 import shutil
 import matplotlib.dates as dates
+from matplotlib.dates import YEARLY, DateFormatter, rrulewrapper, RRuleLocator, drange
 from rest_framework.decorators import api_view
 from machine_learning.GMM_system import GMM_prototype
 from machine_learning.prepare_data import *
@@ -381,6 +382,10 @@ def fetch_history_data(request):
                     plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D',
                                   color='g')
                     plt.title("Vowel: " + trend.vowel)
+                    # Pad margins so that markers don't get clipped by the axes
+                    plt.margins(0.1)
+                    # Tweak spacing to prevent clipping of tick-labels
+                    plt.subplots_adjust(bottom=0.1)
 
                     plt.savefig(trend_plot_filename, bbox_inches='tight', transparent=True)
                     with open(trend_plot_filename, "rb") as imageFile:
