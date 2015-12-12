@@ -376,7 +376,7 @@ def fetch_history_data(request):
                         date_obj = datetime.datetime.strptime(str(data[3]), '%m-%d-%Y %H:%M')
                         x_axis.append(dates.date2num(date_obj))
                         y_axis.append(str(data[2]))
-                        x_values_str.append(str(data[3]))
+                        x_values_str.append(range(1, len(data[3]) + 1))
 
                     plt.xticks(x_axis, x_values_str, rotation=45)
                     plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D',
