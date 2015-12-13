@@ -366,7 +366,7 @@ class GMM_prototype:
                     continue
 
                 found = False
-                for pred  in current_trend_data:
+                for pred in current_trend_data:
                     if n in pred[0]:
                         plot_index = pred[1]
                         predicted_data = current_trend_formants_data[plot_index]
@@ -395,7 +395,7 @@ class GMM_prototype:
 
                 # American date format
                 date_obj = datetime.datetime.utcnow()
-                date_str = date_obj.strftime('%m-%d-%Y %H:%M')
+                date_str = date_obj.strftime('%m-%d-%Y')
 
                 new_trend_data.append((current_trend_data[index - 1][0], n, distance_from_centroid, date_str))
 

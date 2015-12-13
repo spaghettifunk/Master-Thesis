@@ -31,7 +31,8 @@ import glob
 import random
 import shutil
 import matplotlib.dates as dates
-from matplotlib.dates import YEARLY, DateFormatter, rrulewrapper, RRuleLocator, drange
+import numpy as np
+
 from rest_framework.decorators import api_view
 from machine_learning.GMM_system import GMM_prototype
 from machine_learning.prepare_data import *
@@ -368,24 +369,32 @@ def fetch_history_data(request):
                     # build the graph here
                     index = 0
 
-                    plt.figure()
+                    fig = plt.figure()
                     x_axis = []
                     y_axis = []
                     x_values_str = []
                     for data in json.loads(trend.trend_values):
-                        date_obj = datetime.datetime.strptime(str(data[3]), '%m-%d-%Y %H:%M')
+                        date_obj = datetime.datetime.strptime(str(data[3]), '%m-%d-%Y')
                         x_axis.append(dates.date2num(date_obj))
                         y_axis.append(str(data[2]))
-                        x_values_str.append(range(1, len(data[3]) + 1))
+                        x_values_str.append(str(data[3]))
 
-                    plt.xticks(x_axis, x_values_str, rotation=45)
-                    plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D',
-                                  color='g')
+                    plt.gca().xaxis.set_major_formatter(dates.DateFormatter('%m-%d-%Y'))
+
+                    plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D', color='g')
+
+                    plt.gca().set_xticks(x_axis, x_values_str)
+
                     plt.title("Vowel: " + trend.vowel)
+                    plt.grid(True)
+
                     # Pad margins so that markers don't get clipped by the axes
                     plt.margins(0.1)
                     # Tweak spacing to prevent clipping of tick-labels
                     plt.subplots_adjust(bottom=0.1)
+
+                    fig.autofmt_xdate(rotation=45)
+                    fig.tight_layout()
 
                     plt.savefig(trend_plot_filename, bbox_inches='tight', transparent=True)
                     with open(trend_plot_filename, "rb") as imageFile:
