@@ -15,10 +15,33 @@ Homophones refers to those words that are spelled in a different way but they \t
 % CMU Sphinx4
 \section{Architecture}
 \label{sec:speech_rec_Architecture}
+Generally speaking, a speech recognition system is divided in three main components: the \textbf{Feature Extraction} (or Front End), the \textbf{Decoder} and the \textbf{Knowledge Base} (KB). In \ref{fig:speech_architecture} the KB part is represented by the three sub-blocks called \textit{Acoustic Model}, \textit{Pronunciation Dictionary} and \textit{Language Model}. The \textit{Front End} takes as in input the voice signal where it is analyzed and converted in the so called \textit{Features Vectors}. This last is the set of common properties that we discussed in \ref{ch:english_language}. From here we can say that $\textbf{Y} 1:N = y_{1},..., y_{N}$ where $Y$ is the set of features vectors. \\
+The second step consists in feeding the \textit{Decoder} with vectors we obtained from the previous step, attempting to find the sequence of words $\textbf{w} 1:L = w_{1},..., w_{L}$ that have most likely generated the set $Y$\cite{gales2008application}. The decoder tries to find the likelihood estimation as follows:
 
+\begin{equation}
+	\widehat{w} = \underset{w}{arg max} P(\textbf{w}| \textbf{Y})
+\end{equation} 
+
+\noindent The $P (w|Y)$ is difficult to find directly\footnote{There is discriminate way of finding the estimation directly as described in \cite{gales2007discriminative}}, but using Bayes' Rules we can transform the equation above in
+
+\begin{equation}
+	\widehat{w} = \underset{w}{arg \; max} P (\textbf{Y}|\textbf{w}) P(\textbf{w})
+\end{equation}
+
+\noindent in which the probability $P(Y|w)$ and $P(w)$ are estimated by the \textit{Knowledge Base} block. In particular, the \textit{Acoustic Model} is responsible to estimate the first one whereas the \textit{Language Model} estimates the second one. \\
+\noindent Each word \textbf{w} is decomposed in smaller components called \textit{phones}, representing the collection of phonemes $\textbf{K}_{w}$ (see \ref{ch:english_language}). We can describe the \textit{pronunciation} as $\overset{(w)}{\textbf{q}_{1:K_{w}}} = q_{1}, ...., q_{K_{w}}$. The likelihood estimation of the sequence of phonemes is calculated by a \textbf{Hidden Markov Model} (HMM). In the section, a general overview of HMM is given. We are not going to discuss a particular model because every speech recognition system uses a variation of the general HMM chain. \\
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=0.8]{Figures/speech_Architecture.png}
+	\caption{HMM-Based speech recognition system \cite{gales2008application}}
+	\label{fig:speech_architecture}
+\end{figure}
 
 \section{Hidden Markov Model}
 \label{sec:hmm}
+
+
 
 \section{Viterbi Algorithm}
 \label{sec:viterbi}
