@@ -131,6 +131,8 @@ def extract_phonemes(audio_file, sentence, predicted_phonemes):
             reader = csv.reader(texgrid_file, delimiter='\t')
             all_lines = list(reader)
 
+            print>>sys.stderr, "*** OPENED: " + output_filename + " ***"
+
             i = 0
             for line in all_lines:
                 if i == 0:
@@ -456,27 +458,29 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
             dd = (val - min(normalized_user_floats)) / (max(normalized_user_floats) - min(normalized_user_floats))
             normalized_user.append(dd)
 
+        return normalized_native, normalized_user
+
         # plot pitch
-        ax1.scatter(time, normalized_native, s=100, c='r', marker='.', label='Native Pitch')
-        ax1.scatter(time, normalized_user, s=100, c='b', marker='+', label='User Pitch')
-
-        plt.xlabel('Time (sec)')
-        plt.ylabel('Normalized Frequency (Hz)')
-
-        fontP = FontProperties()
-        fontP.set_size('x-small')
-        plt.grid('on')
-
-        lgd = plt.legend(loc='lower center', ncol=2, prop=fontP)
-        plt.title('Stress trend')
-
-        # Save as bynary file
-        print>>sys.stderr, "*** SAVING FIGURE ***"
-        plot_filename = audio_file.replace('.wav', '_pitch.png')
-        plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight', transparent=True)
-
-        with open(plot_filename, "rb") as imageFile:
-            return base64.b64encode(imageFile.read())
+        # ax1.scatter(time, normalized_native, s=100, c='r', marker='.', label='Native Pitch')
+        # ax1.scatter(time, normalized_user, s=100, c='b', marker='+', label='User Pitch')
+        #
+        # plt.xlabel('Time (sec)')
+        # plt.ylabel('Normalized Frequency (Hz)')
+        #
+        # fontP = FontProperties()
+        # fontP.set_size('x-small')
+        # plt.grid('on')
+        #
+        # lgd = plt.legend(loc='lower center', ncol=2, prop=fontP)
+        # plt.title('Stress trend')
+        #
+        # # Save as bynary file
+        # print>>sys.stderr, "*** SAVING FIGURE ***"
+        # plot_filename = audio_file.replace('.wav', '_pitch.png')
+        # plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight', transparent=True)
+        #
+        # with open(plot_filename, "rb") as imageFile:
+        #     return base64.b64encode(imageFile.read())
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()

@@ -32,7 +32,6 @@ import random
 import shutil
 import matplotlib.dates as dates
 import numpy as np
-
 from rest_framework.decorators import api_view
 from machine_learning.GMM_system import GMM_prototype
 from machine_learning.prepare_data import *
@@ -181,11 +180,12 @@ def test_pronunciation(request):
 
         print>> sys.stderr, "*** FILE CONVERTED ***"
 
-        phonemes, vowel_stress, result_wer, pitch_chart, vowel_chart = classify_user_audio(temp_audiofile,
-                                                                                           phonemes,
-                                                                                           sentence,
-                                                                                           user['username'],
-                                                                                           gender)
+        phonemes, vowel_stress, result_wer, normalized_native, normalized_user, vowel_chart = classify_user_audio(
+                                                                                                temp_audiofile,
+                                                                                                phonemes,
+                                                                                                sentence,
+                                                                                                user['username'],
+                                                                                                gender)
         # save data here on model
         user_history = UserHistory(username=user['username'], sentence=sentence, chart_id=str(random_hash),
                                    date=datetime.date.today(), vowels=vowel_chart)
@@ -194,7 +194,9 @@ def test_pronunciation(request):
         response['Phonemes'] = phonemes
         response['VowelStress'] = vowel_stress
         response['WER'] = result_wer
-        response['PitchChart'] = pitch_chart
+        #response['PitchChart'] = pitch_chart
+        response['YValuesNative'] = normalized_native
+        response['YValuesUser'] = normalized_user
         response['VowelChart'] = vowel_chart
 
         # clean up everything
@@ -251,13 +253,15 @@ def classify_user_audio(audiofile, phonemes, sentence, username, gender):
         extract_data(audiofile, True)
 
         print >> sys.stderr, "*** START PITCH CONTOUR ***"
-        pitch_binary = get_pitch_contour(audiofile, sentence, True)
+        # pitch_binary = get_pitch_contour(audiofile, sentence, True)
+        normalized_native, normalized_user = get_pitch_contour(audiofile, sentence, True)
     else:
         print >> sys.stderr, "*** START EXTRACT DATA ***"
         extract_data(audiofile, False)
 
         print >> sys.stderr, "*** START PITCH CONTOUR ***"
-        pitch_binary = get_pitch_contour(audiofile, sentence, False)
+        # pitch_binary = get_pitch_contour(audiofile, sentence, False)
+        normalized_native, normalized_user = get_pitch_contour(audiofile, sentence, False)
 
     print >> sys.stderr, "*** START EXTRACT PHONEMES ***"
     # Exctract pronounced phonemes and vowel stress
@@ -283,7 +287,7 @@ def classify_user_audio(audiofile, phonemes, sentence, username, gender):
     # build trend chart
     build_trend_chart(username, sentence, trend_data)
 
-    return phonemes, vowel_stress, result_wer, pitch_binary, vowel_binary
+    return phonemes, vowel_stress, result_wer, normalized_native, normalized_user, vowel_binary
 
 
 def build_trend_chart(username, sentence, trend_data):
@@ -381,7 +385,8 @@ def fetch_history_data(request):
 
                     plt.gca().xaxis.set_major_formatter(dates.DateFormatter('%m-%d-%Y'))
 
-                    plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D', color='g')
+                    plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D',
+                                  color='g')
 
                     plt.gca().set_xticks(x_axis, x_values_str)
 
