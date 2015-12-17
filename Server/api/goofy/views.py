@@ -46,6 +46,9 @@ collected_directory = "collected/"
 def login(request):
     try:
         if request.method == 'POST':
+
+            print>> sys.stderr, "*** LOGIN ***"
+
             json_data = json.loads(request.body)
             data = dict(json_data)
 
@@ -64,11 +67,18 @@ def login(request):
                     response["Sentence"] = sentence
                     response["Phonetic"] = phonetic
 
+                    log_message = "*** LOGIN SUCCEEDED: " + u.username + " ***"
+                    print>> sys.stderr, log_message
+
                     return HttpResponse(json.dumps(response))
 
             response = {}
             response["Response"] = "FAILED"
             response["Reason"] = "Something went wrong during the authentication\n Try later"
+
+            log_message = "*** LOGIN FAILED: " + data['Username'] + " ***"
+            print>> sys.stderr, log_message
+
             return HttpResponse(json.dumps(response))
 
     except Exception as e:
@@ -99,6 +109,9 @@ def get_sentence():
 def register(request):
     try:
         if request.method == 'POST':
+
+            print>> sys.stderr, "*** REGISTRATION ***"
+
             json_data = json.loads(request.body)
             data = dict(json_data)
 
@@ -126,6 +139,9 @@ def register(request):
             response["Response"] = "SUCCESS"
             response["Sentence"] = sentence
             response["Phonetic"] = phonetic
+
+            log_message = "*** REGISTRATION SUCCEEDED: " + username + " ***"
+            print>> sys.stderr, log_message
 
             return HttpResponse(json.dumps(response))
 
@@ -371,32 +387,37 @@ def fetch_history_data(request):
             for trend in trend_data:
                 if trend.vowel in native_vowels:
                     # build the graph here
-                    index = 0
 
                     fig = plt.figure()
                     x_axis = []
                     y_axis = []
                     x_values_str = []
+                    x_index = 0
                     for data in json.loads(trend.trend_values):
-                        date_obj = datetime.datetime.strptime(str(data[3]), '%m-%d-%Y')
-                        x_axis.append(dates.date2num(date_obj))
+                        # date_obj = datetime.datetime.strptime(str(data[3]), '%m-%d-%Y')
+                        # x_axis.append(dates.date2num(date_obj))
+                        x_axis.append(x_index)
                         y_axis.append(str(data[2]))
+                        x_index += 1
                         x_values_str.append(str(data[3]))
 
-                    plt.gca().xaxis.set_major_formatter(dates.DateFormatter('%m-%d-%Y'))
+                    # plt.gca().xaxis.set_major_formatter(dates.DateFormatter('%m-%d-%Y'))
 
-                    plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D',
-                                  color='g')
+                    # plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D',
+                    #               color='g')
 
-                    plt.gca().set_xticks(x_axis, x_values_str)
+                    plt.bar(x_axis, y_axis, width=0.35)
+                    plt.xlabel("Time")
+                    plt.ylabel("Distance to center")
+                    plt.xticks(x_axis, x_values_str)
+
+                    # plt.gca().set_xticks(x_axis, x_values_str)
 
                     plt.title("Vowel: " + trend.vowel)
                     plt.grid(True)
 
-                    # Pad margins so that markers don't get clipped by the axes
-                    plt.margins(0.1)
-                    # Tweak spacing to prevent clipping of tick-labels
-                    plt.subplots_adjust(bottom=0.1)
+                    plt.margins(0.1)    # Pad margins so that markers don't get clipped by the axes
+                    plt.subplots_adjust(bottom=0.1)     # Tweak spacing to prevent clipping of tick-labels
 
                     fig.autofmt_xdate(rotation=45)
                     fig.tight_layout()
@@ -407,8 +428,6 @@ def fetch_history_data(request):
 
                         json_image = json.dumps(trend_pic)
                         trend_images.append(json_image)
-
-                    index += 1
             # endregion
 
             response["Response"] = "SUCCESS"

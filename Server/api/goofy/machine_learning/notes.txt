@@ -1,7 +1,0 @@
-+++ CRF and GMM need a training set prepared in advance
-
-Sequence of actions for testing:
-1) force alignment    -> p2fa
-2) extract data       -> FAVE-extract
-3) create test data
-4) create test set
