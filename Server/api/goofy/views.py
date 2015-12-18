@@ -378,6 +378,7 @@ def fetch_history_data(request):
             audio_path = path + "/audio/"
 
             # region Trend
+            trend_images_title = []
             trend_images = []
             trend_images_time = []
             trend_data = UserSentenceVowelsTrend.objects.filter(username=username, sentence=sentence)
@@ -402,6 +403,8 @@ def fetch_history_data(request):
 
                     print>> sys.stderr, "*** DUMPING Y_AXIS ***"
 
+                    title = "Vowel: " + trend.vowel
+                    trend_images_title.append(title)
                     trend_images.append(json.dumps(y_axis))
                     trend_images_time.append(json.dumps(x_values_str))
 
@@ -434,7 +437,7 @@ def fetch_history_data(request):
             response["VowelsDate"] = history_vowels_date
             response["VowelsImages"] = history_vowels_images
 
-            # response["TrendImages"] = trend_images
+            response["TrendImagesTitle"] = trend_images_title
             response["TrendImages"] = trend_images
             response["TrendImagesTime"] = trend_images_time
 
