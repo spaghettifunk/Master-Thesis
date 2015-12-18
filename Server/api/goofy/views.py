@@ -379,8 +379,9 @@ def fetch_history_data(request):
 
             # region Trend
             trend_images = []
+            trend_images_time = []
             trend_data = UserSentenceVowelsTrend.objects.filter(username=username, sentence=sentence)
-            trend_plot_filename = audio_path + sentence.replace(' ', '_') + "_" + str(random.getrandbits(128)) + ".png"
+            # trend_plot_filename = audio_path + sentence.replace(' ', '_') + "_" + str(random.getrandbits(128)) + ".png"
             vowels = vowels.replace(' ', '')
             native_vowels = vowels.split(',')
 
@@ -388,46 +389,44 @@ def fetch_history_data(request):
                 if trend.vowel in native_vowels:
                     # build the graph here
 
-                    fig = plt.figure()
+                    # fig = plt.figure()
                     x_axis = []
                     y_axis = []
                     x_values_str = []
                     x_index = 0
                     for data in json.loads(trend.trend_values):
-                        # date_obj = datetime.datetime.strptime(str(data[3]), '%m-%d-%Y')
-                        # x_axis.append(dates.date2num(date_obj))
                         x_axis.append(x_index)
                         y_axis.append(str(data[2]))
                         x_index += 1
                         x_values_str.append(str(data[3]))
 
-                    # plt.gca().xaxis.set_major_formatter(dates.DateFormatter('%m-%d-%Y'))
+                    print>> sys.stderr, "*** DUMPING Y_AXIS ***"
 
-                    # plt.plot_date(x_axis, y_axis, tz=None, xdate=True, ydate=False, linestyle='-', marker='D',
-                    #               color='g')
+                    trend_images.append(json.dumps(y_axis))
+                    trend_images_time.append(json.dumps(x_values_str))
 
-                    plt.bar(x_axis, y_axis, width=0.35)
-                    plt.xlabel("Time")
-                    plt.ylabel("Distance to center")
-                    plt.xticks(x_axis, x_values_str)
+                    print>> sys.stderr, "*** DUMPED ***"
 
-                    # plt.gca().set_xticks(x_axis, x_values_str)
-
-                    plt.title("Vowel: " + trend.vowel)
-                    plt.grid(True)
-
-                    plt.margins(0.1)    # Pad margins so that markers don't get clipped by the axes
-                    plt.subplots_adjust(bottom=0.1)     # Tweak spacing to prevent clipping of tick-labels
-
-                    fig.autofmt_xdate(rotation=45)
-                    fig.tight_layout()
-
-                    plt.savefig(trend_plot_filename, bbox_inches='tight', transparent=True)
-                    with open(trend_plot_filename, "rb") as imageFile:
-                        trend_pic = base64.b64encode(imageFile.read())
-
-                        json_image = json.dumps(trend_pic)
-                        trend_images.append(json_image)
+                    # plt.bar(x_axis, y_axis, width=0.35)
+                    # plt.xlabel("Time")
+                    # plt.ylabel("Distance to center")
+                    # plt.xticks(x_axis, x_values_str)
+                    #
+                    # plt.title("Vowel: " + trend.vowel)
+                    # plt.grid(True)
+                    #
+                    # plt.margins(0.1)    # Pad margins so that markers don't get clipped by the axes
+                    # plt.subplots_adjust(bottom=0.1)     # Tweak spacing to prevent clipping of tick-labels
+                    #
+                    # fig.autofmt_xdate(rotation=45)
+                    # fig.tight_layout()
+                    #
+                    # plt.savefig(trend_plot_filename, bbox_inches='tight', transparent=True)
+                    # with open(trend_plot_filename, "rb") as imageFile:
+                    #     trend_pic = base64.b64encode(imageFile.read())
+                    #
+                    #     json_image = json.dumps(trend_pic)
+                    #     trend_images.append(json_image)
             # endregion
 
             response["Response"] = "SUCCESS"
@@ -435,12 +434,18 @@ def fetch_history_data(request):
             response["VowelsDate"] = history_vowels_date
             response["VowelsImages"] = history_vowels_images
 
+            # response["TrendImages"] = trend_images
             response["TrendImages"] = trend_images
+            response["TrendImagesTime"] = trend_images_time
 
             # clean things up
-            os.remove(trend_plot_filename)
+            # os.remove(trend_plot_filename)
 
-            return HttpResponse(json.dumps(response))
+            print>> sys.stderr, "*** DUMPING RESPONSE ***"
+            res_json = json.dumps(response)
+            print>> sys.stderr, "*** DUMPED RESPONSE ***"
+
+            return HttpResponse(res_json)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
