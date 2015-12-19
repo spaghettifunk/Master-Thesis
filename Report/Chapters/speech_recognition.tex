@@ -40,7 +40,72 @@ The second step consists in feeding the \textit{Decoder} with vectors we obtaine
 
 \section{Hidden Markov Model}
 \label{sec:hmm}
+\noindent A definition given by \cite{eddy1996hidden} is the following: \textit{"An Hidden Markov Model is a finite model that describes the probability distribution over an infinite number of possible sequences"}. Each sequence is determined by a set of \textit{transition probabilities} in which describes the transitions among states. The \textbf{observation} (or outcome) of each state is generated based on the associated probability distribution. From an \textit{outside} perspective, the \textit{observer} is only able to see the outcome and not the state itself. Hence, the states are considered \textbf{hidden} which leads to the name Hidden Markov Model \cite{def_hmm}. \\
 
+\noindent An HMM is composed by the following elements:
+
+\begin{itemize}
+	\item The number of states (N)
+	\item The number of observations (M), that becomes infinite if the set of observations is contiguous
+	\item The set of transition probabilities, $\Lambda = \{ a_{ij}\}$
+\end{itemize}
+
+The set of probabilities is defined as follow:
+\begin{equation}
+a_{ij} = p \, \{ \, q_{t+1} = j \, | \, q_{t} = i \, \}, \, \, \, 1 \leq i,j \leq N, 
+\end{equation}
+
+\noindent where $q_{t}$ is the state we are currently in and $a_{ij}$ represent the transition from state $i$ to $j$. 
+Each transition should satisfy the following rules:
+
+\begin{subequations}
+	\label{eq:stochastic_rules}
+	\begin{align}
+	a_{ij} \geq 1, \, \, \, 1 \leq i,j \leq N, \\
+	\sum_{j=1}^{N} a_{ij} = 1, \, \, \, 1 \leq j \leq N
+	\end{align}
+\end{subequations}
+
+\noindent For each state $S$ we can define the probability distribution $S = \{s_{j}(k)\}$ as follow:
+
+\begin{equation}
+s_{j}(k) = p \, \{\, o_{t} = v_{k} \, | \, q_{t} = j \, \}, \, \, \, 1 \leq j \leq N, \,\, 1 \leq k \leq M
+\end{equation}
+
+where $v_k$ is the $k^{th}$ observation whereas $o_{t}$ is the outcome. Furthermore, $b_{j}(k)$ must satisfy the same stochastic rules described in \ref{eq:stochastic_rules}. \\
+
+\noindent A different approach is made when the number of observations is infinite. In fact, we are not going to use a set of discrete probabilities but instead a continuous probability density function. Given that, we can define the parameters of the density function by approximating it by a weighted sum of $M$ Gaussian distributions $\varphi$ \cite{def_hmm}. We can describe the function as follow:
+
+\begin{equation}
+	s_{j}(o) = \sum_{m = 1}^{M} c_{jm}\varphi (\mu_{jm}, \Sigma_{jm}, o_{t})
+\end{equation}
+
+where $c_{jm}$ is the weighted coefficients, $\mu_{jm}$ is the mean vector and $\Sigma_{jm}$ is the covariance matrix. The coefficients should satisfy the stochastic rules in \ref{eq:stochastic_rules}. \\
+\noindent We can then define the initial state distribution as $\pi = \{\pi_{i}\}$ where 
+
+\begin{equation}
+	\pi_{i} = p \, \{ q_{I} = i \, \}, \,\,\,\, 1 \leq i \leq N
+\end{equation} 
+
+Hence, to describe the HMM with the discrete probability function we can use the following compact form
+\begin{equation}
+	\lambda = (\Lambda, S, \pi )
+\end{equation}
+
+\noindent whereas to denote the model with a continuous density function, we use the one described in \ref{eq:hmm_density}
+\begin{equation}
+\label{eq:hmm_density}
+\lambda = (\Lambda, c_{jm}, \mu_{jm}, \Sigma_{jm}, \pi )
+\end{equation} 
+
+\subsection{Assumptions}
+\label{sub:assumptions_hmm}
+
+
+
+
+\section{Forward Algorithm}
+\label{sec:forward}
 
 
 \section{Viterbi Algorithm}
