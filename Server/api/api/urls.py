@@ -20,4 +20,5 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^goofy/', include('goofy.urls')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^djga/', include('google_analytics.urls')),
 ]
