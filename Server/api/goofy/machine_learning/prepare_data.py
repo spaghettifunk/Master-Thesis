@@ -25,15 +25,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import base64
 import csv
 import json
 import os
 import sys
+import traceback
 from subprocess import Popen
-
-import matplotlib.pyplot as plt
-from matplotlib.font_manager import FontProperties
 
 from django.http import HttpResponse
 from utilities.logger import Logger
@@ -44,7 +41,7 @@ native_sentences = ["A piece of cake", "Blow a fuse", "Catch some zs", "Down to 
                     "Fair and square", "Get cold feet", "Mellow out", "Pulling your legs", "Thinking out loud"]
 
 
-class GMM_structure:
+class GmmStructure:
     stress = []
     words = []
     norm_F1 = []
@@ -101,8 +98,8 @@ def force_alignment(audio_file, sentence):
 
     # result of p2fa
     try:
-        (dirName, fileName) = os.path.split(audio_file)
-        output_filename = os.path.join(results_directory, fileName.replace('.wav', '.TextGrid'))
+        (dir_name, file_name) = os.path.split(audio_file)
+        output_filename = os.path.join(results_directory, file_name.replace('.wav', '.TextGrid'))
 
         # call the file
         command = "python " + path_fa + "align.py " + audio_file + " " + get_sentences_directory + " " + output_filename
@@ -122,13 +119,13 @@ def extract_phonemes(audio_file, sentence, predicted_phonemes):
         path = os.path.dirname(os.path.abspath(__file__))
         textgrid_directory = path + "/data"
 
-        (dirName, fileName) = os.path.split(audio_file)
-        output_filename = os.path.join(textgrid_directory, fileName.replace('.wav', '.txt'))
+        (dir_name, file_name) = os.path.split(audio_file)
+        output_filename = os.path.join(textgrid_directory, file_name.replace('.wav', '.txt'))
 
         vowel_stress = []
         phonemes = []
-        with open(output_filename, 'r') as texgrid_file:
-            reader = csv.reader(texgrid_file, delimiter='\t')
+        with open(output_filename, 'r') as textgrid_file:
+            reader = csv.reader(textgrid_file, delimiter='\t')
             all_lines = list(reader)
 
             print>>sys.stderr, "*** OPENED: " + output_filename + " ***"
@@ -186,9 +183,9 @@ def extract_phonemes(audio_file, sentence, predicted_phonemes):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in extract-phonemes", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in extract-phonemes", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
-        response = {'Response': 'FAILED', 'Reason': "Exception in exctract-phonemes process"}
+        response = {'Response': 'FAILED', 'Reason': "Exception in extract-phonemes process"}
         return HttpResponse(json.dumps(response))
 
 
@@ -292,13 +289,13 @@ def wer(ref, hyp, debug=False):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in WER", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in WER", traceback.print_exc() + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response = {'Response': 'FAILED', 'Reason': "Exception in WER process"}
         return HttpResponse(json.dumps(response))
 
 
-def extract_data(audio_file, female=False):
+def extract_data(audio_file):
 
     print>>sys.stderr, "*** DOING EXTRACT DATA ***"
 
@@ -306,10 +303,7 @@ def extract_data(audio_file, female=False):
     path = os.path.dirname(os.path.abspath(__file__))
     path_fave = path + "/libraries/FAVE_extract/"
 
-    if female:
-        config_file = "--outputFormat txt --candidates --speechSoftware praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker " + path_fave + "/speakerinfo_female.speakerfile"
-    else:
-        config_file = "--outputFormat txt --candidates --speechSoftware praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker " + path_fave + "/speakerinfo_male.speakerfile"
+    config_file = "--outputFormat txt --candidates --speechSoftware praat --formantPredictionMethod default --measurementPointMethod faav --nFormants 3 --minVowelDuration 0.001 --nSmoothing 12 --remeasure --vowelSystem phila --speaker " + path_fave + "/speakerinfo.speakerfile"
 
     textgrid_file_directory = path + "/data/"
     output_file_directory = path + "/data/"
@@ -317,10 +311,10 @@ def extract_data(audio_file, female=False):
     wav_file = audio_file
     wav_file_cleaned = wav_file.replace('.wav', '.TextGrid')
 
-    (dirName, fileName) = os.path.split(wav_file_cleaned)
+    (dir_name, file_name) = os.path.split(wav_file_cleaned)
 
-    textgrid_file = os.path.join(textgrid_file_directory, fileName)
-    output_file = os.path.join(output_file_directory, fileName.replace('.TextGrid', '.txt'))
+    textgrid_file = os.path.join(textgrid_file_directory, file_name)
+    output_file = os.path.join(output_file_directory, file_name.replace('.TextGrid', '.txt'))
 
     # debug print
     command = "python " + path_fave + "bin/extractFormants.py " + config_file + " " + audio_file + " " + textgrid_file + " " + output_file
@@ -335,13 +329,13 @@ def extract_data(audio_file, female=False):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in exctract-formants", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in exctract-formants", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response = {'Response': 'FAILED', 'Reason': "Exception in extract-formants process"}
         return HttpResponse(json.dumps(response))
 
 
-def get_pitch_contour(audio_file, sentence, isFemale=False):
+def get_pitch_contour(audio_file, sentence):
     try:
 
         print>>sys.stderr, "*** DOING PITCH CONTOUR ***"
@@ -349,19 +343,15 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
         path = os.path.dirname(os.path.abspath(__file__))
         path_script = path + "/libraries/pitch_contour/pitch_intensity_formants.praat"
 
-        (dirName, fileName) = os.path.split(audio_file)
-        output_name = fileName.replace(".wav", ".csv")
+        (dir_name, file_name) = os.path.split(audio_file)
+        output_name = file_name.replace(".wav", ".csv")
         output_folder = path + "/data/" + output_name
 
         sentence = sentence.lower()
         sentence = sentence.replace(' ', '_')
 
-        if isFemale:
-            min_pitch = '75'
-            native_csv = path + "/data/native/female/" + sentence + ".csv"
-        else:
-            min_pitch = '50'
-            native_csv = path + "/data/native/male/" + sentence + ".csv"
+        min_pitch = '65'
+        native_csv = path + "/data/native/male/" + sentence + ".csv"
 
         # see script file for the usage
         command = '/usr/bin/praat ' + path_script + " " + audio_file + " " + output_folder + " " + 'wav' + " " + '10' + " " + min_pitch + " " + '500' + " " + '11025'
@@ -426,18 +416,16 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
             length_user = len(user_pitch)
             if length_native > length_user:
                 diff = length_native - length_user
-                temp = ['0'] * (diff)
+                temp = ['0'] * diff
                 user_pitch += temp
 
             elif length_user > length_native:
                 diff = length_user - length_native
-                temp = ['0'] * (diff)
+                temp = ['0'] * diff
                 native_pitch += temp
 
         # Create scatter image
         print>>sys.stderr, "*** CREATING FIGURE ***"
-        fig = plt.figure()
-        ax1 = fig.add_subplot(111)
 
         time = []
         val = 0
@@ -460,34 +448,12 @@ def get_pitch_contour(audio_file, sentence, isFemale=False):
 
         return normalized_native, normalized_user
 
-        # plot pitch
-        # ax1.scatter(time, normalized_native, s=100, c='r', marker='.', label='Native Pitch')
-        # ax1.scatter(time, normalized_user, s=100, c='b', marker='+', label='User Pitch')
-        #
-        # plt.xlabel('Time (sec)')
-        # plt.ylabel('Normalized Frequency (Hz)')
-        #
-        # fontP = FontProperties()
-        # fontP.set_size('x-small')
-        # plt.grid('on')
-        #
-        # lgd = plt.legend(loc='lower center', ncol=2, prop=fontP)
-        # plt.title('Stress trend')
-        #
-        # # Save as bynary file
-        # print>>sys.stderr, "*** SAVING FIGURE ***"
-        # plot_filename = audio_file.replace('.wav', '_pitch.png')
-        # plt.savefig(plot_filename, bbox_extra_artists=(lgd,), bbox_inches='tight', transparent=True)
-        #
-        # with open(plot_filename, "rb") as imageFile:
-        #     return base64.b64encode(imageFile.read())
-
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in get-pitch-contour", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in get-pitch-contour", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response = {'Response': 'FAILED', 'Reason': "Exception in get-pitch-contour process"}
         return HttpResponse(json.dumps(response))
@@ -531,7 +497,7 @@ def create_test_data(filename):
 
                 l = line[0].split(',')
 
-                data = GMM_structure()
+                data = GmmStructure()
                 data.set_object(0, l[1])
                 data.set_object(1, l[2])
                 try:
@@ -568,7 +534,7 @@ def create_test_data(filename):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in create-test-data", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in create-test-data", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response = {'Response': 'FAILED', 'Reason': "Exception in create-test-data process"}
         return HttpResponse(json.dumps(response))
@@ -589,7 +555,7 @@ def create_test_set(test_data):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in create-test-set", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in create-test-set", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response = {'Response': 'FAILED', 'Reason': "Exception in create-test-set process"}
         return HttpResponse(json.dumps(response))

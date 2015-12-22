@@ -1,0 +1,5 @@
+firstname lastname, 25, m, white, 2015, Rochester, NY, 
+
+vowel	stress	word	norm_F1	norm_F2	t	beg	end	dur	cd	fm	fp	fv	ps	fs	style	glide	norm_F1@20%	norm_F2@20%	norm_F1@35%	norm_F2@35%	norm_F1@50%	norm_F2@50%	norm_F1@65%	norm_F2@65%	norm_F1@80%	norm_F2@80%
+AW	1	OUT	544.0	1403.0	0.382	0.352	0.511	0.159	42	1	4	1	0	0			556.0	1196.0	686.0	663.0	644.0	-4424.0	786.0	-8747.0	593.0	-11772.0	
+AW	1	LOUD	756.0	1997.0	0.692	0.641	0.861	0.22	42	1	4	2	7	0			768.0	1774.0	828.0	2649.0	908.0	10229.0	1078.0	5230.0	975.0	508.0	

@@ -33,34 +33,25 @@ import json
 import math
 import os
 import sys
-
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+import traceback
 from django.http import HttpResponse
 from sklearn import mixture
-
 from utilities.logger import Logger
-from libraries.utility import clean_filename, clean_filename_numbers
-from prepare_data import GMM_structure
+from prepare_data import GmmStructure
 
 
-class GMM_prototype:
+class GmmPrototype:
 
     # region Global variables
 
-    male_audio_files = "train-audio-data/male/"
-    female_audio_files = "train-audio-data/female/"
-
-    male_formants_files_directory = 'data/formants_results/male/'
-    female_formants_files_directory = 'data/formants_results/female/'
-    male_model_name = 'models/gmm_male_model.pkl'
-    female_model_name = 'models/gmm_female_model.pkl'
-
-    male_trainset_name = '/models/trainset_male.pkl'
-    female_trainset_name = '/models/trainset_female.pkl'
-
-    sentence_phonemese_labels = 'data/sentences_phonemes_labels.txt'
+    audio_files = "train-audio-data/files/"
+    formants_files_directory = 'data/formants_results/files/'
+    model_name = 'models/gmm_model.pkl'
+    trainset_name = 'models/trainset.pkl'
+    sentence_phonemes_labels = 'data/sentences_phonemes_labels.txt'
 
     native_vowels = '/data/labels.txt'
     native_sentences = '/data/sentences.txt'
@@ -68,12 +59,8 @@ class GMM_prototype:
     # endregion
 
     # Train model with GMM
-    def create_structure(self, isFemale=False):
+    def create_structure(self):
         try:
-            if isFemale:
-                self.formants_files_directory = self.female_formants_files_directory
-            else:
-                self.formants_files_directory = self.female_formants_files_directory
 
             all_data = dict()
 
@@ -86,9 +73,10 @@ class GMM_prototype:
                 if ".DS_Store" in filename or "_norm" not in filename:
                     continue
 
-                cleaned_filename = clean_filename(filename)
-                cleaned_filename = clean_filename_numbers(cleaned_filename)
+                cleaned_filename = filename.replace(".txt", "")
                 cleaned_filename = cleaned_filename.replace('_norm', '')
+                last_index = cleaned_filename.rfind("_")
+                cleaned_filename = cleaned_filename[:last_index]
 
                 training_data = dict()
 
@@ -103,7 +91,7 @@ class GMM_prototype:
                             continue
 
                         l = line[0].split('\t')
-                        data = GMM_structure()
+                        data = GmmStructure()
 
                         data.set_object(0, l[1])
                         data.set_object(1, l[2])
@@ -159,7 +147,7 @@ class GMM_prototype:
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
             l = Logger()
-            l.log_error("Exception in GMM-create-struct", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+            l.log_error("Exception in GMM-create-struct", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
             response = {'Response': 'FAILED', 'Reason': "Exception in GMM-creation-structure process"}
             return HttpResponse(json.dumps(response))
@@ -198,14 +186,14 @@ class GMM_prototype:
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
             l = Logger()
-            l.log_error("Exception in GMM-get-native-vowels-struct", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+            l.log_error("Exception in GMM-get-native-vowels-struct", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
             response = {'Response': 'FAILED', 'Reason': "Exception in GMM-get-native-vowels process"}
             return HttpResponse(json.dumps(response))
 
-    def train_gmm(self, isFemale=False):
+    def train_gmm(self):
 
-        all_data = self.create_structure(isFemale)
+        all_data = self.create_structure()
         path = os.path.dirname(os.path.abspath(__file__))
 
         try:
@@ -225,21 +213,12 @@ class GMM_prototype:
                         gmm_classifier.fit(data)
 
             # save data
-            if isFemale:
-                path_trainset = path + self.female_trainset_name
-            else:
-                path_trainset = path + self.male_trainset_name
-
+            path_trainset = os.path.join(path, self.trainset_name)
             with open(path_trainset, 'wb') as fid:
                 cPickle.dump(all_data, fid)
 
             # save the classifier
-            if isFemale:
-                model_name = self.female_model_name
-            else:
-                model_name = self.male_model_name
-
-            model_directory = os.path.join(path, model_name)
+            model_directory = os.path.join(path, self.model_name)
 
             with open(model_directory, 'wb') as fid:
                 cPickle.dump(gmm_classifier, fid)
@@ -249,23 +228,22 @@ class GMM_prototype:
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
             l = Logger()
-            l.log_error("Exception in GMM-train model", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+            l.log_error("Exception in GMM-train model", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
             response = {'Response': 'FAILED', 'Reason': "Exception in GMM-train-model process"}
             return HttpResponse(json.dumps(response))
 
-    def test_gmm(self, X_test, Y_test, plot_filename, sentence, isFemale=False):
+    def test_gmm(self, X_test, Y_test, plot_filename, sentence):
 
-        #region LOAD SETS
+        # region LOAD SETS
         path = os.path.dirname(os.path.abspath(__file__))
         path += '/'
 
-        if isFemale:
-            model_name = path + self.female_model_name
-            trainset_name = path + self.female_trainset_name
-        else:
-            model_name = path + self.male_model_name
-            trainset_name = path + self.male_trainset_name
+        model_name = path + self.model_name
+        trainset_name = path + self.trainset_name
+
+        print >> sys.stderr, "*** Model name: " + model_name + "***"
+        print >> sys.stderr, "*** Trainset name: " + trainset_name + "***"
 
         # load it again
         with open(model_name, 'rb') as model:
@@ -274,15 +252,23 @@ class GMM_prototype:
         with open(trainset_name, 'rb') as traindata:
             all_data = cPickle.load(traindata)
 
+        print >> sys.stderr, "*** LOADED Model name: " + model_name + "***"
+        print >> sys.stderr, "*** LOADED Trainset name: " + trainset_name + "***"
+        print >> sys.stderr, "*** ITEMS N: " + str(len(all_data.items())) + " ***"
+
         all_vowels = []
         for key, val in all_data.items():
             for v in val.keys():
                 all_vowels.append(v)
 
         labels = np.unique(all_vowels)
+        print >> sys.stderr, "*** LABELS ***"
+
         int_labels = np.arange(len(labels))
+        print >> sys.stderr, "*** INT LABELS ***"
 
         map_int_label = dict(zip(int_labels, labels))
+        print >> sys.stderr, "*** MAP INT LABELS ***"
 
         # results
         key_sentence = sentence.lower()
@@ -290,22 +276,24 @@ class GMM_prototype:
 
         train_dict = all_data.get(key_sentence)
         X_train = train_dict.values()
+        print >> sys.stderr, "*** X_TRAIN ***"
+
         Y_train = train_dict.keys()
-        #endregion
+        print >> sys.stderr, "*** Y_TRAIN ***"
+        # endregion
 
         try:
-            #region PLOT PARAMETERS
+            # region PLOT PARAMETERS
+            print >> sys.stderr, "*** PREPARING FOR PLOTTING GMM ***"
+
             plt.figure()
             plt.subplots_adjust(wspace=0.4, hspace=0.5)
 
             colors = ['b', 'g', 'c', 'm', 'y', 'k']
 
-            # markers_predicted = ['s', 'p', '*', '+', 'd', 'D']
-            # markers_native = ['.',',','+','x','_','|']
-
             predicted_formants = []
             current_trend_formants_data = dict()
-            #endregion
+            # endregion
 
             # 3 rows when we have 5 vowels
             if len(X_test) > 4:
@@ -313,7 +301,8 @@ class GMM_prototype:
             else:
                 rows = 2
 
-            #region PRINT PREDICTED VOWELS
+            # region PRINT PREDICTED VOWELS
+            print >> sys.stderr, "*** PRINT PREDICTED VOWELS ***"
             columns = 2
             index = 1
             for val in X_test:
@@ -322,40 +311,40 @@ class GMM_prototype:
                 data = zip(f1, f2)
 
                 gmm_predict = gmm_classifier.predict(data)
-                current_trend_formants_data[index] = data    # save data for trend graph + index of subplot
+                current_trend_formants_data[index] = data  # save data for trend graph + index of subplot
 
                 gmm_l = gmm_predict.tolist()
                 predicted_formants.append(gmm_l[0])
 
                 # print the predicted-vowels based on the formants
-                l = gmm_l[0]    # TODO: investigate on how to have the highest probability only
+                l = gmm_l[0]  # TODO: investigate on how to have the highest probability only
                 plt.subplot(rows, columns, index)
                 plt.scatter(f1, f2, s=80, c='r', marker='+', label=r"$ {} $".format(map_int_label[l]))
                 index += 1
-            #endregion
+            # endregion
 
-            #region STRUCT FOR RETRIEVING THE ACTUAL LABEL
+            # region STRUCT FOR RETRIEVING THE ACTUAL LABEL
+            print >> sys.stderr, "*** STRUCT FOR RETRIEVING THE ACTUAL LABEL ***"
             predicted_labels = []
             for pf in predicted_formants:
                 predicted_labels.append(map_int_label[pf])
 
             native_vowels = self.get_native_vowels(sentence)
             uniq_predicted_labels = np.unique(predicted_labels)
-            #endregion
+            # endregion
 
             # TODO: saving data for creating trend chart
             current_trend_data = zip(predicted_labels, current_trend_formants_data)
 
-            #region ACCURACY
-            if uniq_predicted_labels.shape != np.array(native_vowels).shape:
-                test_accuracy = 0.0
-            else:
-                test_accuracy = np.mean(uniq_predicted_labels == np.array(native_vowels)) * 100
-            #endregion
+            # region ACCURACY
+            # test_accuracy = np.mean(uniq_predicted_labels == np.array(native_vowels)) * 100
+            # print >> sys.stderr, "*** ACCURACY: " + str(test_accuracy) + " ***"
+            # endregion
 
             new_trend_data = []
 
-            #region PRINT NATIVE VOWELS FORMANTS
+            # region PRINT NATIVE VOWELS FORMANTS
+            print >> sys.stderr, "*** PRINT NATIVE VOWELS FORMANTS ***"
             i = 0
             duplicate = []
             native_data = dict(zip(Y_train, X_train))
@@ -376,12 +365,14 @@ class GMM_prototype:
                     plot_index = index
                     predicted_data = current_trend_formants_data[index]
 
+                print >> sys.stderr, "*** READY TO CREATE THE PLOT ***"
                 struct = native_data[n]
 
                 native_f1 = struct.get_object(2)
                 native_f2 = struct.get_object(3)
 
                 ax = plt.subplot(rows, columns, plot_index)
+                plt.tight_layout()
                 ax.scatter(native_f1, native_f2, s=40, c=colors[i], marker='.', label=r"$ {} $".format(n))
                 axes = plt.gca()
                 axes.set_xlim([min(native_f1) - 500, max(native_f1) + 500])
@@ -403,8 +394,9 @@ class GMM_prototype:
 
                 i += 1
                 index += 1
-            #endregion
+            # endregion
 
+            print >> sys.stderr, "*** SAVE THE PLOT ***"
             plt.savefig(plot_filename, bbox_inches='tight', transparent=True)
 
             with open(plot_filename, "rb") as imageFile:
@@ -415,13 +407,16 @@ class GMM_prototype:
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
             l = Logger()
-            l.log_error("Exception in GMM-test-model", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+            l.log_error("Exception in GMM-test-model", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
             response = {'Response': 'FAILED', 'Reason': "Exception in GMM-test-model process"}
             return HttpResponse(json.dumps(response))
 
     def make_ellipses(self, ax, native_f1, native_f2, predicted_f1, predicted_f2):
         try:
+
+            print >> sys.stderr, "*** MAKE ELLIPSES ***"
+
             x1 = min(native_f1)
             x2 = max(native_f1)
             y1 = min(native_f2)
@@ -435,12 +430,15 @@ class GMM_prototype:
 
             distance_from_centroid = math.sqrt(x_2 + y_2)
 
-            ellipse = mpl.patches.Ellipse(xy=((x2 + x1) / 2, (y2 + y1) / 2), width=(x2 - x1) * 1.4, height=(y2 - y1) * 1.2)
+            ellipse = mpl.patches.Ellipse(xy=((x2 + x1) / 2, (y2 + y1) / 2), width=(x2 - x1) * 1.4,
+                                          height=(y2 - y1) * 1.2)
             ellipse.set_edgecolor('r')
             ellipse.set_facecolor('none')
             ellipse.set_clip_box(ax.bbox)
             ellipse.set_alpha(0.5)
             ax.add_artist(ellipse)
+
+            print >> sys.stderr, "*** ELLIPSES DONE ***"
 
             return distance_from_centroid
         except Exception as e:
@@ -448,7 +446,7 @@ class GMM_prototype:
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
             l = Logger()
-            l.log_error("Exception in GMM-make ellipse", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+            l.log_error("Exception in GMM-make ellipse", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
             response = {'Response': 'FAILED', 'Reason': "Exception in GMM-make-ellipse process"}
             return HttpResponse(json.dumps(response))
@@ -457,19 +455,15 @@ class GMM_prototype:
         try:
             path = os.path.dirname(os.path.abspath(__file__))
 
-            female_model = os.path.join(path, self.female_model_name)
-            male_model = os.path.join(path, self.male_model_name)
+            model_path = os.path.join(path, self.model_name)
+            return os.path.exists(model_path)
 
-            exist_female = os.path.exists(female_model)
-            exist_male = os.path.exists(male_model)
-
-            return (exist_female and exist_male)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
             l = Logger()
-            l.log_error("Exception in GMM-check-if-models-exist", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+            l.log_error("Exception in GMM-check-if-models-exist", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
             response = {'Response': 'FAILED', 'Reason': "Exception in GMM-check-if-models-exist process"}
             return HttpResponse(json.dumps(response))

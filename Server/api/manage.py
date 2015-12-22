@@ -30,18 +30,17 @@ import sys
 import matplotlib
 matplotlib.use('Agg')
 
-from goofy.machine_learning.GMM_system import GMM_prototype
+from goofy.machine_learning.GMM_system import GmmPrototype
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "api.settings")
 
     # Start up code here
     # train model and save into file
-    trainer = GMM_prototype()
+    trainer = GmmPrototype()
 
     if trainer.models_if_exist() is False:
-        trainer.train_gmm(False)
-        trainer.train_gmm(True)
+        trainer.train_gmm()
 
     from django.core.management import execute_from_command_line
 

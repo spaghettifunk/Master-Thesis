@@ -1,6 +1,0 @@
-firstname lastname, 25, m, white, 2015, Rochester, NY, 
-
-vowel	stress	word	norm_F1	norm_F2	t	beg	end	dur	cd	fm	fp	fv	ps	fs	style	glide	norm_F1@20%	norm_F2@20%	norm_F1@35%	norm_F2@35%	norm_F1@50%	norm_F2@50%	norm_F1@65%	norm_F2@65%	norm_F1@80%	norm_F2@80%
-OW	1	BLOW	511.0	2178.0	0.229	0.222	0.372	0.15	63	0	0	0	8	0			419.0	1882.0	208.0	1790.0	86.0	1663.0	202.0	1592.0	497.0	1706.0	
-AH	0	A	809.0	1529.0	0.385	0.372	0.412	0.04	*	0	0	0	0	0			801.0	1534.0	818.0	1528.0	713.0	1278.0	553.0	1034.0	546.0	1075.0	
-UW	1	FUSE	630.0	1392.0	0.764	0.711	0.871	0.16	82	3	4	2	9	0					480.0	1374.0					-174.0	991.0	

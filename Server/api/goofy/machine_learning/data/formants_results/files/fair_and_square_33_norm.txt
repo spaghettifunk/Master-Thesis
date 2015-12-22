@@ -1,0 +1,5 @@
+firstname lastname, 25, m, white, 2015, Rochester, NY, 
+
+vowel	stress	word	norm_F1	norm_F2	t	beg	end	dur	cd	fm	fp	fv	ps	fs	style	glide	norm_F1@20%	norm_F2@20%	norm_F1@35%	norm_F2@35%	norm_F1@50%	norm_F2@50%	norm_F1@65%	norm_F2@65%	norm_F1@80%	norm_F2@80%
+AH	0	AND	544.0	1403.0	0.332	0.322	0.352	0.03	*	4	4	2	0	3			544.0	1403.0	544.0	1403.0	516.0	1697.0	466.0	2078.0	466.0	2078.0	
+EH	1	SQUARE	756.0	1997.0	0.698	0.631	0.831	0.2	24	6	4	2	9	0			1229.0	1737.0	2680.0	3601.0	1720.0	3304.0	6524.0	6187.0	139.0	855.0	

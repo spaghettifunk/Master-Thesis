@@ -30,10 +30,11 @@ import datetime
 import glob
 import random
 import shutil
+import base64
 import matplotlib.dates as dates
 import numpy as np
 from rest_framework.decorators import api_view
-from machine_learning.GMM_system import GMM_prototype
+from machine_learning.GMM_system import GmmPrototype
 from machine_learning.prepare_data import *
 from .models import User, UserHistory, UserSentenceVowelsTrend, UserReport
 
@@ -86,7 +87,7 @@ def login(request):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in Login-request", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in Login-request", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response['Response'] = 'FAILED'
         response['Reason'] = "Exception in login-process"
@@ -150,7 +151,7 @@ def register(request):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in Register-request", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in Register-request", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response['Response'] = 'FAILED'
         response['Reason'] = "Exception in registration process"
@@ -197,11 +198,10 @@ def test_pronunciation(request):
         print>> sys.stderr, "*** FILE CONVERTED ***"
 
         phonemes, vowel_stress, result_wer, normalized_native, normalized_user, vowel_chart = classify_user_audio(
-                                                                                                temp_audiofile,
-                                                                                                phonemes,
-                                                                                                sentence,
-                                                                                                user['username'],
-                                                                                                gender)
+                                                                                                    temp_audiofile,
+                                                                                                    phonemes,
+                                                                                                    sentence,
+                                                                                                    user['username'])
         # save data here on model
         user_history = UserHistory(username=user['username'], sentence=sentence, chart_id=str(random_hash),
                                    date=datetime.date.today(), vowels=vowel_chart)
@@ -210,21 +210,13 @@ def test_pronunciation(request):
         response['Phonemes'] = phonemes
         response['VowelStress'] = vowel_stress
         response['WER'] = result_wer
-        #response['PitchChart'] = pitch_chart
         response['YValuesNative'] = normalized_native
         response['YValuesUser'] = normalized_user
         response['VowelChart'] = vowel_chart
 
-        # clean up everything
-        # cleaned_name = temp_audiofile.replace('.wav', '*')
-
-        # filelist = glob.glob(cleaned_name)
-        # for filename in filelist:
-        #     os.remove(filename)
-
         data_path = path + '/machine_learning/data/'
-        (dirName, fileName) = os.path.split(temp_audiofile)
-        cleaned_name = data_path + fileName.replace('.wav', '*')
+        (dir_name, file_name) = os.path.split(temp_audiofile)
+        cleaned_name = data_path + file_name.replace('.wav', '*')
 
         filelist = glob.glob(cleaned_name)
         for filename in filelist:
@@ -238,7 +230,7 @@ def test_pronunciation(request):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in build-trend-chart", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in build-trend-chart", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response['Response'] = 'FAILED'
         response['Reason'] = "User not existing in model"
@@ -249,55 +241,42 @@ def test_pronunciation(request):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in build-trend-chart", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in build-trend-chart", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response['Response'] = 'FAILED'
         response['Reason'] = "Exception in test-pronunciation process"
         return HttpResponse(json.dumps(response))
 
 
-def classify_user_audio(audiofile, phonemes, sentence, username, gender):
+def classify_user_audio(audiofile, phonemes, sentence, username):
     print >> sys.stderr, "*** START FORCE ALIGNMENT ***"
 
     # Force Alignment
     force_alignment(audiofile, sentence)
 
-    # FAVE-exctract
-    if gender == 'm':
+    # FAVE-extract
+    print >> sys.stderr, "*** START EXTRACT DATA ***"
+    extract_data(audiofile)
 
-        print >> sys.stderr, "*** START EXTRACT DATA ***"
-        extract_data(audiofile, True)
-
-        print >> sys.stderr, "*** START PITCH CONTOUR ***"
-        # pitch_binary = get_pitch_contour(audiofile, sentence, True)
-        normalized_native, normalized_user = get_pitch_contour(audiofile, sentence, True)
-    else:
-        print >> sys.stderr, "*** START EXTRACT DATA ***"
-        extract_data(audiofile, False)
-
-        print >> sys.stderr, "*** START PITCH CONTOUR ***"
-        # pitch_binary = get_pitch_contour(audiofile, sentence, False)
-        normalized_native, normalized_user = get_pitch_contour(audiofile, sentence, False)
+    print >> sys.stderr, "*** START PITCH CONTOUR ***"
+    normalized_native, normalized_user = get_pitch_contour(audiofile, sentence)
 
     print >> sys.stderr, "*** START EXTRACT PHONEMES ***"
-    # Exctract pronounced phonemes and vowel stress
+    # Extract pronounced phonemes and vowel stress
     phonemes, vowel_stress, result_wer = extract_phonemes(audiofile, sentence, phonemes)
 
-    print >> sys.stderr, "*** START CREATION GMM TESTSET ***"
+    print >> sys.stderr, "*** START CREATION GMM TEST-SET ***"
     # Create GMM testing set
-    (dirName, fileName) = os.path.split(audiofile)
-    test_data = create_test_data(fileName)
+    (dir_name, file_name) = os.path.split(audiofile)
+    test_data = create_test_data(file_name)
 
     # Test on GMM and get prediction
     X_test, Y_test = create_test_set(test_data)
     plot_filename = audiofile.replace('.wav', '_chart.png')
 
     print >> sys.stderr, "*** START GMM TEST ***"
-    gmm_obj = GMM_prototype()
-    if gender == 'm':
-        vowel_binary, trend_data = gmm_obj.test_gmm(X_test, Y_test, plot_filename, sentence, False)
-    else:
-        vowel_binary, trend_data = gmm_obj.test_gmm(X_test, Y_test, plot_filename, sentence, True)
+    gmm_obj = GmmPrototype()
+    vowel_binary, trend_data = gmm_obj.test_gmm(X_test, Y_test, plot_filename, sentence)
 
     print >> sys.stderr, "*** START BUILD TREND CHART ***"
     # build trend chart
@@ -340,7 +319,7 @@ def build_trend_chart(username, sentence, trend_data):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in build-trend-chart", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in build-trend-chart", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response = {'Response': 'FAILED', 'Reason': "Exception in build-chart-process"}
         return HttpResponse(json.dumps(response))
@@ -374,23 +353,17 @@ def fetch_history_data(request):
                     history_vowels_date.append(str(history.date))
             # endregion
 
-            path = os.path.dirname(os.path.abspath(__file__))
-            audio_path = path + "/audio/"
-
             # region Trend
             trend_images_title = []
             trend_images = []
             trend_images_time = []
             trend_data = UserSentenceVowelsTrend.objects.filter(username=username, sentence=sentence)
-            # trend_plot_filename = audio_path + sentence.replace(' ', '_') + "_" + str(random.getrandbits(128)) + ".png"
             vowels = vowels.replace(' ', '')
             native_vowels = vowels.split(',')
 
             for trend in trend_data:
                 if trend.vowel in native_vowels:
-                    # build the graph here
 
-                    # fig = plt.figure()
                     x_axis = []
                     y_axis = []
                     x_values_str = []
@@ -410,26 +383,6 @@ def fetch_history_data(request):
 
                     print>> sys.stderr, "*** DUMPED ***"
 
-                    # plt.bar(x_axis, y_axis, width=0.35)
-                    # plt.xlabel("Time")
-                    # plt.ylabel("Distance to center")
-                    # plt.xticks(x_axis, x_values_str)
-                    #
-                    # plt.title("Vowel: " + trend.vowel)
-                    # plt.grid(True)
-                    #
-                    # plt.margins(0.1)    # Pad margins so that markers don't get clipped by the axes
-                    # plt.subplots_adjust(bottom=0.1)     # Tweak spacing to prevent clipping of tick-labels
-                    #
-                    # fig.autofmt_xdate(rotation=45)
-                    # fig.tight_layout()
-                    #
-                    # plt.savefig(trend_plot_filename, bbox_inches='tight', transparent=True)
-                    # with open(trend_plot_filename, "rb") as imageFile:
-                    #     trend_pic = base64.b64encode(imageFile.read())
-                    #
-                    #     json_image = json.dumps(trend_pic)
-                    #     trend_images.append(json_image)
             # endregion
 
             response["Response"] = "SUCCESS"
@@ -440,9 +393,6 @@ def fetch_history_data(request):
             response["TrendImagesTitle"] = trend_images_title
             response["TrendImages"] = trend_images
             response["TrendImagesTime"] = trend_images_time
-
-            # clean things up
-            # os.remove(trend_plot_filename)
 
             print>> sys.stderr, "*** DUMPING RESPONSE ***"
             res_json = json.dumps(response)
@@ -455,7 +405,7 @@ def fetch_history_data(request):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in fetch-history-request", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in fetch-history-request", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response['Response'] = 'FAILED'
         response['Reason'] = "Exception in fetch-history process"
@@ -492,7 +442,7 @@ def save_report(request):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
         l = Logger()
-        l.log_error("Exception in save-report-request", exc_type + " " + fname + " " + exc_tb.tb_lineno)
+        l.log_error("Exception in save-report-request", str(traceback.print_exc()) + "\n\n" + fname + " " + str(exc_tb.tb_lineno))
 
         response['Response'] = 'FAILED'
         response['Reason'] = "Exception in save-report process"
