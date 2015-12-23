@@ -35,7 +35,7 @@ The \textbf{phase} measures the starting point position of the waveform. If the 
 \label{sec:spectrograms}
 A \textbf{Spectrogram} is the visual representation of an acoustic signal \cite{spectrogram_def}. Basically, a Fourier Transformation is applied to the sound, in such a way to obtain the set of waveforms extracted form the original signal and separate their frequencies and amplitudes. The result is typically depicted in a graph with degrees of amplitude with a \textit{light-dark} representation. Since amplitude represents the \textit{energy}, having a darker shade means that the energy is more intense in a certain range of frequencies - lighter when there is low energy. In \ref{fig:nasal_spectrogram} there is an example of the spectrogram. \\
 \noindent The visual feedback of the spectrogram is highly dependent from the \textbf{window size} of the Fourier Analysis. In fact, different sizes affect the levels of frequencies and time resolution. \\
-\noindent If the window size is \textit{short}, the adjacent \textbf{harmonics} are distorted but the time resolution is better \cite{spectrogram_def}. An harmonic is \textit{"an integer multiple of the fundamental frequency"}\cite{harmonic_wiki} or component frequencies. This is helpful when we are looking for the \textit{formant structure} because the striations created by the spectrogram highlights the individual pitch periods. \\
+\noindent If the window size is \textit{short}, the adjacent \textbf{harmonics} are distorted but the time resolution is better \cite{spectrogram_def}. An harmonic is an integer multiple of the fundamental frequency or component frequencies. This is helpful when we are looking for the \textit{formant structure} because the striations created by the spectrogram highlights the individual pitch periods. \\
 \noindent On the other hand, a \textit{wider} window size, helps to locate the harmonics because the band of the spectrogram are narrower.
 
 
@@ -49,11 +49,12 @@ A \textbf{Spectrogram} is the visual representation of an acoustic signal \cite{
 	\item Invertible - derived from the linear relationship
 \end{itemize}
 
-\noindent In signal processing, the Fourier analysis is used to isolate singular components of a complex waveform. A set of techniques consist in using \textbf{Fourier Transformation} on a signal in such a way to be able to manipulate the data in the easiest way possible but at the same time we have to be capable of inverting the transformation \cite{fa_wiki} \cite{rabiner1975theory}. In the next subsections we describe the fundamental steps for manipulating a signal.
+\noindent In signal processing, the Fourier analysis is used to isolate singular components of a complex waveform. A set of techniques consist in using \textbf{Fourier Transformation} on a signal in such a way to be able to manipulate the data in the easiest way possible but at the same time we have to be capable of inverting the transformation \cite{rabiner1975theory}. In the next subsections we describe the fundamental steps for manipulating a signal.
 
 \subsubsection{Sampling}
 \label{ssubs:sampling}
-\textit{Sampling} is the process that transform a continuous signal in to a discrete one. Each sample can be either be a single value or a set of values at a certain point in time \cite{sampling_wiki}. \\ 
+
+\textit{Sampling} is the process where a continuous signal is periodically measured every \textbf{T} seconds \cite{orfanidis1995introduction}. \\ 
 \noindent Consider a sound signal that varies in time a continuous function $s(t)$. For every $T$ seconds, we need to measure the value of the function. This frame of time is called the \textit{sampling interval} \cite{weik2012communications}. To calculate the sequence a sampled function is given as follow: $s(nT), \forall$ integer values of $n$. Thus, the \textit{sampling rate} is the average number of samples obtained in a range of $T = 1sec$ \cite{sampling_wiki}. An example of sampling is shown in \ref{fig:sampling_ex}.
 
 \begin{figure}[!ht]

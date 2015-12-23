@@ -16,7 +16,7 @@ Homophones refers to those words that are spelled in a different way but they \t
 \section{Architecture}
 \label{sec:speech_rec_Architecture}
 Generally speaking, a speech recognition system is divided in three main components: the \textbf{Feature Extraction} (or Front End), the \textbf{Decoder} and the \textbf{Knowledge Base} (KB). In \ref{fig:speech_architecture} the KB part is represented by the three sub-blocks called \textit{Acoustic Model}, \textit{Pronunciation Dictionary} and \textit{Language Model}. The \textit{Front End} takes as in input the voice signal where it is analyzed and converted in the so called \textit{Features Vectors}. This last is the set of common properties that we discussed in \ref{ch:english_language}. From here we can say that $\textbf{Y} 1:N = y_{1},..., y_{N}$ where $Y$ is the set of features vectors. \\
-The second step consists in feeding the \textit{Decoder} with vectors we obtained from the previous step, attempting to find the sequence of words $\textbf{w} 1:L = w_{1},..., w_{L}$ that have most likely generated the set $Y$\cite{gales2008application}. The decoder tries to find the likelihood estimation as follows:
+The second step consists in feeding the \textit{Decoder} with vectors we obtained from the previous step, attempting to find the sequence of words $\textbf{w} 1:L = w_{1}, ... , w_{L}$ that have most likely generated the set $Y$\cite{gales2008application}. The decoder tries to find the likelihood estimation as follows:
 
 \begin{equation}
 	\widehat{w} = \underset{w}{arg max} P(\textbf{w}| \textbf{Y})
@@ -52,6 +52,7 @@ The second step consists in feeding the \textit{Decoder} with vectors we obtaine
 
 The set of probabilities is defined as follow:
 \begin{equation}
+\label{eq:transition_probabilities}
 a_{ij} = p \, \{ \, q_{t+1} = j \, | \, q_{t} = i \, \}, \, \, \, 1 \leq i,j \leq N, 
 \end{equation}
 
@@ -72,7 +73,7 @@ Each transition should satisfy the following rules:
 s_{j}(k) = p \, \{\, o_{t} = v_{k} \, | \, q_{t} = j \, \}, \, \, \, 1 \leq j \leq N, \,\, 1 \leq k \leq M
 \end{equation}
 
-where $v_k$ is the $k^{th}$ observation whereas $o_{t}$ is the outcome. Furthermore, $b_{j}(k)$ must satisfy the same stochastic rules described in \ref{eq:stochastic_rules}. \\
+\noindent where $v_k$ is the $k^{th}$ observation whereas $o_{t}$ is the outcome. Furthermore, $b_{j}(k)$ must satisfy the same stochastic rules described in \ref{eq:stochastic_rules}. \\
 
 \noindent A different approach is made when the number of observations is infinite. In fact, we are not going to use a set of discrete probabilities but instead a continuous probability density function. Given that, we can define the parameters of the density function by approximating it by a weighted sum of $M$ Gaussian distributions $\varphi$ \cite{def_hmm}. We can describe the function as follow:
 
@@ -80,15 +81,16 @@ where $v_k$ is the $k^{th}$ observation whereas $o_{t}$ is the outcome. Furtherm
 	s_{j}(o) = \sum_{m = 1}^{M} c_{jm}\varphi (\mu_{jm}, \Sigma_{jm}, o_{t})
 \end{equation}
 
-where $c_{jm}$ is the weighted coefficients, $\mu_{jm}$ is the mean vector and $\Sigma_{jm}$ is the covariance matrix. The coefficients should satisfy the stochastic rules in \ref{eq:stochastic_rules}. \\
+\noindent where $c_{jm}$ is the weighted coefficients, $\mu_{jm}$ is the mean vector and $\Sigma_{jm}$ is the covariance matrix. The coefficients should satisfy the stochastic rules in \ref{eq:stochastic_rules}. \\
 \noindent We can then define the initial state distribution as $\pi = \{\pi_{i}\}$ where 
 
 \begin{equation}
 	\pi_{i} = p \, \{ q_{I} = i \, \}, \,\,\,\, 1 \leq i \leq N
 \end{equation} 
 
-Hence, to describe the HMM with the discrete probability function we can use the following compact form
+\noindent Hence, to describe the HMM with the discrete probability function we can use the following compact form
 \begin{equation}
+\label{eq:hmm_discrete}
 	\lambda = (\Lambda, S, \pi )
 \end{equation}
 
@@ -100,19 +102,54 @@ Hence, to describe the HMM with the discrete probability function we can use the
 
 \subsection{Assumptions}
 \label{sub:assumptions_hmm}
+The theory behind HMM requires three important assumptions: the \textbf{Markov assumption}, the \textbf{stationarity assumption} and the \textbf{output independence assumption}.
+
+\subsubsection{The Markov Assumption}
+The Markov assumption assumes that the following state depends only from the state we are currently in as given in \ref{eq:transition_probabilities}. The result model is also referred as \textit{first order} HMM. Generally speaking though, the decision of the next coming state might depend on \textbf{n} previous states, leading to a $n^{th}$ HMM order model. In this case, the transition probabilities is defined as follow:
+
+\begin{equation}
+\label{eq:transition_nth_order}
+a_{i_{1}i_{2}...i_{n}j} = p\, \{\, q_{t+1} = j \,|\, q_{t} = i_{1}, \, q_{t-1} = i_{2}, ... , \, q_{t-k+1} = i_{k} \, \}, \,\,\,\, 1 \leq i_{1},i_{2}, ... ,i_{k}, j \leq N
+\end{equation}
 
 
+\subsubsection{The Stationary Assumption}
+The second assumption states that the transition probabilities are \textit{time-independent} when the transitions occur. This is defined by the following equation for any $t_{1}$ and $t_{2}$:
+
+\begin{equation}
+	p \, \{\, q_{t+1} = j \,|\, q_{t_{1}} = i\, \}\, = \,p \,\{\, q_{t_{2}+1} = j \,|\, q_{t_{2}} = i\, \}
+\end{equation}
+
+\subsubsection{The Output Assumption}
+The last assumption says that the current observation is statistically independent from the previous observations. Let's consider the following observations:
+
+\begin{equation}
+	O = o_{1}, o_{2}, ... , o_{T}
+\end{equation}
+
+Now, recalling \ref{eq:hmm_discrete}, it is possible to formulate the assumption as follow:
+
+\begin{equation}
+	p \, \{\, O \, |\, q_{1},q_{2}, ... , q_{T}, \lambda \,\}\, = \, \prod_{t = 1}^{T} p \, \{ \, o_{t} \, | \, q_{t}, \, \lambda \,\}
+\end{equation}
+
+\section{Evaluation problem}
 
 
-\section{Forward Algorithm}
-\label{sec:forward}
+\subsection{Forward Algorithm}
+
+
+\subsection{Backward Algorithm}
 
 
 \section{Viterbi Algorithm}
 \label{sec:viterbi}
+Decoding part
 
-\section{Acoustic score system}
-\label{sec:acoustic_score_system}
+\section{Maximum likelihood estimation}
+\label{sec:mle}
+Training the HMM
+
 
 
 % GMM classifier
