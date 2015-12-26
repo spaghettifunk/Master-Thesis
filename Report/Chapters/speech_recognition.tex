@@ -130,25 +130,64 @@ The last assumption says that the current observation is statistically independe
 Now, recalling \ref{eq:hmm_discrete}, it is possible to formulate the assumption as follow:
 
 \begin{equation}
+\label{eq:final_hmm}
 	p \, \{\, O \, |\, q_{1},q_{2}, ... , q_{T}, \lambda \,\}\, = \, \prod_{t = 1}^{T} p \, \{ \, o_{t} \, | \, q_{t}, \, \lambda \,\}
 \end{equation}
 
-\section{Evaluation problem}
+\section{Evaluation}
+The next step in the HMM algorithm is the \textit{evaluation}. This phase consists in estimating the likelihood probability of a model when it produces that output sequence. Generally speaking, there are two famous algorithms that have been extensively used: \textbf{forward} and \textbf{backward} probability algorithms. In the next two subsections, we report the two algorithms that either one can be used.
 
+\subsection{Forward probability algorithm}
+Let us consider the equation \ref{eq:final_hmm} where the probabilistic output estimation is given. The major drawback of this equation is that the computational cost is exponential in $T$ because the probability of $O$ is calculated directly. It is possible to improve the previous approach by \textit{caching} the calculations. The cache is made using a \textit{lattice} (or trellis) of states where at each time step, the $\alpha$ value is calculated by summing all the states at the previous time step \cite{hmm_tutorial}. \\
 
-\subsection{Forward Algorithm}
+\noindent The $\alpha$ value (or forward probability) can be calculated as follow:
 
+\begin{equation}
+\label{eq:alpha_equation}
+	\alpha_{t}(i) \, = \, P(o_{1}, o_{2}, ... , o_{t}, q_{t} = s_{i} | \lambda)
+\end{equation}
 
-\subsection{Backward Algorithm}
+\noindent where $s_{i}$ is the state at time $t$. \\
+Given that, we can define the forward algorithm in three steps as follow:
+
+\begin{itemize}
+	\item[1.]{Initialization:} \\
+		\begin{equation}
+			\alpha_{1}(i) = \pi_{i}b_{i}(o_{1}), 1 \leq i \leq N
+		\end{equation}		
+	\item[2.]{Induction step:} \\
+		\begin{equation}
+		\label{eq:induction_step_forward}
+			\left ( \sum_{i=1}^{N} \alpha_{t}(i) a_{ij} \right ) b_{j}(o_{t+1}) \,\, where \,\, 1 \leq t \leq T - 1, \,\, 1 \leq j \, N
+		\end{equation}		
+	\item[3.]{Termination:} \\
+		\begin{equation}
+			P(O|\lambda) = \sum_{i=1}^{N} \, \alpha_{T}(i)
+		\end{equation}
+\end{itemize}
+		
+The key of this algorithm stays in \ref{eq:induction_step_forward} where for each state $s_{j}$ the $\alpha$ value contains the probability of the observed sequence from the beginning to time $t$. Given the previous algorithm, we can now calculate the new complexity. The direct algorithm has a complexity of $2TN^{T}$ whereas the new one is $N^{2}T$.
+
+\subsection{Backward probability algorithm}
+This algorithm is very similar to the previous one with the only difference when calculating the probability. Instead of estimating the probability as in \ref{eq:alpha_equation}, the backward algorithm estimates the likelihood of \textit{"the partial observation sequence from $t+1$ to $T$, starting from state $s_{i}$"}\cite{hmm_tutorial}. \\
+
+\noindent The probability is calculated with the following equation:
+
+\begin{equation}
+\label{eq:backward_algorithm}
+	\beta_{t}(i) \, = \, P(o_{t+1}, o_{t+2}, ... , o_{T} \, | \, q_{t} = s_{i}, \, \lambda)
+\end{equation}
+
+\noindent The usage of either one depends on the type of problem we need to face.
 
 
 \section{Viterbi Algorithm}
 \label{sec:viterbi}
-Decoding part
+
+
 
 \section{Maximum likelihood estimation}
 \label{sec:mle}
-Training the HMM
 
 
 

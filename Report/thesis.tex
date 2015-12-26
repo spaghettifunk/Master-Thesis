@@ -15,6 +15,8 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 \usepackage{afterpage}
 \usepackage{paralist}
 \usepackage{xspace}
@@ -41,6 +43,11 @@
     \thispagestyle{empty}%
     \addtocounter{page}{-1}%
     \newpage}
+
+% for pseudocode
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
 
 % ------------------------------------
 % Start Document
