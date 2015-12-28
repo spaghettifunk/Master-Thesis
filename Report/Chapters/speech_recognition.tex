@@ -19,13 +19,13 @@ Generally speaking, a speech recognition system is divided in three main compone
 The second step consists in feeding the \textit{Decoder} with vectors we obtained from the previous step, attempting to find the sequence of words $\textbf{w} 1:L = w_{1}, ... , w_{L}$ that have most likely generated the set $Y$\cite{gales2008application}. The decoder tries to find the likelihood estimation as follows:
 
 \begin{equation}
-	\widehat{w} = \underset{w}{arg max} P(\textbf{w}| \textbf{Y})
+	\widehat{w} = \underset{w}{arg \, max} \,\, P(\textbf{w}| \textbf{Y})
 \end{equation} 
 
 \noindent The $P (w|Y)$ is difficult to find directly\footnote{There is discriminate way of finding the estimation directly as described in \cite{gales2007discriminative}}, but using Bayes' Rules we can transform the equation above in
 
 \begin{equation}
-	\widehat{w} = \underset{w}{arg \; max} P (\textbf{Y}|\textbf{w}) P(\textbf{w})
+	\widehat{w} = \underset{w}{arg \, max} \,\, P (\textbf{Y}|\textbf{w}) P(\textbf{w})
 \end{equation}
 
 \noindent in which the probability $P(Y|w)$ and $P(w)$ are estimated by the \textit{Knowledge Base} block. In particular, the \textit{Acoustic Model} is responsible to estimate the first one whereas the \textit{Language Model} estimates the second one. \\
@@ -166,7 +166,7 @@ Given that, we can define the forward algorithm in three steps as follow:
 		\end{equation}
 \end{itemize}
 		
-The key of this algorithm stays in \ref{eq:induction_step_forward} where for each state $s_{j}$ the $\alpha$ value contains the probability of the observed sequence from the beginning to time $t$. Given the previous algorithm, we can now calculate the new complexity. The direct algorithm has a complexity of $2TN^{T}$ whereas the new one is $N^{2}T$.
+\noindent The key of this algorithm stays in \ref{eq:induction_step_forward} where for each state $s_{j}$ the $\alpha$ value contains the probability of the observed sequence from the beginning to time $t$. Given the previous algorithm, we can now calculate the new complexity. The direct algorithm has a complexity of $2TN^{T}$ whereas the new one is $N^{2}T$.
 
 \subsection{Backward probability algorithm}
 This algorithm is very similar to the previous one with the only difference when calculating the probability. Instead of estimating the probability as in \ref{eq:alpha_equation}, the backward algorithm estimates the likelihood of \textit{"the partial observation sequence from $t+1$ to $T$, starting from state $s_{i}$"}\cite{hmm_tutorial}. \\
@@ -181,13 +181,69 @@ This algorithm is very similar to the previous one with the only difference when
 \noindent The usage of either one depends on the type of problem we need to face.
 
 
-\section{Viterbi Algorithm}
+\section{Viterbi algorithm}
 \label{sec:viterbi}
+The main goal of this algorithm is to discover the sequence of hidden states that are more likely to be produces given a sequence of observations. This block is called \textbf{decoder} (see \ref{fig:speech_architecture} for reference). The \textit{Viterbi algorithm} is one of the most used solution for finding a \textit{single best sequence} for a given set of observations \cite{hmm_tutorial}. What makes this algorithm suitable for this problem, is the similarity with the forwarding algorithm with the only difference that instead of summing the transition probabilities at each step, it calculates the \textbf{maximum}. In \ref{fig:hmm_recursion} it is shown how the maximization estimation is calculated during the recursion step.
 
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=0.8]{Figures/hmm_recursion.png}
+	\caption{The recursion step \cite{hmm_tutorial}}
+	\label{fig:hmm_recursion}
+\end{figure}
+
+\noindent Let's define the probability of the most likely sequence for a given partial observation: 
+
+\begin{equation}
+	\delta_{t}(i) =  \underset{q_{1},q_{2}, ... , q_{t-1}}{\mathrm{max}} P (q_{1},q_{2}, ... , q_{t} = s_{i}, o_{1}, o_{2}, ... , o_{t} \, | \, \lambda)
+\end{equation}
+
+\noindent From here, we can define the steps of the algorithm as follow:
+
+\begin{itemize}
+	\item[1.]{Initialization:} \\
+	\begin{equation}
+		\delta_{1}(i) = \pi_{i}b_{i}(o_{1}), \,\, 1 \leq i \leq N, \phi_{1}(i) = 0
+	\end{equation}		
+
+	\item[2.]{Recursion:} \\
+	\begin{subequations}
+		\begin{align}
+		\delta_{t}(j) = \underset{1\leq i \leq N}{\mathrm{max}} [\delta_{t-1}(i)a_{ij}] \, b_{j}(o_{t}), \,\, 2 \leq t \leq T, \,\, 1 \leq j \leq N, \\
+		\psi_{t}(j) = \underset{1\leq i \leq N}{\mathrm{arg \, max}} [\delta_{t-1}(i)a_{ij}], \,\, 2 \leq t \leq T, \,\, 1 \leq j \leq N,
+		\end{align}
+	\end{subequations}		
+
+	\item[3.]{Termination:} \\
+	\begin{subequations}
+		\begin{align}
+		P^{*} = \underset{1\leq i \leq N}{\mathrm{max}}[\delta_{T}(i)] \\
+		q_{t}^{*} = \underset{1\leq i \leq N}{\mathrm{arg \, max}}[\delta_{T}(i)]
+		\end{align}
+	\end{subequations}
+
+	\item[4.]{Backtracking:} \\
+	\begin{equation}
+		q_{t}^{*} = \psi_{t+1}(q_{t+1}^{*}), \,\, t = T - 1, T - 2, ... , 1
+	\end{equation}
+\end{itemize}
+
+\noindent As previously stated, the Viterbi algorithm maximizes the probability during the recursion step. After that, the resulting state is used as a \textit{back-pointer} in which during the backtracking step, the best sequence will be found. In \ref{fig:hmm_backtrack} is depicted how the backtracking step works.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=0.8]{Figures/hmm_backtrack.png}
+	\caption{The backtracking step \cite{hmm_tutorial}}
+	\label{fig:hmm_backtrack}
+\end{figure}
 
 
 \section{Maximum likelihood estimation}
 \label{sec:mle}
+
+
+
+Given a set of examples from a process, we would like to be able to estimate the model parameters  that best describe that process. There are two standard approaches to this task, dependent on the form of the examples, which will be referred to here as supervised and unsupervised training. If the training examples contain both the inputs and outputs of a process, we can perform supervised training by equating inputs to observations, and outputs to states, but if only the inputs are provided in the training data then we must used unsupervised training to guess a model that may have produced those observations. In this section we will discuss the supervised approach to training, for a discussion of the Baum-Welch algorithm for unsupervised training see
 
 
 
