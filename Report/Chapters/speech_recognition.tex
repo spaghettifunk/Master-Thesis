@@ -240,11 +240,51 @@ The main goal of this algorithm is to discover the sequence of hidden states tha
 
 \section{Maximum likelihood estimation}
 \label{sec:mle}
+The last part of the model is represented by the \textit{Learning} phase, in which the system is able to decide what it the final word pronounced by a user. With the usage of HMM models, it is possible to extract one or more sequences of states. The last piece of the puzzle is to estimate the sequence of words. To do so, a typical speech recognition system uses the \textit{Maximum Likelihood estimation} (MLE). \\
 
+\noindent Given a sequence of $n$ \textit{independent} and \textit{identical} observations $x_{1}, x_{2}, ... , x_{n}$. Assuming that the set of samples comes from a probability distribution with an \textit{unknown density function} called $f_{0}(x_{1}, ... , x_{n})$. The function belongs to a family of a certain kind of distributions in which $\theta$ is the \textit{parameters vector} for that specific family. \\
 
+\noindent Before using MLE, a \textit{joint density function} must be specified first for all observations. Given the previous set of observation, the joint density function can be denoted as follow:
 
-Given a set of examples from a process, we would like to be able to estimate the model parameters  that best describe that process. There are two standard approaches to this task, dependent on the form of the examples, which will be referred to here as supervised and unsupervised training. If the training examples contain both the inputs and outputs of a process, we can perform supervised training by equating inputs to observations, and outputs to states, but if only the inputs are provided in the training data then we must used unsupervised training to guess a model that may have produced those observations. In this section we will discuss the supervised approach to training, for a discussion of the Baum-Welch algorithm for unsupervised training see
+\begin{equation}
+	f (x_{1}, x_{2}, ... , x_{n} | \theta) = f(x_{1} | \theta) \times f(x_{2} | \theta) \times ... \times f(x_{n} | \theta)
+\end{equation}
 
+\noindent Now, consider the same set of observations as a \textit{fixed} parameters whereas $\theta$ is allowed to change without any constraint. From now on, this function will be called \textbf{likelihood} and denoted as follow:
+
+\begin{equation}
+	L(\theta \, \sim \, x_{1}, x_{2}, ... , x_{n}) = f (x_{1}, x_{2}, ... , x_{n} | \theta) = \prod_{i=1}^{n} f (x_{i} | \theta)
+\end{equation}
+
+\noindent In this case, $\sim$ indicates a simple separation between the parameters function and the set of observations. \\
+\noindent Often, there is a need to use the \textit{log} function; that is transform the likelihood as follow:
+
+\begin{equation}
+\label{eq:log-likelihood}
+	ln \, L(\theta \, \sim \, x_{1}, x_{2}, ... , x_{n}) = \sum_{i=1}^{n} ln \, f(x_{i} | \theta)
+\end{equation}
+
+\noindent To estimate the log-likelihood of a single observation, it is necessary to calculate the average of \ref{eq:log-likelihood} as follow:
+
+\begin{equation}
+\label{eq:avg-likelihood}
+	\hat{l} = \frac{1}{n} ln \, L
+\end{equation} 
+
+\noindent The \textit{hat} in \ref{eq:avg-likelihood} indicates that the function is an estimator. From here we can define the actual MLE.
+This method estimates the $\theta_{0}$ by finding the value of $\theta$ that returns the maximum value of $\hat{l}(\theta \, \sim \, x)$. The estimation is defined as follow if the maximum exists:
+
+\begin{equation}
+	\hat{\theta}_{mle} \subseteq \{ \underset{\theta}{arg \, max} \,\, \hat{l} \,\, (\theta \, \sim \, x_{1}, x_{2}, ... , x_{n})\}
+\end{equation}
+
+\noindent The MLE corresponds to the so called \textit{maximum a posteriori estimation} (MPE) of \textit{Bayes rule} when a uniformed prior distribution is given. In fact, $\theta$ is the MPE that maximize the probability. Given the Bayes' theorem we have:
+
+\begin{equation}
+	P (\theta | x_{1}, x_{2}, ... , x_{n}) = \frac{f(x_{1}, x_{2}, ... , x_{n} | \theta) P(\theta)}{P(x_{1}, x_{2}, ... , x_{n})}
+\end{equation}
+
+\noindent where $P(\theta)$ is the prior distribution whereas $P(x_{1}, x_{2}, ... , x_{n})$ is the averaged probability of all parameters. Due to the fact that the denominator of the Bayes' theorem is independent from $\theta$, the estimation id obtained by maximizing $f(x_{1}, x_{2}, ... , x_{n} | \theta) P(\theta)$ with respect of $\theta$.
 
 
 % GMM classifier
