@@ -31,6 +31,8 @@ import glob
 import random
 import shutil
 import base64
+import hashlib
+import uuid
 import matplotlib.dates as dates
 import numpy as np
 from rest_framework.decorators import api_view
@@ -57,21 +59,27 @@ def login(request):
             all_users = User.objects.all()
             for u in all_users:
                 if data['Username'] == u.username:
-                    response["Response"] = "SUCCESS"
-                    response["Username"] = u.username
-                    response["Password"] = u.password
-                    response["Gender"] = u.gender
-                    response["Nationality"] = u.nationality
-                    response["Occupation"] = u.occupation
 
-                    sentence, phonetic = get_sentence()
-                    response["Sentence"] = sentence
-                    response["Phonetic"] = phonetic
+                    # retrieve salt and calculate hashed password
+                    salt = u.salt
+                    hashed_password = hashlib.sha512(data["Password"] + salt).hexdigest()
 
-                    log_message = "*** LOGIN SUCCEEDED: " + u.username + " ***"
-                    print>> sys.stderr, log_message
+                    if hashed_password == u.password:
+                        response["Response"] = "SUCCESS"
+                        response["Username"] = u.username
+                        response["Password"] = u.password
+                        response["Gender"] = u.gender
+                        response["Nationality"] = u.nationality
+                        response["Occupation"] = u.occupation
 
-                    return HttpResponse(json.dumps(response))
+                        sentence, phonetic = get_sentence()
+                        response["Sentence"] = sentence
+                        response["Phonetic"] = phonetic
+
+                        log_message = "*** LOGIN SUCCEEDED: " + u.username + " ***"
+                        print>> sys.stderr, log_message
+
+                        return HttpResponse(json.dumps(response))
 
             response = {}
             response["Response"] = "FAILED"
@@ -127,11 +135,16 @@ def register(request):
                     return HttpResponse(json.dumps(response))
 
             password = data['Password']
+
+            # let's protect the password
+            salt = uuid.uuid4().hex
+            hashed_password = hashlib.sha512(password + salt).hexdigest()
+
             gender = data['Gender']
             nationality = data['Nationality']
             occupation = data['Occupation']
 
-            new_user = User(username=username, password=password, gender=gender, nationality=nationality,
+            new_user = User(username=username, password=hashed_password, salt=salt, gender=gender, nationality=nationality,
                             occupation=occupation)
             new_user.save()
 

@@ -4,7 +4,8 @@ from django.db import models
 # Create your models here.
 class User(models.Model):
     username = models.CharField(max_length=50, null=False, blank=False, unique=True)
-    password = models.CharField(max_length=50, null=False, blank=False)
+    password = models.CharField(max_length=1000, null=False, blank=False)
+    salt = models.CharField(max_length=1000, null=False, blank=False)
     gender = models.CharField(max_length=5, null=False, blank=False)
     nationality = models.CharField(max_length=50, null=False, blank=False)
     occupation = models.CharField(max_length=50, null=False, blank=False)
