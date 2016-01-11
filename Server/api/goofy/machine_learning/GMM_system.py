@@ -33,6 +33,8 @@ import json
 import math
 import os
 import sys
+import itertools
+from scipy import linalg
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -199,7 +201,7 @@ class GmmPrototype:
         try:
             keys = all_data.keys()
             n_classes = len(np.unique(keys))
-            gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='diag',
+            gmm_classifier = mixture.GMM(n_components=n_classes, covariance_type='full',
                                          init_params='wmc', min_covar=0.001, n_init=1,
                                          n_iter=100, params='wmc', random_state=None,
                                          thresh=None, tol=0.001)
@@ -270,6 +272,9 @@ class GmmPrototype:
         map_int_label = dict(zip(int_labels, labels))
         print >> sys.stderr, "*** MAP INT LABELS ***"
 
+        map_label_int = dict(zip(labels, int_labels))
+        print >> sys.stderr, "*** MAP LABELS INT ***"
+
         # results
         key_sentence = sentence.lower()
         key_sentence = key_sentence.replace(' ', '_')
@@ -321,6 +326,9 @@ class GmmPrototype:
                 plt.subplot(rows, columns, index)
                 plt.scatter(f1, f2, s=80, c='r', marker='+', label=r"$ {} $".format(map_int_label[l]))
                 index += 1
+
+                score = gmm_classifier.score(data)
+                print >> sys.stderr, "*** LOG-PROBABILITY: " + str(score) + " ***"
             # endregion
 
             # region STRUCT FOR RETRIEVING THE ACTUAL LABEL
@@ -337,8 +345,32 @@ class GmmPrototype:
             current_trend_data = zip(predicted_labels, current_trend_formants_data)
 
             # region ACCURACY
-            # test_accuracy = np.mean(uniq_predicted_labels == np.array(native_vowels)) * 100
-            # print >> sys.stderr, "*** ACCURACY: " + str(test_accuracy) + " ***"
+            # try:
+            #     print >> sys.stderr, "\n"
+            #
+            #     pred_uniq = []
+            #     for i in uniq_predicted_labels.ravel():
+            #         pred_uniq.append(map_label_int[i])
+            #
+            #     print >> sys.stderr, "*** PRED UNIQ ***"
+            #
+            #     native_lab = []
+            #     for i in np.array(native_vowels):
+            #         native_lab.append(map_label_int[i])
+            #
+            #     print >> sys.stderr, "*** NATIVE LAB ***"
+            #
+            #     print >> sys.stderr, "*** PREDICTED LABELS: " + np.array_str(np.asarray(pred_uniq)) + " ***"
+            #     print >> sys.stderr, "*** NATIVE LABELS: " + np.array_str(np.asarray(native_lab)) + " ***"
+            #
+            #     #test_accuracy = np.mean(pred_uniq == native_lab) * 100
+            #
+            #     print >> sys.stderr, "*** ACCURACY: " + str(0) + " ***"
+            #     print >> sys.stderr, "\n"
+            # except:
+            #     print >> sys.stderr, "*** EXCEPTION ***"
+            #     print >> sys.stderr, "\n"
+            #     pass
             # endregion
 
             new_trend_data = []
