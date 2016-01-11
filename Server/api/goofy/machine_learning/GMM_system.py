@@ -33,8 +33,6 @@ import json
 import math
 import os
 import sys
-import itertools
-from scipy import linalg
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
