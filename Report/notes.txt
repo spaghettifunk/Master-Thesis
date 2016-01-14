@@ -23,6 +23,10 @@ RESULTS Chapter:
 - pictures of AIC/BIC and all the other results
 
 
+CONCLUSIONS Chapter:
+- describe the results in a concise way
+
+
 FUTURE WORKS Chapter:
 - Describe the future applications of this app
 - Include the reason why the ASR doesn’t perform very well due the weak train dataset
