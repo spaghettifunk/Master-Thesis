@@ -290,6 +290,41 @@ This method estimates the $\theta_{0}$ by finding the value of $\theta$ that ret
 % GMM classifier
 \section{Gaussian Mixture Model}
 %\label{sec:gmm}
+A Gaussian mixture model is a probabilistic model where the it is assumed that the set of points come from a \textit{mixture model}, in particular from a fixed number of \textit{Gaussian distributions} where the parameters are \textit{unknown}. This approach can be thought of a generalization of the clustering algorithm called \textit{k-means} where we are looking for the \textbf{covariance} and the center of the Gaussian distribution and not only the centroids \cite{sklearn_gmm}. There are different way for fitting the mixture model, but we are going to focus in particular to the one where the expectation-maximization is involved (see \ref{sec:mle}). \\
 
+\noindent Let the following equation defining a weighted sum of N Gaussian densities component:
 
+\begin{equation}
+	p(\textbf{x}|\lambda) = \sum_{i=1}^{N} w_{i} \, g(\textbf{x}|\mu_{i}, \Sigma_{i})
+\end{equation}
+
+\noindent where \textbf{x} defines the set of features (data-vector) of continuous values. The sequence $w_{i} = 1, ... , N$ represents the set of mixture weights whereas the function $g(\textbf{x}|\mu_{i}, \Sigma_{i}), \, i = 1, ... , N$ defines the Gaussian densities component. The following equation specifies each Gaussian component's form:
+
+\begin{equation}
+	g(\textbf{x}|\mu_{i}, \Sigma_{i}) = \frac{1}{(2\pi)^{D/2} \, |\Sigma_{i}|^{1/2}} exp \left \{ -\frac{1}{2} (\textbf{x} - \mathbf{\mu_{i}})' \,\, \Sigma_{i}^{-1} \,\, (x - \mathbf{\mu_{i}}) \right \}
+\end{equation} 
+
+\noindent where $\mathbf{\mu_{i}}$ is the mean vector and $\Sigma_{i}$ is the covariance matrix. Given that, we can assume that the mixture satisfy the constrain that $\Sigma_{i=1}^{N} \,\, w_{i} = 1$. \\
+
+\noindent With the notation in \ref{eq:gmm}, we can now define the complete GMM since all the component densities are parameterize by the covariance matrices, the mean vectors and the mixture weights \cite{reynolds2000speaker}
+
+\begin{equation}
+\label{eq:gmm}
+	\lambda = \{ w_{i}, \mathbf{\mu_{i}}, \Sigma_{i}\} \,\,\, i = 1, ... , N
+\end{equation}
+
+\noindent Let's break down the variants in \ref{eq:gmm}. The choice of model configuration highly depends on the available dataset. In fact, to estimate the GMM parameters we have to determine the covariance matrix $\Sigma_{i}$. This can be either full rank or constrained to be diagonal. In the first case, all rows and columns are linearly independent and all the values are taken into account, whereas in the second case, we consider only the values in the diagonal. The covariance matrix is not the only parameter that needs to be carefully chosen. In fact, the \textit{number of components} in general refers to the amount of possible  \textit{"clusters"} in the dataset. \\
+
+\begin{comment}
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=0.5]{Figures/gmm_example.png}
+	\caption{Example of clustering using Gaussian Mixture Model}
+	\label{fig:gmm_example}
+\end{figure}
+\end{comment}
+
+\noindent It is important to note that in speaking recognition, it is allowed to assume that size of the acoustic space of the spectral. The spectral is referred to the phonetic events as we described in \ref{ch:english_language}. In fact, these acoustic classes have well defined features that allows the model to distinguish one phoneme from another. For the same reason, GMM is also used in \textit{speaker recognition} in which the vocal tracts spectral is taken into account to distinguish a speaker from another \cite{reynolds1992gaussian}. \\
+
+\noindent Continuing with the speaker recognition example, we can think of the spectral shape $i$ as an acoustic class in which can be represented by the mean $\mu_{i}$ of the $i-th$ component density. The variation in the spectrum can be defined as the covariance matrix $\Sigma_{i}$. Also, a GMM can be views as a Hidden Markov Model with a single state assuming that the feature vectors are independent as well as the observation density from the acoustic classes is a Gaussian mixture \cite{reynolds2000speaker} \cite{reynolds1995robust}.
 
