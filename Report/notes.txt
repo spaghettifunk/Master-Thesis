@@ -1,12 +1,10 @@
-FINISHING:
-- Naive Bayes and GMM
-
-
 IMPLEMENTATIONS Chapter:
 - general architecture
 - Server section
 	- gathering data phase
-	- pre-processing
+	- pre-processing + tools
+	- Sphinx + training
+	- GMM + training -> Model estimation with BIC and AIC.
 
 - Android App
 	- Different layouts
@@ -17,10 +15,9 @@ IMPLEMENTATIONS Chapter:
 
 RESULTS Chapter:
 - Description of tests
-- Surveys
-	- results from surveys
-- results from Usage (given the report from users)
-- pictures of AIC/BIC and all the other results
+- Survey + results
+- results from Usage (given the report from users and Google Analytics)
+- pictures of results
 
 
 CONCLUSIONS Chapter:
@@ -31,8 +28,4 @@ FUTURE WORKS Chapter:
 - Describe the future applications of this app
 - Include the reason why the ASR doesn’t perform very well due the weak train dataset
 
-
-
-TO ADD:
-- Model estimation with BIC and AIC. Describe both techniques and then report which model I used after running several tests.
 
