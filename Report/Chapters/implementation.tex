@@ -38,7 +38,27 @@ Several step were made before to reach the architecture depicted in \ref{fig:gen
 \section{Data collection}
 \label{sec:data_collection}
 
- We recorded 8 people divided  at the University of Rochester using \textit{Audacity}\footnote{\url{http://audacityteam.org}}.
+The data collection step is a crucial phase of the entire project. The reason for such importance is that the audio record has to be clear, clean and as natural as possible. In fact, the people who participate to this phase were asked to pronounce the sentences as they would say in a day-by-day conversation. \\
+
+\noindent We recorded 8 people divided in 4 males and 4 females at the University of Rochester using \textit{Audacity}\footnote{\url{http://audacityteam.org}}. Each person had to pronounce 10 sentences (see \ref{table:sentences}) and each sentence was pronounced 10 times. \\
+\noindent The sentences were chosen in order to cover the most used English sounds and based on the frequencies of everyday usage\footnote{\url{http://www.learn-english-today.com/idioms/idioms_proverbs.html}}. 
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		\multicolumn{2}{|c|}{Sentences}      \\ \hline
+		A piece of cake  & Fair and square   \\ \hline
+		Blow a fuse      & Get cold feet     \\ \hline
+		Catch some zs    & Mellow out        \\ \hline
+		Down to the wire & Pulling your leg  \\ \hline
+		Eager beaver     & Thinking out loud \\ \hline
+	\end{tabular}
+	\caption{Idioms used for testing the pronunciation}
+	\label{table:sentences}
+\end{table}
+
+\noindent The total file we gathered were 800 and the average length of each file is 1s. In total we were able to gather 14 minutes of recorded audio. This amount of time was sufficient for training the speech recognition model and the GMM. In reality, for the speech recognition service, we initially trained the model with a bigger dataset and then we added the one with the sentences (details in \ref{fig:sphinx_service}). The reason is that the tool we used for the speech recognition, requires a large dataset\footnote{\url{http://cmusphinx.sourceforge.net/wiki/tutorialam}}.
 
 \subsection{Data pre-processing}
 \label{ssec:pre_processing}
