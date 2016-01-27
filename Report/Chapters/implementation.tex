@@ -96,7 +96,12 @@ In \cite{rosenfelder2011fave} is explained that for most vowels it is possible t
 \section{Server}
 \label{sec:server}
 
-Here the server description
+The back-end system is divided in two different services: the first one handles the speech recognition converting the user's voice into a set of phonemes, whereas the second service is in charged of all the other operations a user can do, such as login/logout, history data, vowels prediction system, usage collection, etc.. This section explains more in detail how we extract the information from the audio files and how we manipulate those before to give the feedback to the user.
+
+\subsection{Training the Speech Recognition model} 
+\label{ssec:training_sr_model}
+
+goofy
 
 \begin{figure}[!ht]
 	\centering
@@ -105,23 +110,17 @@ Here the server description
 	\label{fig:sphinx_service}
 \end{figure}
 
+\subsection{Training the Gaussian Mixture Model}
+\label{ssec:training_gmm}
+
+goofy
+
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=0.6]{Figures/gmm_service.png}
 	\caption{Architecture of the Gaussian Mixture Model service}
 	\label{fig:gmm_service}
 \end{figure}
-
-\subsection{Training the Speech Recognition model} 
-\label{ssec:training_sr_model}
-
-Here the way we trained the speech recognition model
-
-\subsection{Training the Gaussian Mixture Model}
-\label{ssec:training_gmm}
-
-Here the way we trained the gmm model \\
-BIC, AIC and other things here
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
