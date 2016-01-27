@@ -69,7 +69,8 @@ The data pre-processing step is one of the most important procedure of the whole
 From here, we generated a set of \textit{CSV} files where we saved the values of the formants and the stress for each audio file. These file are then used as input for a tool called \textbf{FAVE-Align}\cite{yuan2008speaker}. \\
 
 \noindent FAVE-Align is a tool used for \textit{force alignment}. This process is used to determine where a particular word occurs in an audio frame \cite{forced_alignment_def}. In other words, FAVE-Align takes a text transcription and produce a PRAAT TextGrid file where it shows when those words start and end in the related audio file. In \ref{fig:fave-align_result}, there is an example of this procedure. The tool performs different phases in order to align audio and text.\\
-The first step is to sample the audio file and apply the Fourier Transformation because there is the need to move from the \textit{time domain} to \textit{frequencies domain}. From here, the tool extract the \textit{spectrum} and apply the Inverse Fourier Transformation on it to obtain the so called \textbf{Cepstrum}. The \textit{cepstrum} is the representation in a small-window frame of the spectrum. Although, the amount of information extracted from the cepstrum are too high, and for this reason, the tool uses \textit{Perceptual Linear Prediction coefficients} to retrieve the necessary data to perform the alignment decision. These coefficients are used for feature extraction. The detailed process can be found at \cite{hermansky1990perceptual}. \\
+
+\noindent The first step is to sample the audio file and apply the Fourier Transformation because there is the need to move from the \textit{time domain} to \textit{frequencies domain}. From here, the tool extract the \textit{spectrum} and apply the Inverse Fourier Transformation on it to obtain the so called \textbf{Cepstrum}. The \textit{cepstrum} is the representation in a small-window frame of the spectrum. Although, the amount of information extracted from the cepstrum are too high, and for this reason, the tool uses \textit{Perceptual Linear Prediction coefficients} to retrieve the necessary data to perform the alignment decision. These coefficients are used for feature extraction. The detailed process can be found at \cite{hermansky1990perceptual}. \\
 The last part of this process is the decision making part and this is done by a \textit{Hidden Markov Model}. \\ 
 
 \begin{figure}[!ht]
@@ -80,7 +81,8 @@ The last part of this process is the decision making part and this is done by a 
 \end{figure}
 
 \noindent The outcome of the previous step is used as input for the tool called \textbf{FAVE-Extract}. This tool helps to automates the vowel formant analysis. The process is dived in two main steps: the first is finding the \textit{Measurement Points} and the second is the \textit{Remeasurement}. \\
-In \cite{rosenfelder2011fave} is explained that for most vowels it is possible to find the measurement point by listening 1/3 of the total duration. This point is necessary for determining the identity of the vowel, that is, the name of the vowel itself. For more complex vowels, a different approach is done, that is, the point is halfway between the F1 (main formant) maximum value and the beginning of the segment. In addition, the LPC analysis is performed on both beginning and end of the vowel in order to pad the vowel's window. This \emph{ensure a formant track through the full vowel’s duration}\cite{harrison2004variability}. The result of this step is a set of candidates. This set is composed by the potential formants estimated from the likelihood of the \textbf{ANAE} distribution. The \textit{Atlas of North American English} (ANAE) is the set of phonology formants values depending on the English regional area. The winner formant is determined by the Posterior probability. This step does not take in consideration the provenience of the speaker. \\
+
+\noindent In \cite{rosenfelder2011fave} is explained that for most vowels it is possible to find the measurement point by listening 1/3 of the total duration. This point is necessary for determining the identity of the vowel, that is, the name of the vowel itself. For more complex vowels, a different approach is done, that is, the point is halfway between the F1 (main formant) maximum value and the beginning of the segment. In addition, the LPC analysis is performed on both beginning and end of the vowel in order to pad the vowel's window. This \emph{ensure a formant track through the full vowel's duration}\cite{harrison2004variability}. The result of this step is a set of candidates. This set is composed by the potential formants estimated from the likelihood of the \textbf{ANAE} distribution. The \textit{Atlas of North American English} (ANAE) is the set of phonology formants values depending on the English regional area. The winner formant is determined by the Posterior probability. This step does not take in consideration the provenience of the speaker. \\
 
 \noindent The second part of the formants extraction tool is to remeasure the parameters by adjusting the ANAE distribution based on the regional area of the speaker. In this way, the formant value will be more accurate. An example of result from FAVE-Extract is shown in \ref{fig:fave-extract_example}.
 
@@ -101,13 +103,28 @@ The back-end system is divided in two different services: the first one handles 
 \subsection{Training the Speech Recognition model} 
 \label{ssec:training_sr_model}
 
-goofy
+The first service in order of usage within the whole system, is the speech recognition one. This has been made possible by using the well-known \textbf{CMU-Sphinx} software by Carnegie Mellon University \cite{walker2004sphinx}. The framework is written in Java and it is completely open-source. The system has been deployed on a \textit{Tomcat}\footnote{https://tomcat.apache.org} service as Java Servlet to serve the requests from the Android application. \\
 
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=0.6]{Figures/sphinx_service.png}
 	\caption{Architecture of the Speech recognition service}
 	\label{fig:sphinx_service}
+\end{figure}
+
+\noindent The first phase consisted in training the audio model with two different language models. The first (and bigger) is the \textit{Generic U.S. English model} whereas the second is composed by the data audio-files we collected from the native speakers. The first dataset is directly provided by the tool and already embedded in the decoder. This means that, the system has been already trained with a generic model so that new developers do not have to collect data to train the model. We are a special case because we wanted to focus the attention on only 10 specific sentences and in order to specialize the language model, we had to add specific files. This phase took several hours of work because the amount of data we used was very large. \\
+
+\noindent Once the model has been trained, we are then ready to adjust the parameters based on the voice of the user. For this task, CMU-Sphinx provides a particular method that permits the model to be adapted based on pitch and speed-of-speech of the user. To do so, we had to build the system in such a way that for each user, a specific file with the voice's parameters was created. In this way, CMU-Sphix would retrieve improve the recognition every time a user feeds the system with audio files. \\
+
+\noindent At this point the system is trained and ready to recognize. When the service receives an audio file, the first step before proceeding to CMU-Sphinx is to change some properties of the audio file itself. In fact, the Sphinx decoder has the best performance only when the audio files are in \textit{mono-channel} and have a sampling frequency of \textit{16Khz}\footnote{http://cmusphinx.sourceforge.net/wiki/faq}. The library we used to record the user in PARLA, is sampled in \textit{stereo-channels} and \textit{11Khz}. For this reason, we used a special tool called \textbf{SOX}\footnote{http://sox.sourceforge.net} that helped us to change the properties of the audio file according to the required ones. \\
+
+\noindent Once the file has been manipulated, we retrieve the voice's parameters file of the user and start the recognition part. CMU-Sphinx goes through several internal procedures (general details in \ref{chap:Speech Recognition}) and during this process it adapts the model based on the user's voice. On the end of the whole process, a string containing the phonemes of the pronounced sentence is given back as result. An example is given in \ref{fig:result_sphinx}. The red box indicates the result we took in consideration.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=0.5]{Figures/result_sphinx.png}
+	\caption{Example of phonemes recognition using CMU-Sphinx for the sentence \textit{Thinking out loud}. The phoneme \textbf{SIL} stands for \textit{Silence}}
+	\label{fig:result_sphinx}
 \end{figure}
 
 \subsection{Training the Gaussian Mixture Model}
