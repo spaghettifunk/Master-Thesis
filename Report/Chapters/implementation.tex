@@ -93,14 +93,14 @@ The last part of this process is the decision making part and this is done by a 
 	\label{fig:fave-extract_example}
 \end{figure}
 
-\noindent The result of the data pre-processing is a set of information composed by the average value of F1 and F2 formants with their respectively vowels text representation. The formants values will be then used to train both the speech recognition model and the Gaussian Mixture Model.
+\noindent The result of the data pre-processing is a set of information composed by the average value of F1, F2 and F3 formants with their respectively vowels text representation. The formants values will be then used to train both the speech recognition model and the Gaussian Mixture Model.
 
 \section{Server}
 \label{sec:server}
 
 The back-end system is divided in two different services: the first one handles the speech recognition converting the user's voice into a set of phonemes, whereas the second service is in charged of all the other operations a user can do, such as login/logout, history data, vowels prediction system, usage collection, etc.. This section explains more in detail how we extract the information from the audio files and how we manipulate those before to give the feedback to the user.
 
-\subsection{Training the Speech Recognition model} 
+\subsection{Speech Recognition service} 
 \label{ssec:training_sr_model}
 
 The first service in order of usage within the whole system, is the speech recognition one. This has been made possible by using the well-known \textbf{CMU-Sphinx} software by Carnegie Mellon University \cite{walker2004sphinx}. The framework is written in Java and it is completely open-source. The system has been deployed on a \textit{Tomcat}\footnote{https://tomcat.apache.org} service as Java Servlet to serve the requests from the Android application. \\
@@ -127,15 +127,29 @@ The first service in order of usage within the whole system, is the speech recog
 	\label{fig:result_sphinx}
 \end{figure}
 
-\subsection{Training the Gaussian Mixture Model}
+\subsection{Voice analysis system}
 \label{ssec:training_gmm}
 
-goofy
+The second service we built, handles the analysis of the audio file in order to give feedback to the user. This process is long because it involves several steps and sometime the user had to wait up to 40 seconds before to get the results. \\
+\noindent The system was written in Python using Django\footnote{https://www.djangoproject.com} as web-framework. The choice was made based on the availability of machine learning libraries and the language tools (FAVE-extract and FAVE-align). In fact, we used \textit{scikit-learn}\footnote{http://scikit-learn.org/stable/}, a well-known python library for data-analysis, data mining and machine learning. \\
+
+\noindent As for the speech recognition service, we had to train the Gaussian Mixture Model with the audio features of the native speakers. As we explained in \ref{ssec:pre_processing}, we used formants F1, F2 and F3 as training dataset for this model. In fact, the first three formants are sufficient for recognizing the phoneme that has been pronounced. According to \cite{prica2010recognition}, the first two formants are not sufficient for discriminating the \textit{"value"} of the phoneme due to a big overlapping in their spectrum. Using the third formants, we can catch those frequencies that can act as decision makers. \\
+
+\noindent Scikit-learn provides a GMM out of the box. Although, the number of parameters available make it hard to properly set the model. For this reason, we used a method called \textbf{Bayesian information criterion} (BIC) to find the optimal solution for our purpose. \\
+
+\noindent BIC is a model selection method that gives a score on an estimated model performance based on a testing dataset. Lower the score, better is the model.\\
+\noindent In \ref{eq:bic} is defined the formula used for calculating the score, where $T$ is the size of the training set, $\ln{\hat L}$ is the maximum likelihood value of the given model (details in \ref{sec:mle}) whereas $k$ is the number of \textit{free} parameters that can be estimated. \\
+\noindent When the BIC method is attempted, it tries to avoid the risk of \textit{overfitting} the model by injecting a \textit{penalty term} of $k \cdot \ln(T)$ that augment proportionally with the number of parameters \cite{bic_info}. This term also helps to avoid unnecessary parameters and keep the model as simple as possible.
+
+\begin{equation}
+\label{eq:bic}
+	 BIC = -2 \cdot \ln{\hat L} + k \cdot \ln(T)
+\end{equation}
 
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=0.6]{Figures/gmm_service.png}
-	\caption{Architecture of the Gaussian Mixture Model service}
+	\caption{Architecture of the Voice analysis service}
 	\label{fig:gmm_service}
 \end{figure}
 
@@ -156,3 +170,60 @@ goofy
 
 \subsection{Usage procedure}
 \label{ssec:usage_procedure}
+
+
+%%%%% other stuff
+
+\begin{landscape}
+	\begin{figure}[!ht]
+		\caption{BIC results for GMM selection}	
+		\label{fig:bic1}			
+		\begin{tabular}{ccccc}
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_0.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_1.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_2.png}} &		
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_3.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_4.png}} \\ 
+			
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_5.png}} &			
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_6.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_7.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_8.png}} &			
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_9.png}} \\
+			
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_10.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_11.png}} &			
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_12.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_13.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_14.png}} \\
+			
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_15.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_16.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_17.png}} &
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_18.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_19.png}} \\			
+		\end{tabular}
+	\end{figure}
+\end{landscape}
+
+\begin{landscape}
+	\begin{figure}[!ht]
+		\caption{BIC results for GMM selection}
+		\label{fig:bic2}
+		\begin{tabular}{ccccc}			 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_20.png}} &		
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_21.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_22.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_23.png}} &
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_24.png}} \\
+			
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_25.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_26.png}} &
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_27.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_28.png}} & 
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_29.png}} \\
+			
+			\subfloat{\includegraphics[scale=0.25]{Figures/bic/bic_30.png}} & & & &
+		\end{tabular}
+	\end{figure}
+\end{landscape}
