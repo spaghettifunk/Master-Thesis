@@ -130,8 +130,15 @@ The first service in order of usage within the whole system, is the speech recog
 \subsection{Voice analysis system}
 \label{ssec:training_gmm}
 
-The second service we built, handles the analysis of the audio file in order to give feedback to the user. This process is long because it involves several steps and sometime the user had to wait up to 40 seconds before to get the results. \\
+The second service we built, handles the analysis of the audio file in order to give feedback to the user. This process is long because it involves several steps and sometime the user had to wait up to 40 seconds before to get the results. In \ref{fig:gmm_service} is depicted the macro-view of the service's architecture. \\
 \noindent The system was written in Python using Django\footnote{https://www.djangoproject.com} as web-framework. The choice was made based on the availability of machine learning libraries and the language tools (FAVE-extract and FAVE-align). In fact, we used \textit{scikit-learn}\footnote{http://scikit-learn.org/stable/}, a well-known python library for data-analysis, data mining and machine learning. \\
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=0.6]{Figures/gmm_service.png}
+	\caption{Architecture of the Voice analysis service}
+	\label{fig:gmm_service}
+\end{figure}
 
 \noindent As for the speech recognition service, we had to train the Gaussian Mixture Model with the audio features of the native speakers. As we explained in \ref{ssec:pre_processing}, we used formants F1, F2 and F3 as training dataset for this model. In fact, the first three formants are sufficient for recognizing the phoneme that has been pronounced. According to \cite{prica2010recognition}, the first two formants are not sufficient for discriminating the \textit{"value"} of the phoneme due to a big overlapping in their spectrum. Using the third formants, we can catch those frequencies that can act as decision makers. \\
 
@@ -146,12 +153,6 @@ The second service we built, handles the analysis of the audio file in order to 
 	 BIC = -2 \cdot \ln{\hat L} + k \cdot \ln(T)
 \end{equation}
 
-\begin{figure}[!ht]
-	\centering
-	\includegraphics[scale=0.6]{Figures/gmm_service.png}
-	\caption{Architecture of the Voice analysis service}
-	\label{fig:gmm_service}
-\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
