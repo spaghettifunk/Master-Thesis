@@ -52,6 +52,26 @@
 \def\BState{\State\hskip-\ALG@thistlm}
 \makeatother
 
+% for normal code
+\lstset{basicstyle=\ttfamily,
+	showstringspaces=false,
+	commentstyle=\color{red},
+	keywordstyle=\color{blue},
+	aboveskip=\bigskipamount,
+	belowskip=\bigskipamount
+}
+
+\lstdefinestyle{BashInputStyle}{
+	breaklines=true,                                     % line wrapping on
+	language=bash,
+	frame=ltrb,
+	framesep=5pt,
+	basicstyle=\normalsize,
+	keywordstyle=\ttfamily\color{green},
+	identifierstyle=\ttfamily\color{blue}\bfseries,
+	stringstyle=\ttfamily
+}
+
 % ------------------------------------
 % Start Document
 % ------------------------------------

@@ -188,7 +188,7 @@ def extract_phonemes(audio_file, sentence, predicted_phonemes):
         response = {'Response': 'FAILED', 'Reason': "Exception in extract-phonemes process"}
         return HttpResponse(json.dumps(response))
 
-
+# reference: http://progfruits.blogspot.com/2014/02/word-error-rate-wer-and-word.html
 def wer(ref, hyp, debug=False):
     try:
         DEL_PENALTY = 2

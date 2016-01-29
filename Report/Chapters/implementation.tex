@@ -140,19 +140,96 @@ The second service we built, handles the analysis of the audio file in order to 
 	\label{fig:gmm_service}
 \end{figure}
 
+\subsubsection{Training GMM}
+
 \noindent As for the speech recognition service, we had to train the Gaussian Mixture Model with the audio features of the native speakers. As we explained in \ref{ssec:pre_processing}, we used formants F1, F2 and F3 as training dataset for this model. In fact, the first three formants are sufficient for recognizing the phoneme that has been pronounced. According to \cite{prica2010recognition}, the first two formants are not sufficient for discriminating the \textit{"value"} of the phoneme due to a big overlapping in their spectrum. Using the third formants, we can catch those frequencies that can act as decision makers. \\
 
 \noindent Scikit-learn provides a GMM out of the box. Although, the number of parameters available make it hard to properly set the model. For this reason, we used a method called \textbf{Bayesian information criterion} (BIC) to find the optimal solution for our purpose. \\
 
 \noindent BIC is a model selection method that gives a score on an estimated model performance based on a testing dataset. Lower the score, better is the model.\\
 \noindent In \ref{eq:bic} is defined the formula used for calculating the score, where $T$ is the size of the training set, $\ln{\hat L}$ is the maximum likelihood value of the given model (details in \ref{sec:mle}) whereas $k$ is the number of \textit{free} parameters that can be estimated. \\
-\noindent When the BIC method is attempted, it tries to avoid the risk of \textit{overfitting} the model by injecting a \textit{penalty term} of $k \cdot \ln(T)$ that augment proportionally with the number of parameters \cite{bic_info}. This term also helps to avoid unnecessary parameters and keep the model as simple as possible.
+\noindent When the BIC method is attempted, it tries to avoid the risk of \textit{overfitting} the model by injecting a \textit{penalty term} of $k \cdot \ln(T)$ that augment proportionally with the number of parameters \cite{bic_info}. This term also helps to avoid unnecessary parameters and keep the model as simple as possible. In \ref{fig:bic1} and \ref{fig:bic2} are shown the BIC evaluation.
 
 \begin{equation}
 \label{eq:bic}
 	 BIC = -2 \cdot \ln{\hat L} + k \cdot \ln(T)
 \end{equation}
 
+\noindent Given the results of the evaluation, we selected the model's parameters with the lowest BIC score. In \ref{lst:gmm} is shown the code we used to create the classifier after having run the BIC evaluation.
+
+\begin{lstlisting}[caption={Parameters of GMM classifier},label={lst:gmm}, style=BashInputStyle]
+gmm_classifier = mixture.GMM(n_components=12, covariance_type='full',
+			     init_params='wmc', min_covar=0.001, n_init=1,
+			     n_iter=100, params='wmc', random_state=None,
+	                     thresh=None, tol=0.001)
+\end{lstlisting}
+
+\clearpage
+
+\noindent The next list of parameters are those that have been automatically selected by the evaluation whereas the others are set by default:
+
+\begin{itemize}
+	\item \textit{Number of components} decided based on the total amount of possible phonemes (in our case, 12)
+	\item \textit{Covariance type} set to \textbf{full} as indicated by BIC
+	\item \textit{Initial parameters} updated by \textbf{weight}(w), \textbf{means}(m) and \textbf{covariance}(c)
+	\item \textit{Tol} is the convergence threshold. The Expected Maximization breaks when the average gain log-likelihood is below \textbf{0.001}
+\end{itemize}
+
+\noindent After the training part, we tested the classifier with a testing set composed by the first 3 Formants that we extracted using PRAAT from 5 audio files provided by the same person. Both \textit{Training accuracy} and \textit{Testing accuracy} were calculated using the function \textbf{numpy.mean()} where the average is computed along the axes that has been specified.
+
+\begin{lstlisting}[caption={Code for accuracy estimation of training and testing set},label={lst:accuracy}, style=BashInputStyle]
+train_accuracy = numpy.mean(y_train_predicted == y_train) * 100
+test_accuracy = numpy.mean(y_test_predicted == y_test) * 100
+\end{lstlisting}
+
+\noindent In \ref{table:accuracy} are shown the results after the training of Gaussian Mixture Model. The accuracy values can be improved by increasing the amount of training data.
+
+\begin{table}[!ht]
+	\centering
+	\caption{Testing results after the training}
+	\label{table:accuracy}
+	\begin{tabular}{|l|c|c|}
+		\hline
+		\multicolumn{1}{|c|}{\textbf{Sentence}} & \textbf{Training Accuracy}       & \textbf{Testing Accuracy}        \\ \hline
+		A piece of cake                         & 								   & 
+		\\ \cline{1-1}
+		Blow a fuse                             &                                  &                                  \\ \cline{1-1}
+		Thinking out loud                       &  \textbf{82.5\%}                 & \textbf{90.7\%}   
+		\\ \cline{1-1}
+		Mellow out                              &                                  &                                  \\ \cline{1-1}
+		Eager beaver                            &                                  &                                  \\ \hline
+	\end{tabular}
+\end{table} 
+
+\subsubsection{Pitch, stress and Word Error Rate}
+\noindent After the training phase, we built three other components that deal directly with the feedback the user will receive. In fact, we used PRAAT to extract the \textit{Pitch contour} in order to show the user, the way his/her voice changes compared to a native speaker. In \ref{fig:pitch_native} is shown an example of contour that we used as feedback for the user. In fact, it is possible to notice that both the natives have a similar way of saying the same sentence. This is a key point because the non-native will compare the way he/she will pronounce the sentence and understand the eventual differences. \\
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=0.15]{Figures/pitch_native.png}
+	\caption{Example of pitch contour provided by two native speakers for the sentence \textit{Mellow out}}
+	\label{fig:pitch_native}
+\end{figure}
+
+\noindent Stress is extracted in a different way. Instead of using PRAAT, we decided to use \textit{FAVE-extract} because it provides a feature that retrieve the stress position(s) in the sentence. Moreover, it offers the opportunity to know on which phoneme the stress occurs. Given that, to the user it will be presented the phoneme representation of the pronounced sentence provided by the speech recognition service as well as in which phonemes the stress is emphasized. \\
+
+\noindent Last piece of the system is to calculate the difference between the pronunciation of the native and the user, from the phoneme point of view. For this purpose, we decided to use a well-known evaluation metric system called \textbf{Word Error Rate} (WER). \\
+
+\begin{comment}
+\noindent WER has been developed and is used to check a speech recognition's engine accuracy. It works by calculating the distance between the engine's reults - called the hypothesis - and the real text - called the reference.
+
+\noindent The distance function is based on the Levenshtein Distance (for finding the edit distance between words). The WER, like the Levenshtein distance, defines the distance by the amount of minimum operations that has to been done for getting from the reference to the hypothesis. Unlike the Levenshtein distance, however, the operations are on words and not on individual characters. The possible operations are:
+
+Deletion: A word was deleted. A word was deleted from the reference.
+
+Insertion: A word was added. An aligned word from the hypothesis was added.
+
+Substitution: A word was substituted. A word from the reference was substituted with an aligned word from the hypothesis.
+
+Also unlike the Levenshtein distance, the WER counts the deletions, insertion and substitutions done, instead of just summing up the penalties. To do that, we'll have to first create the table for the Levenshtein distance algorithm, and then backtrace in it through the shortest route to [0,0], counting the operations on the way.
+
+Then, we'll use the formula to calculate the WER:
+\end{comment}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
