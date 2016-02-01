@@ -215,21 +215,24 @@ test_accuracy = numpy.mean(y_test_predicted == y_test) * 100
 
 \noindent Last piece of the system is to calculate the difference between the pronunciation of the native and the user, from the phoneme point of view. For this purpose, we decided to use a well-known evaluation metric system called \textbf{Word Error Rate} (WER). \\
 
-\begin{comment}
-\noindent WER has been developed and is used to check a speech recognition's engine accuracy. It works by calculating the distance between the engine's reults - called the hypothesis - and the real text - called the reference.
+\noindent WER is a common evaluation metric system to check the accuracy of a speech recognition's system. The main idea is to calculate the distance between the \textbf{hypothesis} and \textbf{reference}. The first is the result produced by the system whereas the second is the expected text. The distance is measured using the \textit{Levenshtein} algorithm, where it is calculated the minimum number of edits that it is needed to change one single character to another. Likewise, WER calculates the minimum amount of operations that has to be done for moving from the reference to the hypothesis. \\ \\ \\ \\
 
-\noindent The distance function is based on the Levenshtein Distance (for finding the edit distance between words). The WER, like the Levenshtein distance, defines the distance by the amount of minimum operations that has to been done for getting from the reference to the hypothesis. Unlike the Levenshtein distance, however, the operations are on words and not on individual characters. The possible operations are:
+\noindent The possible edits are: 
 
-Deletion: A word was deleted. A word was deleted from the reference.
+\begin{itemize}
+	\item \textit{Insertion}: a word was added to the hypothesis
+	\item \textit{Substitution}: an aligned word from the hypothesis has been substituted in the reference
+	\item \textit{Deletion}: a word has been deleted in the reference
+\end{itemize}
 
-Insertion: A word was added. An aligned word from the hypothesis was added.
+\noindent The calculations are done by putting each edit on a Levenshtein distance's table and then \textit{backtrace} in it through the shortest path to the origin $(0, 0)$ \cite{WER}. Each step during the backtrace is counted. After this, WER uses the formula in \ref{eq:wer} to calculate the \textit{error rate}.
 
-Substitution: A word was substituted. A word from the reference was substituted with an aligned word from the hypothesis.
+\begin{equation}
+\label{eq:wer}
+	WER = \frac{S + D + I}{N}
+\end{equation}
 
-Also unlike the Levenshtein distance, the WER counts the deletions, insertion and substitutions done, instead of just summing up the penalties. To do that, we'll have to first create the table for the Levenshtein distance algorithm, and then backtrace in it through the shortest route to [0,0], counting the operations on the way.
-
-Then, we'll use the formula to calculate the WER:
-\end{comment}
+\noindent where S is the substitutions, D the deletions, I the insertions and N are the words in the reference text.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
