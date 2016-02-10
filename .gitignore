@@ -1,6 +1,7 @@
 Papers/*
 Project/scikit-neuralnetwork/*
 Project/essentia*
+Results/*
 env/*
 *idea*
 *.wav

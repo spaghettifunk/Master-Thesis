@@ -248,44 +248,107 @@ The choice of using the Android OS for developing the mobile application was in 
 
 \subsection{Layouts}
 \label{ssec:layouts}
+The application is composed of four main layouts: \textit{pronunciation page}, \textit{feedback page}, \textit{history page} and \textit{critical listening page}. Among these, the \textbf{feedback page} is the most important one since it provides the differences with the native pronunciation. \\
 
+\noindent The \textbf{pronunciation page} is depicted in \ref{fig:pronunciation_page} and it is possible to notice that the user has access to a multitude of options, such as: listening to the native speaker, change word, see the \textit{IPA} phonetics and, of course, test his/her pronunciation. \\
 
-\begin{figure}[!ht]
-	\begin{tabular}{ccc}
-		\subfloat{\includegraphics[scale=0.22]{Figures/screenshots/main.png}} & 
-		\subfloat{\includegraphics[scale=0.22]{Figures/screenshots/main.png}} & 
-		\subfloat{\includegraphics[scale=0.22]{Figures/screenshots/main.png}} \\
-	\end{tabular}
-	\caption{BIC results for GMM selection}	
-	\label{fig:screenshots}
-\end{figure}
+\noindent The \textbf{critical listening} section has been created to help the user to understand the differences between what he/she said and the native, based only on the audio. The page is split in two parts: on the left side there are all the native pronunciations whereas on the right there are all the non-native ones. For each sentence then it is possible to either \textit{test the pronunciation} or \textit{se the history}. The first choice redirects the user to the Main page whereas the second will show the eventual progress for that particular sentence. \\
 
 \begin{figure}[!ht]
-	\begin{tabular}{ccc}
-		\subfloat{\includegraphics[scale=0.22]{Figures/screenshots/main.png}} & 
-		\subfloat{\includegraphics[scale=0.22]{Figures/screenshots/main.png}} & 
-		\subfloat{\includegraphics[scale=0.22]{Figures/screenshots/main.png}} \\
-	\end{tabular}
-	\caption{BIC results for GMM selection}	
-	\label{fig:screenshots2}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[scale=0.22]{Figures/screenshots/main.png}
+		\captionof{Pronunciation (or Main) page of PARLA}
+		\label{fig:pronunciation_page}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[scale=0.22]{Figures/screenshots/listening.png}
+		\captionof{Listening page}
+		\label{fig:listening_page}
+	\end{minipage}
 \end{figure}
+
+\noindent The \textbf{history page} provides a simple visualization of the user's progress. In \ref{fig:history_page} it is possible to notice that the page is split in two parts: the top part shows the vowels pronunciation of each time the user tested the pronunciation whereas the bottom part shows how \textit{close} the articulation of that specific vowel was to the native. \\
+
+\noindent These layouts have been designed to provide the necessary information prior testing the pronunciation with the only exception of the history page. As said in \ref{ch:introduction}, \textit{listening} and \textit{phonetics} help the student to improve the quality of the pronunciation as well as the correctness. Keeping these statements in mind, we designed the pages in order to achieve the maximum effect. \\
+
+\noindent During the development of the User Interface, we conducted a simple study where we asked a group of 4 people to interact with the sketches of the initial UI. The process was straightforward because we initially explained the purpose of this application and then what we wanted to achieve. The study was based on a sequence of questions aimed to improve the usability - here are the asked topics:
+
+\begin{itemize}
+	\item Navigation among pages
+	\item Modifications in the main page
+	\item Modifications in the critical listening page
+	\item Modifications in the history page
+	\item Modifications in the feedback page	
+	\item Add/Remove features
+\end{itemize}
+
+\noindent Based on the answers we changed the layouts accordingly.
 
 \begin{figure}[!ht]
-	\begin{tabular}{cc}
-		\subfloat{\includegraphics[scale=0.22]{Figures/screenshots/main.png}} & 
-		\subfloat{\includegraphics[scale=0.22]{Figures/screenshots/main.png}} \\
-	\end{tabular}
-	\caption{BIC results for GMM selection}	
-	\label{fig:screenshots3}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[scale=0.22]{Figures/screenshots/history2.png}
+		\caption{Example of History page}
+		\label{fig:history2_page}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[scale=0.22]{Figures/screenshots/history.png}
+		\caption{History page with interaction on the bottom part}
+		\label{fig:history_page}
+	\end{minipage}
 \end{figure}
-
-
 
 \subsection{Feedback layout}
 \label{ssec:feedback_layout}
+We reserved an entire section dedicated to the \textbf{feedback page} because this the core of the whole project. This page has been designed to provide as many information as possible giving the minimum explanation regarding the differences. Basically, we focused our attention in creating charts and the phonetics representations in order to give feedback. This page combine all the information from both the speech recognition system and the voice analysis service. \\
 
-\subsection{Usage procedure}
-\label{ssec:usage_procedure}
+\noindent The page is divided in three main parts. The first part is represented by the phoneme representation and the WER located at the very top of the page. The button on top left provides the meaning of the sentence as well as a typical usage in a context.\\
+\noindent For each sentence we show the comparison between the native and the user. In fact, as \ref{fig:error_rate_page} and \ref{fig:error_rate2_page} show, the user immediately can understand those differences if any. The syllables highlighted in red represent the \textbf{stress} of that particular sentence. In addition, the \textit{word error rate} shows how different was the user's pronunciation from the native speaker. The second picture shows that the user mispronounced the word \textbf{to}, that is why \textit{WER} is $10\%$. The stress is correct in both cases otherwise it would be highlighted. \\
+
+\noindent The second part is represented by the chart in which the \textit{stress trend} is depicted. Here we provide a graphical representation of how the sentence should be emphasized. As for the first part, we show the difference between the native and the user. Although, the two trends will \textbf{never} be the same because the process of extracting this information involves the \textit{voice pitch} of a person. Basically, what the user should pay attention to, is the \textit{shape} of those lines. If the trends are similar, then it means that the stress is in the right position during the pronunciation. In \ref{fig:pitch_page} for example, it is shown a very bad pronunciation. In fact, WER is $75\%$ and the stress trend does not look like the native's one. The picture clearly shows the impact on a user when making mistakes in the pronunciation. \\
+
+\noindent The last part of this page is represented by the \textit{vowels prediction} chart. Here we show the various pronunciation formants values of the vowels involved in a particular sentence. These values are extracted from the GMM in the voice analysis service. In \ref{fig:vowels_page} it is possible to notice how the vowels formants are well defined and clustered together. The circles represent the range of formants values in which that determined vowel should be pronounced. The \textit{red crosses} are the user's formants prediction. The feedback information here is that the user should understand that if the red cross is not within the circle and close to the group of green dots, then he/she should change the pronunciation. To learn this there are two ways: using the critical listening or looking at the numbers in the chart. The first method is simpler and more effective whereas the second option is for those that have a prior knowledge in linguistic. \\
+
+\begin{figure}[!ht]
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[scale=0.22]{Figures/screenshots/error_rate1.png}
+		\captionof{Correct pronunciation}
+		\label{fig:error_rate_page}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[scale=0.22]{Figures/screenshots/error_rate2.png}
+		\captionof{Small error in pronunciation}
+		\label{fig:error_rate2_page}
+	\end{minipage}
+\end{figure}
+
+\noindent It is important to mention that all the charts are
+
+\noindent On the very end of this page, the user can navigate directly to the history and see the progress he/she made for that specific sentence.
+
+\begin{figure}[!ht]
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[scale=0.22]{Figures/screenshots/pitch.png}
+		\captionof{Stress countour chart}
+		\label{fig:pitch_page}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[scale=0.22]{Figures/screenshots/vowels.png}
+		\captionof{Vowels prediction representation}
+		\label{fig:vowels_page}
+	\end{minipage}
+\end{figure}
 
 
 %%%%% other stuff
