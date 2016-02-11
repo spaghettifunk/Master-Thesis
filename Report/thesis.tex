@@ -10,6 +10,7 @@
 \usepackage{lscape}
 \usepackage{listings}
 \usepackage{url}
+\usepackage[final]{pdfpages}
 \usepackage{graphicx}
 \usepackage{verbatim}
 \usepackage{ftnxtra}
@@ -132,7 +133,8 @@
 \pagenumbering{gobble}
 \begin{appendices}
 \include{Chapters/charts}
-\include{Chapters/surveys}
+\includepdf[pages=-]{Chapters/survey_app.pdf}
+%\include{Chapters/surveys}
 \end{appendices}
 \include{Chapters/blankpage}
 \include{Chapters/lastquote}

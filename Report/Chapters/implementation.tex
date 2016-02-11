@@ -41,7 +41,7 @@ Several step were made before to reach the architecture depicted in \ref{fig:gen
 The data collection step is a crucial phase of the entire project. The reason for such importance is that the audio record has to be clear, clean and as natural as possible. In fact, the people who participate to this phase were asked to pronounce the sentences as they would say in a day-by-day conversation. \\
 
 \noindent We recorded 8 people divided in 4 males and 4 females at the University of Rochester using \textit{Audacity}\footnote{\url{http://audacityteam.org}}. Each person had to pronounce 10 sentences (see \ref{table:sentences}) and each sentence was pronounced 10 times. \\
-\noindent The sentences were chosen in order to cover the most used English sounds and based on the frequencies of everyday usage\footnote{\url{http://www.learn-english-today.com/idioms/idioms_proverbs.html}}. 
+\noindent The sentences were chosen in order to cover the most used English sounds and based on the frequencies of everyday usage\footnote{\url{http://www.learn-english-today.com/idioms/idioms_proverbs.html}}.
 
 \begin{table}[!ht]
 	\centering
@@ -71,7 +71,7 @@ From here, we generated a set of \textit{CSV} files where we saved the values of
 \noindent FAVE-Align is a tool used for \textit{force alignment}. This process is used to determine where a particular word occurs in an audio frame \cite{forced_alignment_def}. In other words, FAVE-Align takes a text transcription and produce a PRAAT TextGrid file where it shows when those words start and end in the related audio file. In \ref{fig:fave-align_result}, there is an example of this procedure. The tool performs different phases in order to align audio and text.\\
 
 \noindent The first step is to sample the audio file and apply the Fourier Transformation because there is the need to move from the \textit{time domain} to \textit{frequencies domain}. From here, the tool extract the \textit{spectrum} and apply the Inverse Fourier Transformation on it to obtain the so called \textbf{Cepstrum}. The \textit{cepstrum} is the representation in a small-window frame of the spectrum. Although, the amount of information extracted from the cepstrum are too high, and for this reason, the tool uses \textit{Perceptual Linear Prediction coefficients} to retrieve the necessary data to perform the alignment decision. These coefficients are used for feature extraction. The detailed process can be found at \cite{hermansky1990perceptual}. \\
-The last part of this process is the decision making part and this is done by a \textit{Hidden Markov Model}. \\ 
+The last part of this process is the decision making part and this is done by a \textit{Hidden Markov Model}. \\
 
 \begin{figure}[!ht]
 	\centering
@@ -100,7 +100,7 @@ The last part of this process is the decision making part and this is done by a 
 
 The back-end system is divided in two different services: the first one handles the speech recognition converting the user's voice into a set of phonemes, whereas the second service is in charged of all the other operations a user can do, such as login/logout, history data, vowels prediction system, usage collection, etc.. This section explains more in detail how we extract the information from the audio files and how we manipulate those before to give the feedback to the user.
 
-\subsection{Speech Recognition service} 
+\subsection{Speech Recognition service}
 \label{ssec:training_sr_model}
 
 The first service in order of usage within the whole system, is the speech recognition one. This has been made possible by using the well-known \textbf{CMU-Sphinx} software by Carnegie Mellon University \cite{walker2004sphinx}. The framework is written in Java and it is completely open-source. The system has been deployed on a \textit{Tomcat}\footnote{https://tomcat.apache.org} service as Java Servlet to serve the requests from the Android application. \\
@@ -191,15 +191,15 @@ test_accuracy = numpy.mean(y_test_predicted == y_test) * 100
 	\begin{tabular}{|l|c|c|}
 		\hline
 		\multicolumn{1}{|c|}{\textbf{Sentence}} & \textbf{Training Accuracy}       & \textbf{Testing Accuracy}        \\ \hline
-		A piece of cake                         & 								   & 
+		A piece of cake                         & 								   &
 		\\ \cline{1-1}
 		Blow a fuse                             &                                  &                                  \\ \cline{1-1}
-		Thinking out loud                       &  \textbf{82.5\%}                 & \textbf{90.7\%}   
+		Thinking out loud                       &  \textbf{82.5\%}                 & \textbf{90.7\%}
 		\\ \cline{1-1}
 		Mellow out                              &                                  &                                  \\ \cline{1-1}
 		Eager beaver                            &                                  &                                  \\ \hline
 	\end{tabular}
-\end{table} 
+\end{table}
 
 \subsubsection{Pitch, stress and Word Error Rate}
 \noindent After the training phase, we built three other components that deal directly with the feedback the user will receive. In fact, we used PRAAT to extract the \textit{Pitch contour} in order to show the user, the way his/her voice changes compared to a native speaker. In \ref{fig:pitch_native} is shown an example of contour that we used as feedback for the user. In fact, it is possible to notice that both the natives have a similar way of saying the same sentence. This is a key point because the non-native will compare the way he/she will pronounce the sentence and understand the eventual differences. \\
@@ -217,7 +217,7 @@ test_accuracy = numpy.mean(y_test_predicted == y_test) * 100
 
 \noindent WER is a common evaluation metric system to check the accuracy of a speech recognition's system. The main idea is to calculate the distance between the \textbf{hypothesis} and \textbf{reference}. The first is the result produced by the system whereas the second is the expected text. The distance is measured using the \textit{Levenshtein} algorithm, where it is calculated the minimum number of edits that it is needed to change one single character to another. Likewise, WER calculates the minimum amount of operations that has to be done for moving from the reference to the hypothesis. \\ \\ \\ \\
 
-\noindent The possible edits are: 
+\noindent The possible edits are:
 
 \begin{itemize}
 	\item \textit{Insertion}: a word was added to the hypothesis
@@ -281,7 +281,7 @@ The application is composed of four main layouts: \textit{pronunciation page}, \
 	\item Modifications in the main page
 	\item Modifications in the critical listening page
 	\item Modifications in the history page
-	\item Modifications in the feedback page	
+	\item Modifications in the feedback page
 	\item Add/Remove features
 \end{itemize}
 
@@ -298,7 +298,7 @@ The application is composed of four main layouts: \textit{pronunciation page}, \
 	\begin{minipage}{.5\textwidth}
 		\centering
 		\includegraphics[scale=0.18]{Figures/screenshots/history.png}
-		\caption{History page with interaction on the bottom part}
+		\caption{History page with interaction}
 		\label{fig:history_page}
 	\end{minipage}
 \end{figure}
