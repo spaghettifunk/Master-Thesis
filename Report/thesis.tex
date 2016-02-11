@@ -1,5 +1,6 @@
 \documentclass{report}
 \usepackage[T1]{fontenc}
+\usepackage[toc,page]{appendix}
 \usepackage[margin=0.75in]{geometry}
 \usepackage[bottom]{footmisc}
 \usepackage{float}
@@ -129,6 +130,10 @@
 }
 
 \pagenumbering{gobble}
+\begin{appendices}
+\include{Chapters/charts}
+\include{Chapters/surveys}
+\end{appendices}
 \include{Chapters/blankpage}
 \include{Chapters/lastquote}
 
