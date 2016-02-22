@@ -1,16 +1,16 @@
 \chapter{Speech Recognition}
 \label{chap:Speech Recognition}
-Speech recognition is a sub-field of machine learning in which allows a computer program to extract and recognize words or sentences from a human being language, and converting them back to a machine language. Advance techniques nowadays, permits to understand natural speech for executing tasks. Google Voice Search\footnote{\url{https://www.google.com/search/about/}} and Siri\footnote{\url{http://www.apple.com/ios/siri/}} are two examples of very advance speech recognition softwares with the capability of understanding natural language.
+Speech recognition is a sub-field of machine learning, in which allows a computer program to extract and recognize words or sentences from a human being language and converting them back to a machine language. Advance techniques, nowadays, permit to understanding natural speech for executing tasks. Google Voice Search\footnote{\url{https://www.google.com/search/about/}} and Siri\footnote{\url{http://www.apple.com/ios/siri/}} are two examples of very advance speech recognition softwares with the capability of understanding natural language.
 
 \section{The Problem of Speech Recognition}
 \label{sec:The Problem of Speech Recognition}
-Human languages are very complex and different among each other. Despite they might have a well-structured grammar, automatically recognition is still a very difficult problem since people have many ways to say the same thing. In fact, spoken language is different from written one because the articulation of verbal utterance is less strict and complicated. \\
-The environment in which the sound is taken has a big influence on the speech recognition software because it introduces a \textit{unwanted} amount of information in the signal. For this reason it is important that the system is capable of \textit{identifying} and \textit{filtering out} this surplus of information \cite{forsberg2003speech}. \\
+Human languages are very complex and different among each other.  Despite the fact that they might have a well-structured grammar, automatic recognition is still a very difficult problem, since people have many ways to say the same thing. In fact, spoken language is different from the written one because the articulation of verbal utterance is less strict and complicated. \\
+The environment in which the sound is taken has a big influence on the speech recognition software because it introduces a \textit{unwanted} amount of information in the signal. For this reason, it is important that the system is capable of \textit{identifying} and \textit{filtering out} this surplus of information \cite{forsberg2003speech}. \\
 
-\noindent Another interesting set of problems are related to the speaker itself. Each person has a different body that means there are a variety of components that the recognition system has to take care of in such a way to be able to understand correctly. Gender, vocal tracts, speaking style, speed of the speech, regional provenience are fundamental parts that have to be taken in consideration when building the \textit{acoustic model} for the system. Despite these features are unique for each person, there some common aspects that will be used to construct the model. The acoustic model represents the relationship between the acoustic signal of the speech and the phonemes related to it. \\
+\noindent Another interesting set of problems are related to the speaker itself. Each person has a different body that means there are a variety of components that the recognition system has to take care of in such a way to be able to understand correctly. Gender, vocal tracts, speaking style, speed of the speech, regional provenience are fundamental parts that have to be taken into consideration when building the \textit{acoustic model} for the system. Despite these features are unique for each person, there some common aspects that will be used to construct the model. The acoustic model represents the relationship between the acoustic signal of the speech and the phonemes related to it. \\
 
-\noindent Ambiguity represents the major concern since natural languages have inherited it. In fact, it may happen that in a sentence we are not able to discriminate which words are actually intended \cite{forsberg2003speech}. In speech recognition there are two types of ambiguity: \textit{homophones} and \textit{word boundary ambiguity}. \\
-Homophones refers to those words that are spelled in a different way but they \textbf{sound} the same. Generally speaking, these words are not correlated to each other but it happened that the sound is equivalent. Word boundary ambiguity instead, it \textit{occurs when there are multiple ways of grouping phones into words}\cite{forsberg2003speech}.
+\noindent Ambiguity represents the major concern since natural languages have inherited it. In fact, it may so happen that in a sentence, we are not able to discriminate which words are actually intended \cite{forsberg2003speech}. In speech recognition there are two types of ambiguity: \textit{homophones} and \textit{word boundary ambiguity}. \\
+Homophones refers to those words that are spelled in a different way but they \textbf{sound} the same. Generally speaking, these words are not correlated to each other but it happens that the sound is equivalent. Word boundary ambiguity instead, it \textit{occurs when there are multiple ways of grouping phones into words}\cite{forsberg2003speech}.
 
 % CMU Sphinx4
 \section{Architecture}
@@ -20,7 +20,7 @@ The second step consists in feeding the \textit{Decoder} with vectors we obtaine
 
 \begin{equation}
 	\widehat{w} = \underset{w}{arg \, max} \,\, P(\textbf{w}| \textbf{Y})
-\end{equation} 
+\end{equation}
 
 \noindent The $P (w|Y)$ is difficult to find directly\footnote{There is discriminate way of finding the estimation directly as described in \cite{gales2007discriminative}}, but using Bayes' Rules we can transform the equation above in
 
@@ -28,7 +28,7 @@ The second step consists in feeding the \textit{Decoder} with vectors we obtaine
 	\widehat{w} = \underset{w}{arg \, max} \,\, P (\textbf{Y}|\textbf{w}) P(\textbf{w})
 \end{equation}
 
-\noindent in which the probability $P(Y|w)$ and $P(w)$ are estimated by the \textit{Knowledge Base} block. In particular, the \textit{Acoustic Model} is responsible to estimate the first one whereas the \textit{Language Model} estimates the second one. \\
+\noindent in which the probability $P(Y|w)$ and $P(w)$ are estimated by the \textit{Knowledge Base} block. In particular, the \textit{Acoustic Model} is responsible to estimate the first one whereas, the \textit{Language Model} estimates the second one. \\
 \noindent Each word \textbf{w} is decomposed in smaller components called \textit{phones}, representing the collection of phonemes $\textbf{K}_{w}$ (see \ref{ch:english_language}). We can describe the \textit{pronunciation} as $\overset{(w)}{\textbf{q}_{1:K_{w}}} = q_{1}, ...., q_{K_{w}}$. The likelihood estimation of the sequence of phonemes is calculated by a \textbf{Hidden Markov Model} (HMM). In the section, a general overview of HMM is given. We are not going to discuss a particular model because every speech recognition system uses a variation of the general HMM chain. \\
 
 \begin{figure}[!ht]
@@ -53,10 +53,10 @@ The second step consists in feeding the \textit{Decoder} with vectors we obtaine
 The set of probabilities is defined as follow:
 \begin{equation}
 \label{eq:transition_probabilities}
-a_{ij} = p \, \{ \, q_{t+1} = j \, | \, q_{t} = i \, \}, \, \, \, 1 \leq i,j \leq N, 
+a_{ij} = p \, \{ \, q_{t+1} = j \, | \, q_{t} = i \, \}, \, \, \, 1 \leq i,j \leq N,
 \end{equation}
 
-\noindent where $q_{t}$ is the state we are currently in and $a_{ij}$ represent the transition from state $i$ to $j$. 
+\noindent where $q_{t}$ is the state we are currently in and $a_{ij}$ represent the transition from state $i$ to $j$.
 Each transition should satisfy the following rules:
 
 \begin{subequations}
@@ -82,11 +82,11 @@ s_{j}(k) = p \, \{\, o_{t} = v_{k} \, | \, q_{t} = j \, \}, \, \, \, 1 \leq j \l
 \end{equation}
 
 \noindent where $c_{jm}$ is the weighted coefficients, $\mu_{jm}$ is the mean vector and $\Sigma_{jm}$ is the covariance matrix. The coefficients should satisfy the stochastic rules in \ref{eq:stochastic_rules}. \\
-\noindent We can then define the initial state distribution as $\pi = \{\pi_{i}\}$ where 
+\noindent We can then define the initial state distribution as $\pi = \{\pi_{i}\}$ where
 
 \begin{equation}
 	\pi_{i} = p \, \{ q_{I} = i \, \}, \,\,\,\, 1 \leq i \leq N
-\end{equation} 
+\end{equation}
 
 \noindent Hence, to describe the HMM with the discrete probability function we can use the following compact form
 \begin{equation}
@@ -98,14 +98,14 @@ s_{j}(k) = p \, \{\, o_{t} = v_{k} \, | \, q_{t} = j \, \}, \, \, \, 1 \leq j \l
 \begin{equation}
 \label{eq:hmm_density}
 \lambda = (\Lambda, c_{jm}, \mu_{jm}, \Sigma_{jm}, \pi )
-\end{equation} 
+\end{equation}
 
 \subsection{Assumptions}
 \label{sub:assumptions_hmm}
 The theory behind HMM requires three important assumptions: the \textbf{Markov assumption}, the \textbf{stationarity assumption} and the \textbf{output independence assumption}.
 
 \subsubsection{The Markov Assumption}
-The Markov assumption assumes that the following state depends only from the state we are currently in as given in \ref{eq:transition_probabilities}. The result model is also referred as \textit{first order} HMM. Generally speaking though, the decision of the next coming state might depend on \textbf{n} previous states, leading to a $n^{th}$ HMM order model. In this case, the transition probabilities is defined as follow:
+The Markov assumption assumes that the following state depends only from the state we are currently in, as given in \ref{eq:transition_probabilities}. The result model is also referred as \textit{first order} HMM. Generally speaking though, the decision of the next coming state might depend on \textbf{n} previous states, leading to a $n^{th}$ HMM order model. In this case, the transition probabilities is defined as follow:
 
 \begin{equation}
 \label{eq:transition_nth_order}
@@ -154,19 +154,19 @@ Given that, we can define the forward algorithm in three steps as follow:
 	\item[1.]{Initialization:} \\
 		\begin{equation}
 			\alpha_{1}(i) = \pi_{i}b_{i}(o_{1}), 1 \leq i \leq N
-		\end{equation}		
+		\end{equation}
 	\item[2.]{Induction step:} \\
 		\begin{equation}
 		\label{eq:induction_step_forward}
 			\left ( \sum_{i=1}^{N} \alpha_{t}(i) a_{ij} \right ) b_{j}(o_{t+1}) \,\, where \,\, 1 \leq t \leq T - 1, \,\, 1 \leq j \, N
-		\end{equation}		
+		\end{equation}
 	\item[3.]{Termination:} \\
 		\begin{equation}
 			P(O|\lambda) = \sum_{i=1}^{N} \, \alpha_{T}(i)
 		\end{equation}
 \end{itemize}
-		
-\noindent The key of this algorithm stays in \ref{eq:induction_step_forward} where for each state $s_{j}$ the $\alpha$ value contains the probability of the observed sequence from the beginning to time $t$. Given the previous algorithm, we can now calculate the new complexity. The direct algorithm has a complexity of $2TN^{T}$ whereas the new one is $N^{2}T$.
+
+\noindent The key of this algorithm stays in \ref{eq:induction_step_forward}, where for each state $s_{j}$ the $\alpha$ value contains the probability of the observed sequence from the beginning to time $t$. Given the previous algorithm, we can now calculate the new complexity. The direct algorithm has a complexity of $2TN^{T}$ whereas the new one is $N^{2}T$.
 
 \subsection{Backward probability algorithm}
 This algorithm is very similar to the previous one with the only difference when calculating the probability. Instead of estimating the probability as in \ref{eq:alpha_equation}, the backward algorithm estimates the likelihood of \textit{"the partial observation sequence from $t+1$ to $T$, starting from state $s_{i}$"}\cite{hmm_tutorial}. \\
@@ -183,7 +183,7 @@ This algorithm is very similar to the previous one with the only difference when
 
 \section{Viterbi algorithm}
 \label{sec:viterbi}
-The main goal of this algorithm is to discover the sequence of hidden states that are more likely to be produces given a sequence of observations. This block is called \textbf{decoder} (see \ref{fig:speech_architecture} for reference). The \textit{Viterbi algorithm} is one of the most used solution for finding a \textit{single best sequence} for a given set of observations \cite{hmm_tutorial}. What makes this algorithm suitable for this problem, is the similarity with the forwarding algorithm with the only difference that instead of summing the transition probabilities at each step, it calculates the \textbf{maximum}. In \ref{fig:hmm_recursion} it is shown how the maximization estimation is calculated during the recursion step.
+The main goal of this algorithm is to discover the sequence of hidden states that are more likely to be produced given a sequence of observations. This block is called \textbf{decoder} (see \ref{fig:speech_architecture} for reference). The \textit{Viterbi algorithm} is one of the most used solution for finding a \textit{single best sequence} for a given set of observations \cite{hmm_tutorial}. What makes this algorithm suitable for this problem, is the similarity between the forwarding algorithm with the only difference that, instead of summing the transition probabilities at each step, it calculates the \textbf{maximum}. In \ref{fig:hmm_recursion} it is shown how the maximization estimation is calculated during the recursion step.
 
 \begin{figure}[!ht]
 	\centering
@@ -192,7 +192,7 @@ The main goal of this algorithm is to discover the sequence of hidden states tha
 	\label{fig:hmm_recursion}
 \end{figure}
 
-\noindent Let's define the probability of the most likely sequence for a given partial observation: 
+\noindent Let's define the probability of the most likely sequence for a given partial observation:
 
 \begin{equation}
 	\delta_{t}(i) =  \underset{q_{1},q_{2}, ... , q_{t-1}}{\mathrm{max}} P (q_{1},q_{2}, ... , q_{t} = s_{i}, o_{1}, o_{2}, ... , o_{t} \, | \, \lambda)
@@ -204,7 +204,7 @@ The main goal of this algorithm is to discover the sequence of hidden states tha
 	\item[1.]{Initialization:} \\
 	\begin{equation}
 		\delta_{1}(i) = \pi_{i}b_{i}(o_{1}), \,\, 1 \leq i \leq N, \phi_{1}(i) = 0
-	\end{equation}		
+	\end{equation}
 
 	\item[2.]{Recursion:} \\
 	\begin{subequations}
@@ -212,7 +212,7 @@ The main goal of this algorithm is to discover the sequence of hidden states tha
 		\delta_{t}(j) = \underset{1\leq i \leq N}{\mathrm{max}} [\delta_{t-1}(i)a_{ij}] \, b_{j}(o_{t}), \,\, 2 \leq t \leq T, \,\, 1 \leq j \leq N, \\
 		\psi_{t}(j) = \underset{1\leq i \leq N}{\mathrm{arg \, max}} [\delta_{t-1}(i)a_{ij}], \,\, 2 \leq t \leq T, \,\, 1 \leq j \leq N,
 		\end{align}
-	\end{subequations}		
+	\end{subequations}
 
 	\item[3.]{Termination:} \\
 	\begin{subequations}
@@ -269,10 +269,10 @@ The last part of the model is represented by the \textit{Learning} phase, in whi
 \begin{equation}
 \label{eq:avg-likelihood}
 	\hat{l} = \frac{1}{n} ln \, L
-\end{equation} 
+\end{equation}
 
 \noindent The \textit{hat} in \ref{eq:avg-likelihood} indicates that the function is an estimator. From here we can define the actual MLE.
-This method estimates the $\theta_{0}$ by finding the value of $\theta$ that returns the maximum value of $\hat{l}(\theta \, \sim \, x)$. The estimation is defined as follow if the maximum exists:
+This method estimates the $\theta_{0}$ by finding the value of $\theta$ that returns the maximum value of $\hat{l}(\theta \, \sim \, x)$. The estimation is defined as follows if the maximum exists:
 
 \begin{equation}
 	\hat{\theta}_{mle} \subseteq \{ \underset{\theta}{arg \, max} \,\, \hat{l} \,\, (\theta \, \sim \, x_{1}, x_{2}, ... , x_{n})\}
@@ -290,7 +290,7 @@ This method estimates the $\theta_{0}$ by finding the value of $\theta$ that ret
 % GMM classifier
 \section{Gaussian Mixture Model}
 %\label{sec:gmm}
-A Gaussian mixture model is a probabilistic model where the it is assumed that the set of points come from a \textit{mixture model}, in particular from a fixed number of \textit{Gaussian distributions} where the parameters are \textit{unknown}. This approach can be thought of a generalization of the clustering algorithm called \textit{k-means} where we are looking for the \textbf{covariance} and the center of the Gaussian distribution and not only the centroids \cite{sklearn_gmm}. There are different way for fitting the mixture model, but we are going to focus in particular to the one where the expectation-maximization is involved (see \ref{sec:mle}). \\
+A Gaussian mixture model is a probabilistic model where it is assumed that the set of points comes from a \textit{mixture model}, in particular, from a fixed number of \textit{Gaussian distributions} where the parameters are \textit{unknown}. This approach can be thought of a generalization of the clustering algorithm called \textit{k-means} where we are looking for the \textbf{covariance} and the center of the Gaussian distribution and not only the centroids \cite{sklearn_gmm}. There are different ways of fitting the mixture model, but we are going to focus in particular to the one where the expectation-maximization is involved (see \ref{sec:mle}). \\
 
 \noindent Let the following equation defining a weighted sum of N Gaussian densities component:
 
@@ -302,7 +302,7 @@ A Gaussian mixture model is a probabilistic model where the it is assumed that t
 
 \begin{equation}
 	g(\textbf{x}|\mu_{i}, \Sigma_{i}) = \frac{1}{(2\pi)^{D/2} \, |\Sigma_{i}|^{1/2}} exp \left \{ -\frac{1}{2} (\textbf{x} - \mathbf{\mu_{i}})' \,\, \Sigma_{i}^{-1} \,\, (x - \mathbf{\mu_{i}}) \right \}
-\end{equation} 
+\end{equation}
 
 \noindent where $\mathbf{\mu_{i}}$ is the mean vector and $\Sigma_{i}$ is the covariance matrix. Given that, we can assume that the mixture satisfy the constrain that $\Sigma_{i=1}^{N} \,\, w_{i} = 1$. \\
 
@@ -313,7 +313,7 @@ A Gaussian mixture model is a probabilistic model where the it is assumed that t
 	\lambda = \{ w_{i}, \mathbf{\mu_{i}}, \Sigma_{i}\} \,\,\, i = 1, ... , N
 \end{equation}
 
-\noindent Let's break down the variants in \ref{eq:gmm}. The choice of model configuration highly depends on the available dataset. In fact, to estimate the GMM parameters we have to determine the covariance matrix $\Sigma_{i}$. This can be either full rank or constrained to be diagonal. In the first case, all rows and columns are linearly independent and all the values are taken into account, whereas in the second case, we consider only the values in the diagonal. The covariance matrix is not the only parameter that needs to be carefully chosen. In fact, the \textit{number of components} in general refers to the amount of possible  \textit{"clusters"} in the dataset. \\
+\noindent Let's break down the variants in \ref{eq:gmm}. The choice of model configuration highly depends on the available dataset. In fact, to estimate the GMM parameters we have to determine the covariance matrix $\Sigma_{i}$. This can be either full rank or constrained to be diagonal. In the first case, all rows and columns are linearly independent and all the values are taken into account, whereas in the second case, we consider only the values in the diagonal. The covariance matrix is not the only parameter that needs to be carefully chosen. In fact, the \textit{number of components} in general, refers to the amount of possible  \textit{"clusters"} in the dataset. \\
 
 \begin{comment}
 \begin{figure}[!ht]
@@ -324,7 +324,6 @@ A Gaussian mixture model is a probabilistic model where the it is assumed that t
 \end{figure}
 \end{comment}
 
-\noindent It is important to note that in speaking recognition, it is allowed to assume that size of the acoustic space of the spectral. The spectral is referred to the phonetic events as we described in \ref{ch:english_language}. In fact, these acoustic classes have well defined features that allows the model to distinguish one phoneme from another. For the same reason, GMM is also used in \textit{speaker recognition} in which the vocal tracts spectral is taken into account to distinguish a speaker from another \cite{reynolds1992gaussian}. \\
+\noindent It is important to note that in speaking recognition, it is allowed to assume the size of the acoustic space of the spectral. The spectral is referred to the phonetic events as we described in \ref{ch:english_language}. In fact, these acoustic classes have well defined features that allows the model to distinguish one phoneme from another. For the same reason, GMM is also used in \textit{speaker recognition} in which the vocal tracts spectral is taken into account to distinguish a speaker from another \cite{reynolds1992gaussian}. \\
 
 \noindent Continuing with the speaker recognition example, we can think of the spectral shape $i$ as an acoustic class in which can be represented by the mean $\mu_{i}$ of the $i-th$ component density. The variation in the spectrum can be defined as the covariance matrix $\Sigma_{i}$. Also, a GMM can be views as a Hidden Markov Model with a single state assuming that the feature vectors are independent as well as the observation density from the acoustic classes is a Gaussian mixture \cite{reynolds2000speaker} \cite{reynolds1995robust}.
-

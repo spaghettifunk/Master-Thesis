@@ -1,13 +1,13 @@
 \chapter{Acoustics and Digital Signal Processing}
 \label{ch:speech analysis}
-In the past decade, digital computers have significantly helped \textit{signal processing} to quantify a finite number of bits. The flexibility inherited from digital elements allowed the usage of a vast number of techniques in which had been not possible to implement in the past. Nowadays, digital signal processor have been used to perform multiple operations, such as \textit{filtering}, \textit{spectrum estimation} and many others algorithms \cite{orfanidis1995introduction}.
+In the past decade, digital computers have significantly helped \textit{signal processing} to quantify a finite number of bits. The flexibility inherited from digital elements allowed the usage of a vast number of techniques in which had not been possible to implement in the past. Nowadays, digital signal processor have been used to perform multiple operations, such as \textit{filtering}, \textit{spectrum estimation} and many others algorithms \cite{orfanidis1995introduction}.
 
 
 \section{Speech signals}
 \label{sec:speech_signals}
-The \textbf{speech} is the human way of communication. The protocol used in communication is based on a syntactic combination of different words taken from a very large vocabulary. Each word in the vocabulary is composed by a small set of vowels and consonants that combined with a phonetic units form a spoken word. \\
-\noindent When a word is pronounced\footnote{\ref{ch:english_language} explains in details how phonemes are pronounced}, a sounds is produced causing the air particles to be excited at a certain vibration rate. The source of our voice is due to the vibration of the vocal cords. The resultant signal is a \textit{non-stationary} but it can be divided in segments since each phoneme has a common acoustic properties. In \ref{fig:ex_sound_wave} is possible to notice how the pronounced words have a different shape as well as when the intensity of the voice is higher/lower during the pronunciation.
- 
+The \textbf{speech} is the human way of communication. The protocol used in communication is based on a syntactic combination of different words taken from a very large vocabulary. Each word in the vocabulary is composed by a small set of vowels and consonants that combined with a phonetic unit forms a spoken word. \\
+\noindent When a word is pronounced\footnote{\ref{ch:english_language} explains in details how phonemes are pronounced}, a sounds is produced causing the air particles to be excited at a certain vibration rate. The source of our voice is due to the vibration of the vocal cords. The resultant signal is \textit{non-stationary} but it can be divided in segments since each phoneme has a common acoustic properties. In \ref{fig:ex_sound_wave} it is possible to notice how the pronounced words have a different shape as well as when the intensity of the voice is higher/lower during the pronunciation.
+
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=0.4]{Figures/ex_speech.png}
@@ -19,21 +19,21 @@ The \textbf{speech} is the human way of communication. The protocol used in comm
 
 \subsection{Properties of Sinusoids}
 \label{sub:prop_of_sinusoids}
-A sinusoid, is a simple waveform represented by a up and down movement. There are three important measures that has to be taken into consideration when defining the shape of the sinusoid: \textit{amplitude}, \textit{frequency} and \textit{phase}. 
+A sinusoid is a simple waveform represented by a up and down movement. There are three important measures that must be taken into consideration when defining the shape of the sinusoid: \textit{amplitude}, \textit{frequency} and \textit{phase}.
 
 \subsubsection{Amplitude}
 The amplitude, from a sound point of view, corresponds to the \textit{loudness} whereas in the soundwave it corresponds to the amount of \textbf{energy}. In general, to measure the amplitude, we use the unit called \textbf{deciBels} (dB) in which it is measured using a logarithmic scale relative to a standard sound \cite{prop_of_sinusoids}.
 
 \subsubsection{Frequency}
-Frequency is the number of cycles per unit of time\footnote{In general, a unit of time is considered a single second}.To define cycle, we can think of an oscillation that starts from the middle line, goes to the maximum point, down to the minimum and get back to the middle point. The unit of measure of the frequency is calculated in \textbf{Hertz} (Hz). Also, if we calculate the time taken for one cycle, we estimate the so called \textbf{period}. \\ 
+Frequency is the number of cycles per unit of time\footnote{In general, a unit of time is considered a single second}.To define cycle, we can think of an oscillation that starts from the middle line, goes to the maximum point, down to the minimum and get back to the middle point. The unit of measure of the frequency is calculated in \textbf{Hertz} (Hz). Also, if we calculate the time taken for one cycle, we estimate the so called \textbf{period}. \\
 \noindent Frequency plays a fundamental role with the \textit{pitch}. In fact, changing the number of oscillations but keeping the same waveform, we are able to increase or decrease the level of the pitch.
 
 \subsubsection{Phase}
-The \textbf{phase} measures the starting point position of the waveform. If the sinusoids start at the very minimum of the wave, the value of the phase is $\pi$ radians whereas starting from the top of the wave it will have a phase of \textit{zero}. When two sounds do not have the same phase, it is possible to perceive the difference in the time scale since one of the two is delayed compared to the other. When comparing two signals, there is the need to obtain a \textit{"phase-neutral"} that means the comparison is made taking only into account Amplitude and Frequency. This method is called \textbf{autocorrelation} of the signals.
+The \textbf{phase} measures the starting point position of the waveform. If the sinusoids start at the very minimum of the wave, the value of the phase is $\pi$ radians whereas starting from the top of the wave it will have a phase of \textit{zero}. When two sounds do not have the same phase, it is possible to perceive the difference in the time scale since one of the two is delayed compared to the other. When comparing two signals, there is the need to obtain a \textit{"phase-neutral"}, that means the comparison is made taking only Amplitude and Frequency into account. This method is called \textbf{autocorrelation} of the signals.
 
 \subsection{Spectrograms}
 \label{sec:spectrograms}
-A \textbf{Spectrogram} is the visual representation of an acoustic signal \cite{spectrogram_def}. Basically, a Fourier Transformation is applied to the sound, in such a way to obtain the set of waveforms extracted form the original signal and separate their frequencies and amplitudes. The result is typically depicted in a graph with degrees of amplitude with a \textit{light-dark} representation. Since amplitude represents the \textit{energy}, having a darker shade means that the energy is more intense in a certain range of frequencies - lighter when there is low energy. In \ref{fig:nasal_spectrogram} there is an example of the spectrogram. \\
+A \textbf{spectrogram} is the visual representation of an acoustic signal \cite{spectrogram_def}. Basically, a Fourier Transformation is applied to the sound, in such a way to obtain the set of waveforms extracted form the original signal and separate their frequencies and amplitudes. The result is typically depicted in a graph with degrees of amplitude with a \textit{light-dark} representation. Since amplitude represents the \textit{energy}, having a darker shade means that the energy is more intense in a certain range of frequencies - lighter when there is low energy. In \ref{fig:nasal_spectrogram} there is an example of the spectrogram. \\
 \noindent The visual feedback of the spectrogram is highly dependent from the \textbf{window size} of the Fourier Analysis. In fact, different sizes affect the levels of frequencies and time resolution. \\
 \noindent If the window size is \textit{short}, the adjacent \textbf{harmonics} are distorted but the time resolution is better \cite{spectrogram_def}. An harmonic is an integer multiple of the fundamental frequency or component frequencies. This is helpful when we are looking for the \textit{formant structure} because the striations created by the spectrogram highlights the individual pitch periods. \\
 \noindent On the other hand, a \textit{wider} window size, helps to locate the harmonics because the band of the spectrogram are narrower.
@@ -41,7 +41,7 @@ A \textbf{Spectrogram} is the visual representation of an acoustic signal \cite{
 
 \section{Fourier Analysis}
 \label{sec:fourier_analysis}
-\textbf{Fourier Analysis} is the process that decompose a periodic waveform into a set of sinusoids having different amplitudes, phases and frequencies. Yet, if we add those waveforms again, we will obtain the original signal. The analysis has been involved in many scientific applications and the reason is due to the following transform properties:
+\textbf{Fourier Analysis} is the process of decomposing a periodic waveform into a set of sinusoids having different amplitudes, phases and frequencies. Yet, if we add those waveforms again, we will obtain the original signal. The analysis has been involved in many scientific applications and the reason is due to the following transform properties:
 
 \begin{itemize}
 	\item Linear transformation - the relationship between two modules is kept
@@ -54,8 +54,8 @@ A \textbf{Spectrogram} is the visual representation of an acoustic signal \cite{
 \subsubsection{Sampling}
 \label{ssubs:sampling}
 
-\textit{Sampling} is the process where a continuous signal is periodically measured every \textbf{T} seconds \cite{orfanidis1995introduction}. \\ 
-\noindent Consider a sound signal that varies in time a continuous function $s(t)$. For every $T$ seconds, we need to measure the value of the function. This frame of time is called the \textit{sampling interval} \cite{weik2012communications}. To calculate the sequence a sampled function is given as follow: $s(nT), \forall$ integer values of $n$. Thus, the \textit{sampling rate} is the average number of samples obtained in a range of $T = 1sec$ \cite{sampling_wiki}. An example of sampling is shown in \ref{fig:sampling_ex}.
+\textit{Sampling} is the process where a continuous signal is periodically measured every \textbf{T} seconds \cite{orfanidis1995introduction}. \\
+\noindent Consider a sound signal that varies in time as a continuous function $s(t)$. For every $T$ seconds, we need to measure the value of the function. This frame of time is called the \textit{sampling interval} \cite{weik2012communications}. To calculate the sequence a sampled function is given as follow: $s(nT), \forall$ integer values of $n$. Thus, the \textit{sampling rate} is the average number of samples obtained in a range of $T = 1sec$ \cite{sampling_wiki}. An example of sampling is shown in \ref{fig:sampling_ex}.
 
 \begin{figure}[!ht]
 	\centering
@@ -74,7 +74,7 @@ f_{s} > f_{Nyquist} = 2f_{max}
 
 \subsubsection{Quantization}
 \label{subs:quantization}
-To finalize the transformation from a continuous signal to a discrete one, we need to \textit{quantized} the signal in such a way to obtain a finite set of values. Unlike sampling in which permits to reconstruct the original signal, quantization is an irreversible operation that introduce a loss of information. \\
+To finalize the transformation from a continuous signal to a discrete one, we need to \textit{quantized} the signal in such a way to obtain a finite set of values. Unlike sampling, in which permits to reconstruct the original signal, quantization is an irreversible operation that introduce a loss of information. \\
 \noindent Consider $x$ be the sampled signal and $x_{q}$ the quantized one where $x_{q}$ can be expressed as the signal $x$ plus the error $e_{q}$. From here we have:
 
 \begin{equation}
@@ -85,7 +85,7 @@ Given the equation above, we can restrict the range of error to $-q/2 ... +q/2$ 
 
 \begin{equation}
 p(e) = \begin{Bmatrix}
-			\frac{1}{q} & for \frac{-q}{2} \leq  e < \frac{q}{2}\\ 
+			\frac{1}{q} & for \frac{-q}{2} \leq  e < \frac{q}{2}\\
 			0 			& otherwise
 		\end{Bmatrix}
 \end{equation}
@@ -94,7 +94,7 @@ Given this reason, the quantization error also called quantization noise.
 
 \subsubsection{Windowing Signals}
 \label{ssubs:windowing_signals}
-Speech sound is a \textbf{non-stationary} signal where its properties (amplitude, frequency and pitch) rapidly change over time \cite{windowing_fi}. Due to the quick changes of those properties, it makes hard to use \textit{autocorrelation} or \textit{Discrete Fourier Transformation}. In \ref{ch:english_language} we highlighted the fact that phonemes have some invariant properties for a small period of time. Having said that, it is possible to apply methods that will take \textit{short windows} (pieces of signal) and process them. This window is also called \textbf{frame}. Typically, the shape of this window is \textit{rectangular} because one of the most used methods are the \textit{Hanning} and \textit{Hamming} in which the window covers the whole amplitude spectrum between a range. In \ref{fig:windowing_ex} there is an example on how the Hamming window is taken from a signal. The rectangle called \textit{Time Record}, is the frame that is extracted and processed by the windowing function. 
+Speech sound is a \textbf{non-stationary} signal where its properties (amplitude, frequency and pitch) rapidly change over time \cite{windowing_fi}. Due to the quick changes of those properties, it makes it hard to use \textit{autocorrelation} or \textit{Discrete Fourier Transformation}. In \ref{ch:english_language} we highlighted the fact that phonemes have some invariant properties for a small period of time. Having said that, it is possible to apply methods that will take \textit{short windows} (pieces of signal) and process them. This window is also called \textbf{frame}. Typically, the shape of this window is \textit{rectangular} because one of the most used methods are the \textit{Hanning} and \textit{Hamming} in which the window covers the whole amplitude spectrum between a range. In \ref{fig:windowing_ex} there is an example on how the Hamming window is taken from a signal. The rectangle called \textit{Time Record}, is the frame that is extracted and processed by the windowing function.
 
 \begin{figure}[!ht]
 	\centering
@@ -127,7 +127,7 @@ Zero crossing is the point of the function where the sign changes from a positiv
 
 \begin{equation}
 ZCR = \frac{1}{T-1} \sum_{t=1}^{T-1} \begin{Bmatrix}
-										1  & s_t s_{t-1} < 0 \\ 
+										1  & s_t s_{t-1} < 0 \\
 										0 & otherwise
 									 \end{Bmatrix}
 \end{equation}
@@ -136,7 +136,7 @@ ZCR = \frac{1}{T-1} \sum_{t=1}^{T-1} \begin{Bmatrix}
 
 \subsubsection{The Discrete Fourier Transform}
 \label{ssubs:discrete_fourier_transform}
-Before to jump into the definition of the Discrete Fourier Transformation (DFT), we need to introduce the Fourier Transformation (FT) from the mathematical point of view. The FT of a continuous-signal $x(t)$ is defined by the following equation:
+Before jumping into the definition of the Discrete Fourier Transformation (DFT), we need to introduce the Fourier Transformation (FT) from the mathematical point of view. The FT of a continuous-signal $x(t)$ is defined by the following equation:
 
 \begin{equation}
 X(\omega) = \int_{-\infty}^\infty x(t)e^{-j\omega t} dt, \qquad \omega\in(-\infty,\infty)
@@ -157,23 +157,3 @@ where $x(t_n)$ is the \textit{amplitude} of the signal at time $t_n$ (sampling t
 	\caption{DFT transformation \cite{dft_matlab}}
 	\label{fig:dft}
 \end{figure}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
