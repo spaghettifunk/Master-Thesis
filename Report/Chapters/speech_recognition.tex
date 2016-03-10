@@ -15,7 +15,7 @@ Homophones refers to those words that are spelled in a different way but they \t
 % CMU Sphinx4
 \section{Architecture}
 \label{sec:speech_rec_Architecture}
-Generally speaking, a speech recognition system is divided in three main components: the \textbf{Feature Extraction} (or Front End), the \textbf{Decoder} and the \textbf{Knowledge Base} (KB). In \ref{fig:speech_architecture} the KB part is represented by the three sub-blocks called \textit{Acoustic Model}, \textit{Pronunciation Dictionary} and \textit{Language Model}. The \textit{Front End} takes as in input the voice signal where it is analyzed and converted in the so called \textit{Features Vectors}. This last is the set of common properties that we discussed in \ref{ch:english_language}. From here we can say that $\textbf{Y} 1:N = y_{1},..., y_{N}$ where $Y$ is the set of features vectors. \\
+Generally speaking, a speech recognition system is divided in three main components: the \textbf{Feature Extraction} (or Front End), the \textbf{Decoder} and the \textbf{Knowledge Base} (KB). In Figure~\ref{fig:speech_architecture} the KB part is represented by the three sub-blocks called \textit{Acoustic Model}, \textit{Pronunciation Dictionary} and \textit{Language Model}. The \textit{Front End} takes as in input the voice signal where it is analyzed and converted in the so called \textit{Features Vectors}. This last is the set of common properties that we discussed in chapter~\ref{ch:english_language}. From here we can say that $\textbf{Y} 1:N = y_{1},..., y_{N}$ where $Y$ is the set of features vectors. \\
 The second step consists in feeding the \textit{Decoder} with vectors we obtained from the previous step, attempting to find the sequence of words $\textbf{w} 1:L = w_{1}, ... , w_{L}$ that have most likely generated the set $Y$\cite{gales2008application}. The decoder tries to find the likelihood estimation as follows:
 
 \begin{equation}
@@ -29,7 +29,7 @@ The second step consists in feeding the \textit{Decoder} with vectors we obtaine
 \end{equation}
 
 \noindent in which the probability $P(Y|w)$ and $P(w)$ are estimated by the \textit{Knowledge Base} block. In particular, the \textit{Acoustic Model} is responsible to estimate the first one whereas, the \textit{Language Model} estimates the second one. \\
-\noindent Each word \textbf{w} is decomposed in smaller components called \textit{phones}, representing the collection of phonemes $\textbf{K}_{w}$ (see \ref{ch:english_language}). We can describe the \textit{pronunciation} as $\overset{(w)}{\textbf{q}_{1:K_{w}}} = q_{1}, ...., q_{K_{w}}$. The likelihood estimation of the sequence of phonemes is calculated by a \textbf{Hidden Markov Model} (HMM). In the section, a general overview of HMM is given. We are not going to discuss a particular model because every speech recognition system uses a variation of the general HMM chain. \\
+\noindent Each word \textbf{w} is decomposed in smaller components called \textit{phones}, representing the collection of phonemes $\textbf{K}_{w}$ (see chapter~\ref{ch:english_language}). We can describe the \textit{pronunciation} as $\overset{(w)}{\textbf{q}_{1:K_{w}}} = q_{1}, ...., q_{K_{w}}$. The likelihood estimation of the sequence of phonemes is calculated by a \textbf{Hidden Markov Model} (HMM). In the section, a general overview of HMM is given. We are not going to discuss a particular model because every speech recognition system uses a variation of the general HMM chain. \\
 
 \begin{figure}[!ht]
 	\centering
@@ -73,7 +73,7 @@ Each transition should satisfy the following rules:
 s_{j}(k) = p \, \{\, o_{t} = v_{k} \, | \, q_{t} = j \, \}, \, \, \, 1 \leq j \leq N, \,\, 1 \leq k \leq M
 \end{equation}
 
-\noindent where $v_k$ is the $k^{th}$ observation whereas $o_{t}$ is the outcome. Furthermore, $b_{j}(k)$ must satisfy the same stochastic rules described in \ref{eq:stochastic_rules}. \\
+\noindent where $v_k$ is the $k^{th}$ observation whereas $o_{t}$ is the outcome. Furthermore, $b_{j}(k)$ must satisfy the same stochastic rules described in equation~\ref{eq:stochastic_rules}. \\
 
 \noindent A different approach is made when the number of observations is infinite. In fact, we are not going to use a set of discrete probabilities but instead a continuous probability density function. Given that, we can define the parameters of the density function by approximating it by a weighted sum of $M$ Gaussian distributions $\varphi$ \cite{def_hmm}. We can describe the function as follow:
 
@@ -81,7 +81,7 @@ s_{j}(k) = p \, \{\, o_{t} = v_{k} \, | \, q_{t} = j \, \}, \, \, \, 1 \leq j \l
 	s_{j}(o) = \sum_{m = 1}^{M} c_{jm}\varphi (\mu_{jm}, \Sigma_{jm}, o_{t})
 \end{equation}
 
-\noindent where $c_{jm}$ is the weighted coefficients, $\mu_{jm}$ is the mean vector and $\Sigma_{jm}$ is the covariance matrix. The coefficients should satisfy the stochastic rules in \ref{eq:stochastic_rules}. \\
+\noindent where $c_{jm}$ is the weighted coefficients, $\mu_{jm}$ is the mean vector and $\Sigma_{jm}$ is the covariance matrix. The coefficients should satisfy the stochastic rules in equation~\ref{eq:stochastic_rules}. \\
 \noindent We can then define the initial state distribution as $\pi = \{\pi_{i}\}$ where
 
 \begin{equation}
@@ -94,7 +94,7 @@ s_{j}(k) = p \, \{\, o_{t} = v_{k} \, | \, q_{t} = j \, \}, \, \, \, 1 \leq j \l
 	\lambda = (\Lambda, S, \pi )
 \end{equation}
 
-\noindent whereas to denote the model with a continuous density function, we use the one described in \ref{eq:hmm_density}
+\noindent whereas to denote the model with a continuous density function, we use the one described in equation~\ref{eq:hmm_density}
 \begin{equation}
 \label{eq:hmm_density}
 \lambda = (\Lambda, c_{jm}, \mu_{jm}, \Sigma_{jm}, \pi )
@@ -105,7 +105,7 @@ s_{j}(k) = p \, \{\, o_{t} = v_{k} \, | \, q_{t} = j \, \}, \, \, \, 1 \leq j \l
 The theory behind HMM requires three important assumptions: the \textbf{Markov assumption}, the \textbf{stationarity assumption} and the \textbf{output independence assumption}.
 
 \subsubsection{The Markov Assumption}
-The Markov assumption assumes that the following state depends only from the state we are currently in, as given in \ref{eq:transition_probabilities}. The result model is also referred as \textit{first order} HMM. Generally speaking though, the decision of the next coming state might depend on \textbf{n} previous states, leading to a $n^{th}$ HMM order model. In this case, the transition probabilities is defined as follow:
+The Markov assumption assumes that the following state depends only from the state we are currently in, as given in equation~\ref{eq:transition_probabilities}. The result model is also referred as \textit{first order} HMM. Generally speaking though, the decision of the next coming state might depend on \textbf{n} previous states, leading to a $n^{th}$ HMM order model. In this case, the transition probabilities is defined as follow:
 
 \begin{equation}
 \label{eq:transition_nth_order}
@@ -127,7 +127,7 @@ The last assumption says that the current observation is statistically independe
 	O = o_{1}, o_{2}, ... , o_{T}
 \end{equation}
 
-Now, recalling \ref{eq:hmm_discrete}, it is possible to formulate the assumption as follow:
+\noindent Now, recalling equation~\ref{eq:hmm_discrete}, it is possible to formulate the assumption as follow:
 
 \begin{equation}
 \label{eq:final_hmm}
@@ -153,12 +153,12 @@ Given that, we can define the forward algorithm in three steps as follow:
 \begin{itemize}
 	\item[1.]{Initialization:} \\
 		\begin{equation}
-			\alpha_{1}(i) = \pi_{i}b_{i}(o_{1}), 1 \leq i \leq N
+			\alpha_{1}(i) = \pi_{i}b_{i}(o_{1}), \,\, 1 \leq i \leq N
 		\end{equation}
 	\item[2.]{Induction step:} \\
 		\begin{equation}
 		\label{eq:induction_step_forward}
-			\left ( \sum_{i=1}^{N} \alpha_{t}(i) a_{ij} \right ) b_{j}(o_{t+1}) \,\, where \,\, 1 \leq t \leq T - 1, \,\, 1 \leq j \, N
+			\left ( \sum_{i=1}^{N} \alpha_{t}(i) a_{ij} \right ) b_{j}(o_{t+1}) \,\, where \,\, 1 \leq t \leq T - 1, \,\, 1 \leq j \,\, N
 		\end{equation}
 	\item[3.]{Termination:} \\
 		\begin{equation}
@@ -166,10 +166,10 @@ Given that, we can define the forward algorithm in three steps as follow:
 		\end{equation}
 \end{itemize}
 
-\noindent The key of this algorithm stays in \ref{eq:induction_step_forward}, where for each state $s_{j}$ the $\alpha$ value contains the probability of the observed sequence from the beginning to time $t$. Given the previous algorithm, we can now calculate the new complexity. The direct algorithm has a complexity of $2TN^{T}$ whereas the new one is $N^{2}T$.
+\noindent The key of this algorithm stays in equation~\ref{eq:induction_step_forward}, where for each state $s_{j}$ the $\alpha$ value contains the probability of the observed sequence from the beginning to time $t$. Given the previous algorithm, we can now calculate the new complexity. The direct algorithm has a complexity of $2TN^{T}$ whereas the new one is $N^{2}T$.
 
 \subsection{Backward probability algorithm}
-This algorithm is very similar to the previous one with the only difference when calculating the probability. Instead of estimating the probability as in \ref{eq:alpha_equation}, the backward algorithm estimates the likelihood of \textit{"the partial observation sequence from $t+1$ to $T$, starting from state $s_{i}$"}\cite{hmm_tutorial}. \\
+This algorithm is very similar to the previous one with the only difference when calculating the probability. Instead of estimating the probability as in equation~\ref{eq:alpha_equation}, the backward algorithm estimates the likelihood of \textit{"the partial observation sequence from $t+1$ to $T$, starting from state $s_{i}$"}\cite{hmm_tutorial}. \\
 
 \noindent The probability is calculated with the following equation:
 
@@ -183,7 +183,7 @@ This algorithm is very similar to the previous one with the only difference when
 
 \section{Viterbi algorithm}
 \label{sec:viterbi}
-The main goal of this algorithm is to discover the sequence of hidden states that are more likely to be produced given a sequence of observations. This block is called \textbf{decoder} (see \ref{fig:speech_architecture} for reference). The \textit{Viterbi algorithm} is one of the most used solution for finding a \textit{single best sequence} for a given set of observations \cite{hmm_tutorial}. What makes this algorithm suitable for this problem, is the similarity between the forwarding algorithm with the only difference that, instead of summing the transition probabilities at each step, it calculates the \textbf{maximum}. In \ref{fig:hmm_recursion} it is shown how the maximization estimation is calculated during the recursion step.
+The main goal of this algorithm is to discover the sequence of hidden states that are more likely to be produced given a sequence of observations. This block is called \textbf{decoder} (see Figure~\ref{fig:speech_architecture} for reference). The \textit{Viterbi algorithm} is one of the most used solution for finding a \textit{single best sequence} for a given set of observations \cite{hmm_tutorial}. What makes this algorithm suitable for this problem, is the similarity between the forwarding algorithm with the only difference that, instead of summing the transition probabilities at each step, it calculates the \textbf{maximum}. In Figure~\ref{fig:hmm_recursion} it is shown how the maximization estimation is calculated during the recursion step.
 
 \begin{figure}[!ht]
 	\centering
@@ -228,7 +228,7 @@ The main goal of this algorithm is to discover the sequence of hidden states tha
 	\end{equation}
 \end{itemize}
 
-\noindent As previously stated, the Viterbi algorithm maximizes the probability during the recursion step. After that, the resulting state is used as a \textit{back-pointer} in which during the backtracking step, the best sequence will be found. In \ref{fig:hmm_backtrack} is depicted how the backtracking step works.
+\noindent As previously stated, the Viterbi algorithm maximizes the probability during the recursion step. After that, the resulting state is used as a \textit{back-pointer} in which during the backtracking step, the best sequence will be found. In Figure~\ref{fig:hmm_backtrack} is depicted how the backtracking step works.
 
 \begin{figure}[!ht]
 	\centering
@@ -242,7 +242,7 @@ The main goal of this algorithm is to discover the sequence of hidden states tha
 \label{sec:mle}
 The last part of the model is represented by the \textit{Learning} phase, in which the system is able to decide what it the final word pronounced by a user. With the usage of HMM models, it is possible to extract one or more sequences of states. The last piece of the puzzle is to estimate the sequence of words. To do so, a typical speech recognition system uses the \textit{Maximum Likelihood estimation} (MLE). \\
 
-\noindent Given a sequence of $n$ \textit{independent} and \textit{identical} observations $x_{1}, x_{2}, ... , x_{n}$. Assuming that the set of samples comes from a probability distribution with an \textit{unknown density function} called $f_{0}(x_{1}, ... , x_{n})$. The function belongs to a family of a certain kind of distributions in which $\theta$ is the \textit{parameters vector} for that specific family. \\
+\noindent Given a sequence of $n$ \textit{independent} and \textit{identical} observations $x_{1}, x_{2}, ... , x_{n}$, assuming that the set of samples comes from a probability distribution with an \textit{unknown density function} called $f_{0}(x_{1}, ... , x_{n})$. The function belongs to a family of a certain kind of distributions in which $\theta$ is the \textit{parameters vector} for that specific family. \\
 
 \noindent Before using MLE, a \textit{joint density function} must be specified first for all observations. Given the previous set of observation, the joint density function can be denoted as follow:
 
@@ -264,14 +264,14 @@ The last part of the model is represented by the \textit{Learning} phase, in whi
 	ln \, L(\theta \, \sim \, x_{1}, x_{2}, ... , x_{n}) = \sum_{i=1}^{n} ln \, f(x_{i} | \theta)
 \end{equation}
 
-\noindent To estimate the log-likelihood of a single observation, it is necessary to calculate the average of \ref{eq:log-likelihood} as follow:
+\noindent To estimate the log-likelihood of a single observation, it is necessary to calculate the average of equation~\ref{eq:log-likelihood} as follow:
 
 \begin{equation}
 \label{eq:avg-likelihood}
 	\hat{l} = \frac{1}{n} ln \, L
 \end{equation}
 
-\noindent The \textit{hat} in \ref{eq:avg-likelihood} indicates that the function is an estimator. From here we can define the actual MLE.
+\noindent The \textit{hat} in equation~\ref{eq:avg-likelihood} indicates that the function is an estimator. From here we can define the actual MLE.
 This method estimates the $\theta_{0}$ by finding the value of $\theta$ that returns the maximum value of $\hat{l}(\theta \, \sim \, x)$. The estimation is defined as follows if the maximum exists:
 
 \begin{equation}
@@ -290,7 +290,7 @@ This method estimates the $\theta_{0}$ by finding the value of $\theta$ that ret
 % GMM classifier
 \section{Gaussian Mixture Model}
 %\label{sec:gmm}
-A Gaussian mixture model is a probabilistic model where it is assumed that the set of points comes from a \textit{mixture model}, in particular, from a fixed number of \textit{Gaussian distributions} where the parameters are \textit{unknown}. This approach can be thought of a generalization of the clustering algorithm called \textit{k-means} where we are looking for the \textbf{covariance} and the center of the Gaussian distribution and not only the centroids \cite{sklearn_gmm}. There are different ways of fitting the mixture model, but we are going to focus in particular to the one where the expectation-maximization is involved (see \ref{sec:mle}). \\
+A Gaussian mixture model is a probabilistic model where it is assumed that the set of points comes from a \textit{mixture model}, in particular, from a fixed number of \textit{Gaussian distributions} where the parameters are \textit{unknown}. This approach can be thought of a generalization of the clustering algorithm called \textit{k-means} where we are looking for the \textbf{covariance} and the center of the Gaussian distribution and not only the centroids \cite{sklearn_gmm}. There are different ways of fitting the mixture model, but we are going to focus in particular to the one where the expectation-maximization is involved (see section~\ref{sec:mle}). \\
 
 \noindent Let the following equation defining a weighted sum of N Gaussian densities component:
 
@@ -306,14 +306,14 @@ A Gaussian mixture model is a probabilistic model where it is assumed that the s
 
 \noindent where $\mathbf{\mu_{i}}$ is the mean vector and $\Sigma_{i}$ is the covariance matrix. Given that, we can assume that the mixture satisfy the constrain that $\Sigma_{i=1}^{N} \,\, w_{i} = 1$. \\
 
-\noindent With the notation in \ref{eq:gmm}, we can now define the complete GMM since all the component densities are parameterize by the covariance matrices, the mean vectors and the mixture weights \cite{reynolds2000speaker}
+\noindent With the notation in equation~\ref{eq:gmm}, we can now define the complete GMM since all the component densities are parameterize by the covariance matrices, the mean vectors and the mixture weights \cite{reynolds2000speaker}
 
 \begin{equation}
 \label{eq:gmm}
 	\lambda = \{ w_{i}, \mathbf{\mu_{i}}, \Sigma_{i}\} \,\,\, i = 1, ... , N
 \end{equation}
 
-\noindent Let's break down the variants in \ref{eq:gmm}. The choice of model configuration highly depends on the available dataset. In fact, to estimate the GMM parameters we have to determine the covariance matrix $\Sigma_{i}$. This can be either full rank or constrained to be diagonal. In the first case, all rows and columns are linearly independent and all the values are taken into account, whereas in the second case, we consider only the values in the diagonal. The covariance matrix is not the only parameter that needs to be carefully chosen. In fact, the \textit{number of components} in general, refers to the amount of possible  \textit{"clusters"} in the dataset. \\
+\noindent Let's break down the variants in equation~\ref{eq:gmm}. The choice of model configuration highly depends on the available dataset. In fact, to estimate the GMM parameters we have to determine the covariance matrix $\Sigma_{i}$. This can be either full rank or constrained to be diagonal. In the first case, all rows and columns are linearly independent and all the values are taken into account, whereas in the second case, we consider only the values in the diagonal. The covariance matrix is not the only parameter that needs to be carefully chosen. In fact, the \textit{number of components} in general, refers to the amount of possible  \textit{"clusters"} in the dataset. \\
 
 \begin{comment}
 \begin{figure}[!ht]
@@ -324,6 +324,6 @@ A Gaussian mixture model is a probabilistic model where it is assumed that the s
 \end{figure}
 \end{comment}
 
-\noindent It is important to note that in speaking recognition, it is allowed to assume the size of the acoustic space of the spectral. The spectral is referred to the phonetic events as we described in \ref{ch:english_language}. In fact, these acoustic classes have well defined features that allows the model to distinguish one phoneme from another. For the same reason, GMM is also used in \textit{speaker recognition} in which the vocal tracts spectral is taken into account to distinguish a speaker from another \cite{reynolds1992gaussian}. \\
+\noindent It is important to note that in speaking recognition, it is allowed to assume the size of the acoustic space of the spectral. The spectral is referred to the phonetic events as we described in chapter~\ref{ch:english_language}. In fact, these acoustic classes have well defined features that allows the model to distinguish one phoneme from another. For the same reason, GMM is also used in \textit{speaker recognition} in which the vocal tracts spectral is taken into account to distinguish a speaker from another \cite{reynolds1992gaussian}. \\
 
 \noindent Continuing with the speaker recognition example, we can think of the spectral shape $i$ as an acoustic class in which can be represented by the mean $\mu_{i}$ of the $i-th$ component density. The variation in the spectrum can be defined as the covariance matrix $\Sigma_{i}$. Also, a GMM can be views as a Hidden Markov Model with a single state assuming that the feature vectors are independent as well as the observation density from the acoustic classes is a Gaussian mixture \cite{reynolds2000speaker} \cite{reynolds1995robust}.

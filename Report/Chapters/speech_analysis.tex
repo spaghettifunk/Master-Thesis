@@ -6,7 +6,7 @@ In the past decade, digital computers have significantly helped \textit{signal p
 \section{Speech signals}
 \label{sec:speech_signals}
 The \textbf{speech} is the human way of communication. The protocol used in communication is based on a syntactic combination of different words taken from a very large vocabulary. Each word in the vocabulary is composed by a small set of vowels and consonants that combined with a phonetic unit forms a spoken word. \\
-\noindent When a word is pronounced\footnote{\ref{ch:english_language} explains in details how phonemes are pronounced}, a sounds is produced causing the air particles to be excited at a certain vibration rate. The source of our voice is due to the vibration of the vocal cords. The resultant signal is \textit{non-stationary} but it can be divided in segments since each phoneme has a common acoustic properties. In \ref{fig:ex_sound_wave} it is possible to notice how the pronounced words have a different shape as well as when the intensity of the voice is higher/lower during the pronunciation.
+\noindent When a word is pronounced\footnote{Chapter~\ref{ch:english_language} explains in details how phonemes are pronounced}, a sounds is produced causing the air particles to be excited at a certain vibration rate. The source of our voice is due to the vibration of the vocal cords. The resultant signal is \textit{non-stationary} but it can be divided in segments since each phoneme has a common acoustic properties. In Figure~\ref{fig:ex_sound_wave} it is possible to notice how the pronounced words have a different shape as well as when the intensity of the voice is higher/lower during the pronunciation.
 
 \begin{figure}[!ht]
 	\centering
@@ -33,7 +33,7 @@ The \textbf{phase} measures the starting point position of the waveform. If the 
 
 \subsection{Spectrograms}
 \label{sec:spectrograms}
-A \textbf{spectrogram} is the visual representation of an acoustic signal \cite{spectrogram_def}. Basically, a Fourier Transformation is applied to the sound, in such a way to obtain the set of waveforms extracted form the original signal and separate their frequencies and amplitudes. The result is typically depicted in a graph with degrees of amplitude with a \textit{light-dark} representation. Since amplitude represents the \textit{energy}, having a darker shade means that the energy is more intense in a certain range of frequencies - lighter when there is low energy. In \ref{fig:nasal_spectrogram} there is an example of the spectrogram. \\
+A \textbf{spectrogram} is the visual representation of an acoustic signal \cite{spectrogram_def}. Basically, a Fourier Transformation is applied to the sound, in such a way to obtain the set of waveforms extracted form the original signal and separate their frequencies and amplitudes. The result is typically depicted in a graph with degrees of amplitude with a \textit{light-dark} representation. Since amplitude represents the \textit{energy}, having a darker shade means that the energy is more intense in a certain range of frequencies - lighter when there is low energy. In Figure~\ref{fig:nasal_spectrogram} there is an example of the spectrogram. \\
 \noindent The visual feedback of the spectrogram is highly dependent from the \textbf{window size} of the Fourier Analysis. In fact, different sizes affect the levels of frequencies and time resolution. \\
 \noindent If the window size is \textit{short}, the adjacent \textbf{harmonics} are distorted but the time resolution is better \cite{spectrogram_def}. An harmonic is an integer multiple of the fundamental frequency or component frequencies. This is helpful when we are looking for the \textit{formant structure} because the striations created by the spectrogram highlights the individual pitch periods. \\
 \noindent On the other hand, a \textit{wider} window size, helps to locate the harmonics because the band of the spectrogram are narrower.
@@ -51,7 +51,7 @@ A \textbf{spectrogram} is the visual representation of an acoustic signal \cite{
 
 \noindent In signal processing, the Fourier analysis is used to isolate singular components of a complex waveform. A set of techniques consist in using \textbf{Fourier Transformation} on a signal in such a way to be able to manipulate the data in the easiest way possible but at the same time we have to be capable of inverting the transformation \cite{rabiner1975theory}. In the next subsections we describe the fundamental steps for manipulating a signal.
 
-\subsubsection{Sampling}
+\subsection{Sampling}
 \label{ssubs:sampling}
 
 \textit{Sampling} is the process where a continuous signal is periodically measured every \textbf{T} seconds \cite{orfanidis1995introduction}. \\
@@ -72,7 +72,7 @@ f_{s} > f_{Nyquist} = 2f_{max}
 \end{equation}
 
 
-\subsubsection{Quantization}
+\subsection{Quantization}
 \label{subs:quantization}
 To finalize the transformation from a continuous signal to a discrete one, we need to \textit{quantized} the signal in such a way to obtain a finite set of values. Unlike sampling, in which permits to reconstruct the original signal, quantization is an irreversible operation that introduce a loss of information. \\
 \noindent Consider $x$ be the sampled signal and $x_{q}$ the quantized one where $x_{q}$ can be expressed as the signal $x$ plus the error $e_{q}$. From here we have:
@@ -81,7 +81,7 @@ To finalize the transformation from a continuous signal to a discrete one, we ne
 x_{q} = x + e{q} \Leftrightarrow e_{q} = x - x_{q}
 \end{equation}
 
-Given the equation above, we can restrict the range of error to $-q/2 ... +q/2$ because we will not make a larger error than the half of the quantization step. From a mathematical point of view, the error-signal is a random signal with an uniform probability distribution between the range of $−q/2 and +q/2$, giving the following \cite{quantization_math}:
+\noindent Given the equation above, we can restrict the range of error to $-q/2 ... +q/2$ because we will not make a larger error than the half of the quantization step. From a mathematical point of view, the error-signal is a random signal with an uniform probability distribution between the range of $−q/2 and +q/2$, giving the following \cite{quantization_math}:
 
 \begin{equation}
 p(e) = \begin{Bmatrix}
@@ -92,9 +92,9 @@ p(e) = \begin{Bmatrix}
 
 Given this reason, the quantization error also called quantization noise.
 
-\subsubsection{Windowing Signals}
+\subsection{Windowing Signals}
 \label{ssubs:windowing_signals}
-Speech sound is a \textbf{non-stationary} signal where its properties (amplitude, frequency and pitch) rapidly change over time \cite{windowing_fi}. Due to the quick changes of those properties, it makes it hard to use \textit{autocorrelation} or \textit{Discrete Fourier Transformation}. In \ref{ch:english_language} we highlighted the fact that phonemes have some invariant properties for a small period of time. Having said that, it is possible to apply methods that will take \textit{short windows} (pieces of signal) and process them. This window is also called \textbf{frame}. Typically, the shape of this window is \textit{rectangular} because one of the most used methods are the \textit{Hanning} and \textit{Hamming} in which the window covers the whole amplitude spectrum between a range. In \ref{fig:windowing_ex} there is an example on how the Hamming window is taken from a signal. The rectangle called \textit{Time Record}, is the frame that is extracted and processed by the windowing function.
+Speech sound is a \textbf{non-stationary} signal where its properties (amplitude, frequency and pitch) rapidly change over time \cite{windowing_fi}. Due to the quick changes of those properties, it makes it hard to use \textit{autocorrelation} or \textit{Discrete Fourier Transformation}. In chapter~\ref{ch:english_language} we highlighted the fact that phonemes have some invariant properties for a small period of time. Having said that, it is possible to apply methods that will take \textit{short windows} (pieces of signal) and process them. This window is also called \textbf{frame}. Typically, the shape of this window is \textit{rectangular} because one of the most used methods are the \textit{Hanning} and \textit{Hamming} in which the window covers the whole amplitude spectrum between a range. In Figure~\ref{fig:windowing_ex} there is an example on how the Hamming window is taken from a signal. The rectangle called \textit{Time Record}, is the frame that is extracted and processed by the windowing function.
 
 \begin{figure}[!ht]
 	\centering
@@ -104,9 +104,9 @@ Speech sound is a \textbf{non-stationary} signal where its properties (amplitude
 \end{figure}
 
 
-\subsubsection{Hann Function}
+\subsection{Hann Function}
 \label{ssubs:hann_function}
-This is one of the most used windowing method in signal processing. The function is discrete and it is defined by \ref{eq:discrete_window_function}. The method is a linear combination of the \textit{rectangular function} defined by \ref{eq:rectangular_function}. Starting from the \textit{Euler's formula}, it is possible to inject the rectangular equation as in \ref{eq:euler_formula}. From here, given the properties of the \textit{Fourier Transformation}, the spectrum of the window function is defined as in \ref{eq:spectrum_ft}. Combining the spectrum with \ref{eq:rectangular_function} we obtain \ref{eq:final_hann} in which the signal modulation factor \textit{disappears} when the windows are moved around time $0$.
+This is one of the most used windowing method in signal processing. The function is discrete and it is defined by equation \ref{eq:discrete_window_function}. The method is a linear combination of the \textit{rectangular function} defined by equation \ref{eq:rectangular_function}. Starting from the \textit{Euler's formula}, it is possible to inject the rectangular equation as in equation \ref{eq:euler_formula}. From here, given the properties of the \textit{Fourier Transformation}, the spectrum of the window function is defined as in equation \ref{eq:spectrum_ft}. Combining the spectrum with equation \ref{eq:rectangular_function} we obtain equation \ref{eq:final_hann} in which the signal modulation factor \textit{disappears} when the windows are moved around time $0$.
 
 \begin{subequations}
 \label{eq:hann_function_equations}
@@ -121,7 +121,7 @@ w(n) &= \frac{1}{2} \,w_r(n) -\frac{1}{4} e^{\mathrm{i}2\pi \frac{n}{N-1}} w_r(n
 
 \noindent The reason why this windowing method is one of the most diffuse is due to the \textit{low aliasing}
 
-\subsubsection{Zero Crossing Rate}
+\subsection{Zero Crossing Rate}
 \label{ssubs:Zero Crossing Rate}
 Zero crossing is the point of the function where the sign changes from a positive value to a negative one or vice versa. The method of counting the zero crossings is widely used in speech recognition for estimating the \textit{fundamental} frequency of the signal. The zero-crossing rate is the rate of this positive-negative changes. Formally, it is defined as follow:
 
@@ -134,7 +134,7 @@ ZCR = \frac{1}{T-1} \sum_{t=1}^{T-1} \begin{Bmatrix}
 
 \noindent where $s$ is the signal of length $T$.
 
-\subsubsection{The Discrete Fourier Transform}
+\subsection{The Discrete Fourier Transform}
 \label{ssubs:discrete_fourier_transform}
 Before jumping into the definition of the Discrete Fourier Transformation (DFT), we need to introduce the Fourier Transformation (FT) from the mathematical point of view. The FT of a continuous-signal $x(t)$ is defined by the following equation:
 
@@ -147,7 +147,7 @@ X(\omega) = \int_{-\infty}^\infty x(t)e^{-j\omega t} dt, \qquad \omega\in(-\inft
 X(\omega_k ) = \sum_{n=0}^{N-1}x(t_n)e^{-j\omega_k t_n}, \qquad k=0,1,2,\ldots,N-1
 \end{equation}
 
-where $x(t_n)$ is the \textit{amplitude} of the signal at time $t_n$ (sampling time). $T$ is the sampling period in which the transformation is applied. $X(\omega_k )$ is the \textit{spectrum} of the complex value $x$ at frequency $\omega_k$. $\Omega$ is the sampling interval defined by the \textit{Nyquist-Shannon} theorem whereas $N$ is the number of samples. \\
+\noindent where $x(t_n)$ is the \textit{amplitude} of the signal at time $t_n$ (sampling time). $T$ is the sampling period in which the transformation is applied. $X(\omega_k )$ is the \textit{spectrum} of the complex value $x$ at frequency $\omega_k$. $\Omega$ is the sampling interval defined by the \textit{Nyquist-Shannon} theorem whereas $N$ is the number of samples. \\
 
 \noindent The motivation behind the DFT is that we want to move the signal from the \textit{Time or space domain} to the \textit{Frequency domain}. This allows us to analyze the spectrum in a simpler way. \ref{fig:dft} shows the transformation.
 
