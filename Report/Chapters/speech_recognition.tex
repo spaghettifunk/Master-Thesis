@@ -40,7 +40,7 @@ The second step consists in feeding the \textit{Decoder} with vectors we obtaine
 
 \section{Hidden Markov Model}
 \label{sec:hmm}
-\noindent A definition given by \cite{eddy1996hidden} is the following: \textit{"An Hidden Markov Model is a finite model that describes the probability distribution over an infinite number of possible sequences"}. Each sequence is determined by a set of \textit{transition probabilities} in which describes the transitions among states. The \textbf{observation} (or outcome) of each state is generated based on the associated probability distribution. From an \textit{outside} perspective, the \textit{observer} is only able to see the outcome and not the state itself. Hence, the states are considered \textbf{hidden} which leads to the name Hidden Markov Model \cite{def_hmm}. \\
+\noindent A definition given by Eddy and Sean R. (1996) is the following: \textit{"An Hidden Markov Model is a finite model that describes the probability distribution over an infinite number of possible sequences"}. Each sequence is determined by a set of \textit{transition probabilities} in which describes the transitions among states. The \textbf{observation} (or outcome) of each state is generated based on the associated probability distribution. From an \textit{outside} perspective, the \textit{observer} is only able to see the outcome and not the state itself. Hence, the states are considered \textbf{hidden} which leads to the name Hidden Markov Model \cite{def_hmm}. \\
 
 \noindent An HMM is composed by the following elements:
 
@@ -306,7 +306,7 @@ A Gaussian mixture model is a probabilistic model where it is assumed that the s
 
 \noindent where $\mathbf{\mu_{i}}$ is the mean vector and $\Sigma_{i}$ is the covariance matrix. Given that, we can assume that the mixture satisfy the constrain that $\Sigma_{i=1}^{N} \,\, w_{i} = 1$. \\
 
-\noindent With the notation in equation~\ref{eq:gmm}, we can now define the complete GMM since all the component densities are parameterize by the covariance matrices, the mean vectors and the mixture weights \cite{reynolds2000speaker}
+\noindent With the notation in equation~\ref{eq:gmm}, we can now define the complete GMM since all the component densities are parameterize by the covariance matrices, the mean vectors and the mixture weights \cite{reynolds2000speaker}.
 
 \begin{equation}
 \label{eq:gmm}
