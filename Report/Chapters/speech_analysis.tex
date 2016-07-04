@@ -55,12 +55,12 @@ A \textbf{spectrogram} is the visual representation of an acoustic signal \cite{
 \label{ssubs:sampling}
 
 \textit{Sampling} is the process where a continuous signal is periodically measured every \textbf{T} seconds \cite{orfanidis1995introduction}. \\
-\noindent Consider a sound signal that varies in time as a continuous function $s(t)$. For every $T$ seconds, we need to measure the value of the function. This frame of time is called the \textit{sampling interval} \cite{weik2012communications}. To calculate the sequence a sampled function is given as follow: $s(nT), \forall$ integer values of $n$. Thus, the \textit{sampling rate} is the average number of samples obtained in a range of $T = 1sec$ \cite{sampling_wiki}. An example of sampling is shown in \ref{fig:sampling_ex}.
+\noindent Consider a sound signal that varies in time as a continuous function $s(t)$. For every $T$ seconds, we need to measure the value of the function. This frame of time is called the \textit{sampling interval} \cite{weik2012communications}. To calculate the sequence a sampled function is given as follow: $s(nT), \forall$ integer values of $n$. Thus, the \textit{sampling rate} is the average number of samples obtained in a range of $T = 1sec$ \cite{sampling_wiki}. An example of sampling is shown in Figure~\ref{fig:sampling_ex}.
 
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=0.2]{Figures/sampling_example.png}
-	\caption{Example of signal sampling. The green line represents the continuous signal whereas the samples are represented by the blue lines \cite{sampling_wiki}}
+	\caption{Example of signal sampling. The green line represents the continuous signal whereas the samples are represented by the blue lines\footnote{\url{https://en.wikipedia.org/wiki/File:Signal_Sampling.png}}}
 	\label{fig:sampling_ex}
 \end{figure}
 
@@ -154,6 +154,6 @@ X(\omega_k ) = \sum_{n=0}^{N-1}x(t_n)e^{-j\omega_k t_n}, \qquad k=0,1,2,\ldots,N
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=0.7]{Figures/dft.png}
-	\caption{DFT transformation \cite{dft_matlab}}
+	\caption{DFT transformation\footnote{\url{http://www.mathworks.com/help/matlab/math/discrete-fourier-transform-dft.html}}}
 	\label{fig:dft}
 \end{figure}

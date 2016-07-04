@@ -40,7 +40,7 @@ The second step consists in feeding the \textit{Decoder} with vectors we obtaine
 
 \section{Hidden Markov Model}
 \label{sec:hmm}
-\noindent A definition given by Eddy and Sean R. (1996) is the following: \textit{"An Hidden Markov Model is a finite model that describes the probability distribution over an infinite number of possible sequences"}. Each sequence is determined by a set of \textit{transition probabilities} in which describes the transitions among states. The \textbf{observation} (or outcome) of each state is generated based on the associated probability distribution. From an \textit{outside} perspective, the \textit{observer} is only able to see the outcome and not the state itself. Hence, the states are considered \textbf{hidden} which leads to the name Hidden Markov Model \cite{def_hmm}. \\
+\noindent A definition given by Eddy and Sean R. (1996) is the following: \textit{"An Hidden Markov Model is a finite model that describes the probability distribution over an infinite number of possible sequences"}. Each sequence is determined by a set of \textit{transition probabilities} in which describes the transitions among states. The \textbf{observation} (or outcome) of each state is generated based on the associated probability distribution. From an \textit{outside} perspective, the \textit{observer} is only able to see the outcome and not the state itself. Hence, the states are considered \textbf{hidden} which leads to the name Hidden Markov Model\footnote{\url{http://jedlik.phy.bme.hu/~gerjanos/HMM/node4.html}} \cite{rabiner1986introduction}. \\
 
 \noindent An HMM is composed by the following elements:
 
@@ -75,7 +75,7 @@ s_{j}(k) = p \, \{\, o_{t} = v_{k} \, | \, q_{t} = j \, \}, \, \, \, 1 \leq j \l
 
 \noindent where $v_k$ is the $k^{th}$ observation whereas $o_{t}$ is the outcome. Furthermore, $b_{j}(k)$ must satisfy the same stochastic rules described in equation~\ref{eq:stochastic_rules}. \\
 
-\noindent A different approach is made when the number of observations is infinite. In fact, we are not going to use a set of discrete probabilities but instead a continuous probability density function. Given that, we can define the parameters of the density function by approximating it by a weighted sum of $M$ Gaussian distributions $\varphi$ \cite{def_hmm}. We can describe the function as follow:
+\noindent A different approach is made when the number of observations is infinite. In fact, we are not going to use a set of discrete probabilities but instead a continuous probability density function. Given that, we can define the parameters of the density function by approximating it by a weighted sum of $M$ Gaussian distributions $\varphi$. We can describe the function as follow:
 
 \begin{equation}
 	s_{j}(o) = \sum_{m = 1}^{M} c_{jm}\varphi (\mu_{jm}, \Sigma_{jm}, o_{t})
@@ -290,7 +290,7 @@ This method estimates the $\theta_{0}$ by finding the value of $\theta$ that ret
 % GMM classifier
 \section{Gaussian Mixture Model}
 %\label{sec:gmm}
-A Gaussian mixture model is a probabilistic model where it is assumed that the set of points comes from a \textit{mixture model}, in particular, from a fixed number of \textit{Gaussian distributions} where the parameters are \textit{unknown}. This approach can be thought of a generalization of the clustering algorithm called \textit{k-means} where we are looking for the \textbf{covariance} and the center of the Gaussian distribution and not only the centroids \cite{sklearn_gmm}. There are different ways of fitting the mixture model, but we are going to focus in particular to the one where the expectation-maximization is involved (see section~\ref{sec:mle}). \\
+A Gaussian mixture model is a probabilistic model where it is assumed that the set of points comes from a \textit{mixture model}, in particular, from a fixed number of \textit{Gaussian distributions} where the parameters are \textit{unknown}. This approach can be thought of a generalization of the clustering algorithm called \textit{k-means} where we are looking for the \textbf{covariance} and the center of the Gaussian distribution and not only the centroids\footnote{\url{http://scikit-learn.org/stable/ modules/mixture.html.}}. There are different ways of fitting the mixture model, but we are going to focus in particular to the one where the expectation-maximization is involved (see section~\ref{sec:mle}). \\
 
 \noindent Let the following equation defining a weighted sum of N Gaussian densities component:
 
