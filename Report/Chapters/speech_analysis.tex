@@ -17,7 +17,7 @@ The \textbf{speech} is the human way of communication. The protocol used in comm
 	\label{fig:ex_sound_wave}
 \end{figure}
 
-\noindent The simplest form of sound is the \textit{sinusoid} and it is the easiest waveform to describe because it corresponds to a \textbf{pure tone}. A pure tone consist in a waveform that consists only on one frequency. Other examples are the \textit{cosine} or \textit{sine} waves.
+\noindent The simplest form of sound is the \textit{sinusoid} and it is the easiest waveform to describe because it corresponds to a \textbf{pure tone}. A pure tone consist in a waveform that consists only on one frequency.
 
 \subsection{Properties of Sinusoids}
 \label{sub:prop_of_sinusoids}
@@ -35,7 +35,7 @@ The \textbf{phase} measures the starting point position of the waveform. If the 
 
 \subsection{Spectrograms}
 \label{sec:spectrograms}
-A \textbf{spectrogram} is the visual representation of an acoustic signal\footnote{\url{https://home.cc.umanitoba.ca/~robh/howto.html}}. Basically, a Fourier Transformation is applied to the sound, in such a way to obtain the set of waveforms extracted form the original signal and separate their frequencies and amplitudes. The result is typically depicted in a graph with degrees of amplitude with a \textit{light-dark} representation. Since amplitude represents the \textit{energy}, having a darker shade means that the energy is more intense in a certain range of frequencies - lighter when there is low energy. In Figure~\ref{fig:nasal_spectrogram} there is an example of the spectrogram. \\
+A \textbf{spectrogram} is the visual representation of an acoustic signal\footnote{\url{https://home.cc.umanitoba.ca/~robh/howto.html}}. Basically, a Fourier Transformation (Section~\ref{sec:fourier_analysis}) is applied to the sound, in such a way to obtain the set of waveforms extracted form the original signal and separate their frequencies and amplitudes. The result is typically depicted in a graph with degrees of amplitude with a \textit{light-dark} representation. Since amplitude represents the \textit{energy}, having a darker shade means that the energy is more intense in a certain range of frequencies - lighter when there is low energy. In Figure~\ref{fig:nasal_spectrogram} there is an example of the spectrogram. \\
 \noindent The visual feedback of the spectrogram is highly dependent from the \textbf{window size} of the Fourier Analysis. In fact, different sizes affect the levels of frequencies and time resolution. \\
 \noindent If the window size is \textit{short}, the adjacent \textbf{harmonics} are distorted but the time resolution is better \cite{spectrogram_def}. An harmonic is an integer multiple of the fundamental frequency or component frequencies. This is helpful when looking for the \textit{formant structure} because the striations created by the spectrogram highlights the individual pitch periods. \\
 \noindent On the other hand, a \textit{wider} window size, helps to locate the harmonics because the band of the spectrogram are narrower.
@@ -107,18 +107,31 @@ Speech sound is a \textbf{non-stationary} signal where its properties (amplitude
 
 \subsection{Hann Function}
 \label{ssubs:hann_function}
-This is one of the most used windowing method in signal processing. The function is discrete and it is defined by equation \ref{eq:discrete_window_function}. The method is a linear combination of the \textit{rectangular function} defined by equation \ref{eq:rectangular_function}. Starting from \textit{Euler's formula}, it is possible to inject the rectangular equation as in equation \ref{eq:euler_formula}. From here, given the properties of the \textit{Fourier Transformation}, the spectrum of the window function is defined as in equation \ref{eq:spectrum_ft}. Combining the spectrum with equation \ref{eq:rectangular_function} yields equation \ref{eq:final_hann} in which the signal modulation factor \textit{disappears} when the windows are moved around time $0$.
+This is one of the most used windowing method in signal processing. The function is discrete and it is defined by equation: 
+\begin{equation}
+w(n) = 0.5 \left(1 - \cos \left ( \frac{2 \pi n}{N-1} \right) \right) \label{eq:discrete_window_function}
+\end{equation}
 
-\begin{subequations}
-\label{eq:hann_function_equations}
-\begin{align}
-w(n) &= 0.5 \left(1 - \cos \left ( \frac{2 \pi n}{N-1} \right) \right) \label{eq:discrete_window_function} \\
-w_r &= \mathbf{1}_{[0,N-1]} \label{eq:rectangular_function} \\
-w(n) &= \frac{1}{2} \,w_r(n) -\frac{1}{4} e^{\mathrm{i}2\pi \frac{n}{N-1}} w_r(n) - \frac{1}{4}e^{-\mathrm{i}2\pi \frac{n}{N-1}} w_r(n) \label{eq:euler_formula} \\
-\hat{w} (\omega) &= \frac{1}{2} \hat{w}_r (\omega) - \frac{1}{4} \hat{w}_r \left(\omega + \frac{2\pi}{N-1}\right) - \frac{1}{4} \hat{w}_r \left(\omega - \frac{2\pi}{N-1}\right) \label{eq:spectrum_ft} \\
-\hat{w}_r (\omega) &= e^{-\mathrm{i} \omega \frac{N-1}{2}} \frac{\sin(N\omega/2)}{\sin(\omega/2)} \label{eq:final_hann}
-\end{align}
-\end{subequations}
+The method is a linear combination of the \textit{rectangular function} defined by the following:
+\begin{equation}
+w_r = \mathbf{1}_{[0,N-1]} \label{eq:rectangular_function}
+\end{equation}
+
+Starting from \textit{Euler's formula}, it is possible to inject the rectangular equation as shown below: 
+\begin{equation}
+w(n) = \frac{1}{2} \,w_r(n) -\frac{1}{4} e^{\mathrm{i}2\pi \frac{n}{N-1}} w_r(n) - \frac{1}{4}e^{-\mathrm{i}2\pi \frac{n}{N-1}} w_r(n) \label{eq:euler_formula}
+\end{equation}
+
+From here, given the properties of the \textit{Fourier Transformation}, the spectrum of the window function is defined as follows:
+\begin{equation}
+\hat{w} (\omega) = \frac{1}{2} \hat{w}_r (\omega) - \frac{1}{4} \hat{w}_r \left(\omega + \frac{2\pi}{N-1}\right) - \frac{1}{4} \hat{w}_r \left(\omega - \frac{2\pi}{N-1}\right) \label{eq:spectrum_ft}
+\end{equation} 
+
+Combining the spectrum with equation \ref{eq:rectangular_function} yields the below equation in which the signal modulation factor \textit{disappears} when the windows are moved around time $0$:
+
+\begin{equation}
+\hat{w}_r (\omega) = e^{-\mathrm{i} \omega \frac{N-1}{2}} \frac{\sin(N\omega/2)}{\sin(\omega/2)} \label{eq:final_hann}
+\end{equation}
 
 \noindent The reason why this windowing method is one of the most diffuse is due to the \textit{low aliasing}
 

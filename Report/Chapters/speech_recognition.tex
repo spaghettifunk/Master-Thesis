@@ -2,7 +2,7 @@
 
 \chapter{Speech Recognition}
 \label{chap:Speech Recognition}
-Speech recognition is a sub-field of machine learning which allows a computer program to extract and recognize words or sentences from a human's language and converting them back to a machine language. Advanced techniques nowadays permit understanding of natural speech for executing tasks. Google Voice Search\footnote{\url{https://www.google.com/search/about/}} and Siri\footnote{\url{http://www.apple.com/ios/siri/}} are two examples of very advanced speech recognition software with the capability of understanding natural language.
+Speech recognition is an application of machine learning which allows a computer program to extract and recognize words or sentences from a human's language and converting them back to a machine language. Google Voice Search\footnote{\url{https://www.google.com/search/about/}} and Siri\footnote{\url{http://www.apple.com/ios/siri/}} are two examples of speech recognition software with the capability of understanding natural language.
 
 \section{The Problem of Speech Recognition}
 \label{sec:The Problem of Speech Recognition}
@@ -12,7 +12,7 @@ The environment in which the sound is taken has a big influence on the speech re
 \noindent Another interesting set of problems are related to the speaker itself. Each person has a different body which means there are a variety of components that the recognition system has to take care of in such a way to be able to understand correctly. Gender, vocal tracts, speaking style, speed of the speech, regional provenience are fundamental parts that have to be taken into consideration when building the \textit{acoustic model} for the system. Despite these features being unique for each person, there some common aspects that will be used to construct the model. The acoustic model represents the relationship between the acoustic signal of the speech and the phonemes related to it. \\
 
 \noindent Ambiguity presents the major concern since natural languages have inherited it. In fact, it may so happen that in a sentence, we are not able to discriminate which words are actually intended \cite{forsberg2003speech}. In speech recognition there are two types of ambiguity: \textit{homophones} and \textit{word boundary ambiguity}. \\
-Homophones are those words that are spelled in a different way but they \textbf{sound} the same. Generally speaking, these words are not correlated to each other but it happens that the sound is equivalent. On the other hand, word boundary ambiguity \textit{occurs when there are multiple ways of grouping phones into words}\cite{forsberg2003speech}.
+Homophones are those words that are spelled in a different way but they \textbf{sound} the same. Generally speaking, these words are not correlated to each other but it happens that the sound is equivalent. On the other hand, word boundary ambiguity occurs when there are multiple ways of grouping phones into words\cite{forsberg2003speech}. For example, \textit{peace} and \textit{piece}, \textit{idle} and \textit{idol}, are two examples of homophones.
 
 % CMU Sphinx4
 \section{Architecture}
@@ -42,17 +42,13 @@ The second step consists in feeding the \textit{Decoder} with vectors we obtaine
 
 \section{Hidden Markov Model}
 \label{sec:hmm}
-<<<<<<< HEAD
-\noindent A definition given by Eddy and Sean R. (1996) is the following: \textit{"An Hidden Markov Model is a finite model that describes the probability distribution over an infinite number of possible sequences"}. Each sequence is determined by a set of \textit{transition probabilities} in which describes the transitions among states. The \textbf{observation} (or outcome) of each state is generated based on the associated probability distribution. From an \textit{outside} perspective, the \textit{observer} is only able to see the outcome and not the state itself. Hence, the states are considered \textbf{hidden} which leads to the name Hidden Markov Model\footnote{\url{http://jedlik.phy.bme.hu/~gerjanos/HMM/node4.html}} \cite{rabiner1986introduction}. \\
-=======
-\noindent A definition given by Eddy and Sean R. (1996) is the following: \textit{"An Hidden Markov Model is a finite model that describes the probability distribution over an infinite number of possible sequences"}. Each sequence is determined by a set of \textit{transition probabilities} which describes the transitions among states. The \textbf{observation} (or outcome) of each state is generated based on the associated probability distribution. From an \textit{outside} perspective, the \textit{observer} is only able to see the outcome and not the state itself. Hence, the states are considered \textbf{hidden} which leads to the name Hidden Markov Model \cite{def_hmm}. \\
->>>>>>> e5569077cef6ddfd7730286450066bcf7371a626
+\noindent \textit{"An Hidden Markov Model is a finite model that describes the probability distribution over an infinite number of possible sequences"}\cite{eddy1996hidden}. Each sequence is determined by a set of \textit{transition probabilities} which describes the transitions among states. The \textbf{observation} (or outcome) of each state is generated based on the associated probability distribution. From an \textit{outside} perspective, the \textit{observer} is only able to see the outcome and not the state itself. Hence, the states are considered \textbf{hidden} which leads to the name Hidden Markov Model\footnote{\url{http://jedlik.phy.bme.hu/~gerjanos/HMM/node4.html}}\cite{rabiner1986introduction}. \\
 
-\noindent An HMM is composed by the following elements:
+\noindent An HMM is composed of the following elements:
 
 \begin{itemize}
 	\item The number of states (N)
-	\item The number of observations (M), that becomes infinite if the set of observations is contiguous
+	\item The number of observations (M), that becomes infinite if the set of observations is continuous
 	\item The set of transition probabilities, $\Lambda = \{ a_{ij}\}$
 \end{itemize}
 
@@ -81,11 +77,7 @@ s_{j}(k) = p \, \{\, o_{t} = v_{k} \, | \, q_{t} = j \, \}, \, \, \, 1 \leq j \l
 
 \noindent where $v_k$ is the $k^{th}$ observation whereas $o_{t}$ is the outcome. Furthermore, $b_{j}(k)$ must satisfy the same stochastic rules described in equation~\ref{eq:stochastic_rules}. \\
 
-<<<<<<< HEAD
-\noindent A different approach is made when the number of observations is infinite. In fact, we are not going to use a set of discrete probabilities but instead a continuous probability density function. Given that, we can define the parameters of the density function by approximating it by a weighted sum of $M$ Gaussian distributions $\varphi$. We can describe the function as follow:
-=======
 \noindent A different approach is made when the number of observations is infinite. In fact, we are not going to use a set of discrete probabilities but instead a continuous probability density function. Given that, we can define the parameters of the density function by approximating it by a weighted sum of $M$ Gaussian distributions $\varphi$ \cite{def_hmm}. We can describe the function as follows:
->>>>>>> e5569077cef6ddfd7730286450066bcf7371a626
 
 \begin{equation}
 	s_{j}(o) = \sum_{m = 1}^{M} c_{jm}\varphi (\mu_{jm}, \Sigma_{jm}, o_{t})
@@ -176,7 +168,7 @@ Given that, we can define the forward algorithm in three steps as follows:
 		\end{equation}
 \end{itemize}
 
-\noindent The key of this algorithm is equation~\ref{eq:induction_step_forward}, where for each state $s_{j}$ the $\alpha$ value contains the probability of the observed sequence from the beginning to time $t$. Given the previous algorithm, we can now calculate the new complexity. The direct algorithm has a complexity of $2TN^{T}$ whereas the new one is $N^{2}T$.
+\noindent The key of this algorithm is equation~\ref{eq:induction_step_forward}, where for each state $s_{j}$ the $\alpha$ value contains the probability of the observed sequence from the beginning to time $t$. The direct algorithm has a complexity of $2TN^{T}$ whereas the new one is $N^{2}T$.
 
 \subsection{Backward probability algorithm}
 This algorithm is very similar to the previous one with the only difference when calculating the probability. Instead of estimating the probability as in equation~\ref{eq:alpha_equation}, the backward algorithm estimates the likelihood of \textit{"the partial observation sequence from $t+1$ to $T$, starting from state $s_{i}$"}\footnote{\url{http://digital.cs.usu.edu/~cyan/CS7960/hmm-tutorial.pdf}}. \\
@@ -250,7 +242,7 @@ The main goal of this algorithm is to discover the sequence of hidden states tha
 
 \section{Maximum likelihood estimation}
 \label{sec:mle}
-The last part of the model is represented by the \textit{Learning} phase, in which the system is able to decide what it the final word pronounced by a user. With the usage of HMM models, it is possible to extract one or more sequences of states. The last piece of the puzzle is to estimate the sequence of words. To do so, a typical speech recognition system uses the \textit{Maximum Likelihood estimation} (MLE). \\
+The last part of the model is represented by the \textit{Learning} phase, in which the system is able to decide what the final word pronounced by a user. With the usage of HMM models, it is possible to extract one or more sequences of states. The last piece of the puzzle is to estimate the sequence of words. To do so, a typical speech recognition system uses the \textit{Maximum Likelihood estimation} (MLE). \\
 
 \noindent Given a sequence of $n$ \textit{independent} and \textit{identical} observations $x_{1}, x_{2}, ... , x_{n}$, assuming that the set of samples comes from a probability distribution with an \textit{unknown density function} called $f_{0}(x_{1}, ... , x_{n})$. The function belongs to a family of a certain kind of distributions in which $\theta$ is the \textit{parameters vector} for that specific family. \\
 
@@ -323,7 +315,7 @@ A Gaussian mixture model is a probabilistic model where it is assumed that the s
 	\lambda = \{ w_{i}, \mathbf{\mu_{i}}, \Sigma_{i}\} \,\,\, i = 1, ... , N
 \end{equation}
 
-\noindent Let's break down the variants in equation~\ref{eq:gmm}. The choice of model configuration highly depends on the available dataset. In fact, to estimate the GMM parameters we have to determine the covariance matrix $\Sigma_{i}$. This can be either full rank or constrained to be diagonal. In the first case, all rows and columns are linearly independent and all the values are taken into account, whereas in the second case, we consider only the values in the diagonal. The covariance matrix is not the only parameter that needs to be carefully chosen. In fact, the \textit{number of components} in general, refers to the amount of possible  \textit{"clusters"} in the dataset. \\
+\noindent The choice of model configuration highly depends on the available dataset. In fact, to estimate the GMM parameters we have to determine the covariance matrix $\Sigma_{i}$. This can be either full rank or constrained to be diagonal. In the first case, all rows and columns are linearly independent and all the values are taken into account, whereas in the second case, we consider only the values in the diagonal. The covariance matrix is not the only parameter that needs to be carefully chosen. In fact, the \textit{number of components} in general, refers to the amount of possible  \textit{"clusters"} in the dataset. \\
 
 \begin{comment}
 \begin{figure}[!ht]
@@ -334,6 +326,6 @@ A Gaussian mixture model is a probabilistic model where it is assumed that the s
 \end{figure}
 \end{comment}
 
-\noindent It is important to note that in speaking recognition, it is allowed to assume the size of the acoustic space of the spectral. The spectral is referred to the phonetic events as we described in chapter~\ref{ch:english_language}. In fact, these acoustic classes have well defined features that allows the model to distinguish one phoneme from another. For the same reason, GMM is also used in \textit{speaker recognition} in which the vocal tracts spectral is taken into account to distinguish a speaker from another \cite{reynolds1992gaussian}. \\
+\noindent It is important to note that in recognition, it is allowed to assume the size of the acoustic space of the spectral. The spectral is referred to the phonetic events as we described in chapter~\ref{ch:english_language}. In fact, these acoustic classes have well defined features that allows the model to distinguish one phoneme from another. For the same reason, GMM is also used in \textit{speaker recognition} in which the vocal tracts spectral is taken into account to distinguish a speaker from another \cite{reynolds1992gaussian}. \\
 
 \noindent Continuing with the speaker recognition example, the spectral shape $i$ can be thought of as an acoustic class which can be represented by the mean $\mu_{i}$ of the $i-th$ component density. The variation in the spectrum can be defined as the covariance matrix $\Sigma_{i}$. Also, a GMM can be viewed as a Hidden Markov Model with a single state assuming that the feature vectors are independent as well as the observation density from the acoustic classes is a Gaussian mixture \cite{reynolds2000speaker} \cite{reynolds1995robust}.
